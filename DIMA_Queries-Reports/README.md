@@ -1,0 +1,2 @@
+# LandscapeToolbox
+Scripts and SQL queries for custom DIMA outputs and reports. Please make sure in your scripts or queries that you annotate/comment with the version of DIMA that it was developed for.
