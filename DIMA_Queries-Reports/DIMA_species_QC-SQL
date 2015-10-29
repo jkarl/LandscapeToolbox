@@ -1,0 +1,12 @@
+#SQL query written for DIMA 3.1 (although it should continue to work barring massive structural changes to DIMA in later versions)
+#Extracts a list of all species recorded in at least one plot species list, returning only one entry per species regardless of number of records
+
+#Intended to be used as part of quality control to confirm that all recorded species are assigned correct growth habits, sub growth habits, durations, and invasive statuses.
+
+#Returned table contains: Species Code, Scientific Name, Common Name, Growth Habit (e.g. "Non-woody"), Sub Growth Habit (e.g. "Graminoid"), Duration (e.g. "Perennial"), and Invasive Status
+
+SELECT DISTINCT tblSpecies.SpeciesCode, tblSpecies.ScientificName, tblSpecies.CommonName, tblSpeciesGrowthHabit.GrowthHabit, tblSpeciesGrowthHabit.GrowthHabitSub, tblSpecies.Duration, tblSpecies.Invasive
+
+FROM tblPlots, tblSpeciesGrowthHabit INNER JOIN tblSpecies ON tblSpeciesGrowthHabit.Code = tblSpecies.GrowthHabitCode
+
+WHERE (((InStr([tblPlots].[SpeciesList],[tblSpecies].[SpeciesCode]))>0));
