@@ -7,7 +7,7 @@
 ## Panels: 5 years
 ## Sites/panel: 50 points per panel, plus oversample
 ## Distribution of sample sites determined by proportional area of stratum in the project area
-## Sample sizes and oversample by stratum and panel calculated outside R in an Excel spreadsheet
+## Sample sizes and oversample by stratum and panel calculated and saved in stratum.info data frame
 ##________________________________________________________________________________
 ## This assumes that the workspace already contains the master sample as master.point.fc (a SpatialPointsDataFrame)
 ## and master.prj (a CRS for the master sample)
@@ -26,7 +26,7 @@ library(dplyr)
 library(rgeos)
 library(broom)
 
-## Set the global variables for the script
+## Set the global variables for the script. A few additional objects/values need to be set under their respective headings
 ## Just make sure that this if the folder containing the folders specified below
 setwd("~")
 
@@ -132,35 +132,75 @@ proj.points$BPS_GROUPNAME[is.na(proj.points$stratum)] %>% unique()
 ## In case of emergency, break hash. Seriously, though. Only use if the unassigned points should be excluded and you'll accept the sample frame consequences
 #proj.points <- proj.points[!is.na(proj.points$stratum),]
 
+## The following assumes identical panels, so the "proportion" column might be used as a starting point, but the base and oversample columns aren't useful
+## Set the number of panels
+panel_number <- 5
+## Set the number of points for a panel. 50 is typical because it represents the average number of points one crew of two to three people can complete in a season
+sample_size <- 50
+## Set the minimum number of base points that a stratum can have. These are assigned and then remaining points in the sample are allocated proportionally. 3 is standard
+min_points <- 3
+## Set proportion of oversample to draw beyond the base, e.g. 20 base points with a proprtion of 0.25 will give you 5 oversample points. 0.25 is standard
+oversample_proportion <- 0.25
+## Set the minimum number of oversample points that a stratum can have. This will override the proportional oversample if that number is too low
+min_oversample <- 10
+
 ##To get a data frame for use in calculating proportional point allocations
-stratum.info <- as.data.frame(proj.points) %>% group_by(stratum) %>% summarize(count=n())
+stratum.info <- as.data.frame(proj.points) %>% group_by(stratum) %>% summarize(count=n()) %>%
+  mutate(total_master_sample_points = sum(count)) %>%
+  mutate(proportion = count/total_master_sample_points,
+         single_panel_base = round(min_points + (sample_size - (min_points * length(unique(proj.points$stratum)))) * count / total_master_sample_points)) %>%
+  mutate(single_panel_oversample = pmax(min_oversample, oversample_proportion * single_panel_base),
+         total_base = panel_number * single_panel_base) %>%
+  mutate(total_oversample = panel_number * single_panel_oversample)
+
+stratum.info$final_single_panel_base <- stratum.info$single_panel_base
+
+## Sometimes you want to rejigger the pointcounts a little bit from the proportional allocation. Do that here by uncommenting the line that lets you write a vector in
+## Just make sure that your vector contains all the correct final intended base point counts for each panel in the correct order
+# stratum.info$final_single_panel_base <- c()
+
 View(stratum.info)
 ##________________________________________________________________________________
 
 ##________________________________________________________________________________
 ### PANEL DESIGN
+## Because the master sample is drawn at a uniform density, the point counts from stratum.info can be as a good-enough stand in for area if Table 2 was never done.
+## If you're going to have multiple panels with identical point allocations in each, use the following, which uses stratum.info from above
+
+## Set your panel names here. Year1 through Year5 are the defaults, but the script will accept any number of them. Make sure that the number of panels matches panel_number above
+panel_names <- c("Year1", "Year2", "Year3", "Year4", "Year5")
+
+## Don't touch this! It's just initializing the PanelDesign object to write into
+PanelDesign <- list()
+
+## For each stratum in stratum.info, this sets up the correctly formatted list in PanelDesign so that grts() can use it
+for (n in 1:nrow(stratum.info)){
+  names <- c("panel", "seltype", "over")
+  stratum_panel_points = c(rep(stratum.info$final_single_panel_base[n], length(panel_names))) %>% setNames(panel_names)
+  # If you absolutely have to and know what you're doing, you can change "Equal" but seriously don't even look at it if you don't know why you'd do so.
+  stratum_panel <- list(stratum_panel_points, "Equal", stratum.info$total_oversample[n]) %>% setNames(names)
+  PanelDesign[[stratum.info$stratum[n]]] <- stratum_panel
+}
+
 ## Manually defining how many points to put in each stratum in each panel. Oversample is defined per-stratum, not per-panel-per-stratum
 ## These are typically calculated in an external Excel spreadsheet that makes sure each stratum has a minimum number of points then assigns the remainder
 ## proportionally by area. Project leads may make some allocation adjustments after that as well.
 
-## Because the master sample is drawn at a uniform density, the point counts from stratum.info can be as a good-enough stand in for area if Table 2 was never done.
-
-## By default panels are named Year1 through Year5. Those can be changed if necessary (e.g. the panels aren't years or there are fewer than 5)
-## Don't change seltype unless you know what you're doing and why.
-PanelDesign <- list(
-  "Stratum1" = list(panel = c(Year1 = 10, Year2 = 10, Year3 = 10, Year4 = 10, Year5 = 10),
-                    seltype = "Equal",
-                    over = 5),
-  "Stratum2" = list(panel = c(Year1 = 10, Year2 = 10, Year3 = 10, Year4 = 10, Year5 = 10),
-                    seltype = "Equal",
-                    over = 5),
-  "Stratum3" = list(panel = c(Year1 = 10, Year2 = 10, Year3 = 10, Year4 = 10, Year5 = 10),
-                    seltype = "Equal",
-                    over = 5),
-  "Stratum4" = list(panel = c(Year1 = 10, Year2 = 10, Year3 = 10, Year4 = 10, Year5 = 10),
-                    seltype = "Equal",
-                    over = 5)
-)
+## Use this if the points in a stratum will vary between panels
+# PanelDesign <- list(
+#   "Stratum1" = list(panel = c(Year1 = 10, Year2 = 10, Year3 = 10, Year4 = 10, Year5 = 10),
+#                     seltype = "Equal",
+#                     over = 5),
+#   "Stratum2" = list(panel = c(Year1 = 10, Year2 = 10, Year3 = 10, Year4 = 10, Year5 = 10),
+#                     seltype = "Equal",
+#                     over = 5),
+#   "Stratum3" = list(panel = c(Year1 = 10, Year2 = 10, Year3 = 10, Year4 = 10, Year5 = 10),
+#                     seltype = "Equal",
+#                     over = 5),
+#   "Stratum4" = list(panel = c(Year1 = 10, Year2 = 10, Year3 = 10, Year4 = 10, Year5 = 10),
+#                     seltype = "Equal",
+#                     over = 5)
+# )
 ##________________________________________________________________________________
 
 ##________________________________________________________________________________
