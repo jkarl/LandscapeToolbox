@@ -92,7 +92,11 @@ proj.points <- subset(master.point.fc, LUPA_E_LUP_NAME=="Generic RMP")
 ## It assumes that this shapefile is in the projectpath folder.
 # shapefilename <- "polygonfilenamewithoutfileextension"
 # polygons.project <- paste(getwd(), projectpath, shapefilename, sep = "/") %>% paste(., "shp", sep = ".") %>% readOGR(.,layer = shapefilename, stringsAsFactors = F) %>% spTransform(master.prj)
+
+## Note that this line is if you haven't already restricted from the master sample! It's recommended that you at least narrow it down to state
 # proj.points.polygon <- over(master.point.fc, polygons.project)
+## If you've already restricted from the master sample and generated a proj.points, use this line
+# proj.points.polygon <- over(proj.points, polygons.project)
 
 ## If this defines the strata, use the following line
 # proj.points$stratum <- proj.points.polygon$APPROPRIATE_FIELD_NAME
