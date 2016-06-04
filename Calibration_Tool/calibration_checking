@@ -1,0 +1,240 @@
+#################################################################################
+### CALIBRATION CHECKING SCRIPT
+### The goal here is to take a DIMA that contains calibration data, grab those data, and serve up information on how the observers compare on the major calibration indicators
+### A lot of things are defined as values before they're called so that this can be altered as needed and to add hooks for a Shiny implementation
+## Reporting out on the following indicators
+## LPI : Foliar Cover, Bare Soil, Litter, Basal Cover, Rock Fragments, Vegetation Heights (by woody/herbaceous and height classes)
+## Gap Intercept : Gap counts and proprtion of plot in gaps (by size classes)
+#################################################################################
+
+#################################################################################
+### BASIC CONFIGURATION
+## Getting the packages
+require(RODBC)
+require(dplyr)
+#################################################################################
+
+#################################################################################
+### SETTING CALIBRATION TOLERANCES
+## In the end, we need everyone to be within tolerances, which is ±5% from the mean for anything reported in percentages and ±2 on the species counts
+## I'm still defining them as values in a list in case we want to let people set different tolerances eventually
+
+## Initialize the tolerances list
+tolerances <- list()
+
+## LPI tolerances
+# Unless otherwise noted, the tolerances are in percent from mean
+tolerances$lpi$foliar <- 5
+tolerances$lpi$baresoil <- 5
+tolerances$lpi$basalcover <- 5
+tolerances$lpi$rockfragments <- 5
+# tolerance.heights is a count, not a percentage
+tolerances$lpi$heights <- 3
+
+## Gap tolerances
+# tolerance.gapcount is unused and also a count, not a percentage
+tolerances$gaps$gapcount <- 2
+tolerances$gaps$gappercent <- 5
+#################################################################################
+
+
+#################################################################################
+### PULLING THE DATA FROM A DATABASE
+## Specify the DIMA filepath
+dima.location <- "C:/Users/nstauffe/Documents/Projects/Shiny_QAQC/CRC_training_2016_calibration_DIMA_4.1.mdb"
+
+## Initialize our queries list
+queries <- list()
+
+## SQL query for getting a table of all LPI hits by layer with recorder, observer,, heights and species for heights by woody and herbaceous, point location on line,
+## point number on line, line, plot, site, and date
+queries$lpi <- "SELECT joinSitePlotLine.SiteID, joinSitePlotLine.PlotID, joinSitePlotLine.LineID, tblLPIHeader.FormDate, tblLPIHeader.Observer, tblLPIHeader.Recorder, tblLPIDetail.PointLoc, tblLPIDetail.PointNbr, tblLPIDetail.TopCanopy, tblLPIDetail.Lower1, tblLPIDetail.Lower2, tblLPIDetail.Lower3, tblLPIDetail.Lower4, tblLPIDetail.SoilSurface, tblLPIDetail.HeightWoody, tblLPIDetail.SpeciesWoody, tblLPIDetail.HeightHerbaceous, tblLPIDetail.SpeciesHerbaceous
+FROM joinSitePlotLine INNER JOIN (tblLPIHeader LEFT JOIN tblLPIDetail ON tblLPIHeader.RecKey = tblLPIDetail.RecKey) ON joinSitePlotLine.LineKey = tblLPIHeader.LineKey;"
+
+## SQL query for getting a table of gaps with observer, recorder, line, plot,site, and date
+queries$gaps <- "SELECT joinSitePlotLine.SiteID, joinSitePlotLine.PlotID, joinSitePlotLine.LineID, tblGapHeader.FormDate, tblGapHeader.Observer, tblGapHeader.Recorder, tblGapDetail.Gap, tblGapHeader.LineLengthAmount
+FROM joinSitePlotLine INNER JOIN (tblGapHeader INNER JOIN tblGapDetail ON tblGapHeader.RecKey = tblGapDetail.RecKey) ON joinSitePlotLine.LineKey = tblGapHeader.LineKey;"
+
+
+## Let's get some tables extracted from the specified DIMA!
+## Initialize the lists to keep all our data frames in
+lpi <- list()
+gaps <- list()
+
+## Note that I'm using the function odbcConnectAccess2007() because I have 64-bit R and 64-bit Access installed. If your Access install is 32-bit, use odbcConnectAccess() in 32-bit R
+lpi$raw <- odbcConnectAccess2007(dima.location) %>% sqlQuery(., queries$lpi, stringsAsFactors = F)
+gaps$raw <- odbcConnectAccess2007(dima.location) %>% sqlQuery(., queries$gaps, stringsAsFactors = F)
+odbcCloseAll()
+
+## The line length is in meters, but we need cm, so we'll quickly do that
+gaps$raw$LineLengthAmount <- gaps$raw$LineLengthAmount*100
+
+## We'll set up some objects we can use to populate options in the Shiny tool
+sites.plots <- rbind(gaps$raw[,c("SiteID", "PlotID")], lpi$raw[,c("SiteID", "PlotID")]) %>% unique()
+observers.all <- c(gaps$raw$Observer, lpi$raw$Observer) %>% unique()
+
+## Where's the calibration data? Specify the SiteID and the PlotID
+calibration.SiteID <- "Canyonlands Calibration"
+calibration.PlotID <- "Calibration: NWDO"
+#################################################################################
+
+
+#################################################################################
+### CALIBRATION CHECKING FOR LPI
+## The indicators being evaluated are Foliar Cover, Bare Soil, Litter, Basal Cover, Rock Fragments, Vegetation Heights (by woody/herbaceous and height classes)
+## This is currently set up so that it'll work regardless of how many lines were read
+
+## Create a data frame of just the LPI data from the calibration plot so we can get to work looking at it
+lpi$calibration.raw <- lpi$raw %>% subset(SiteID == calibration.SiteID) %>% subset(PlotID == calibration.PlotID)
+## Add in some extra variables so we can calculate the indicators relatively painlessly. Normally I wouldn't do this, but summarize() is fighting me and this should make it possible
+## First up is to add a 1 to all observations where the top canopy hit isn't a "None" so that we can find the sum to know how many foliar hits there were
+lpi$calibration.raw$foliar.cover[lpi$calibration.raw$TopCanopy != "None"] <- 1
+## Likewise, do the same sort of thing to all the points where there's a species code at the soil surface, which here is just anywhere where a standard non-vegetative code was not found
+surface.codes <- c("S", "LC", "M", "D", "W", "CY", "EL", "R", "GR", "CB", "ST", "BY", "BR")
+lpi$calibration.raw$basal.cover[!(lpi$calibration.raw$SoilSurface %in% surface.codes)] <- 1
+## And a variable for if the last hit was a rock of some sort that wasn't bedrock because that's not a "rock fragment"
+lpi$calibration.raw$rock.fragments[lpi$calibration.raw$SoilSurface %in% surface.codes[8:12]] <- 1
+## One for bare ground. Assume it's true and then invalidate it wherever the surface code isn't S or CY, the top code isn't None, or there's anything in Lower1:Lower4. Clunky, but effective
+lpi$calibration.raw$bare.soil <- 1
+lpi$calibration.raw$bare.soil[!(lpi$calibration.raw$SoilSurface %in% c("S", "CY"))] <- 0
+lpi$calibration.raw$bare.soil[lpi$calibration.raw$TopCanopy != "None"] <- 0
+lpi$calibration.raw$bare.soil[lpi$calibration.raw$Lower1 != ""] <- 0
+lpi$calibration.raw$bare.soil[lpi$calibration.raw$Lower2 != ""] <- 0
+lpi$calibration.raw$bare.soil[lpi$calibration.raw$Lower3 != ""] <- 0
+lpi$calibration.raw$bare.soil[lpi$calibration.raw$Lower4 != ""] <- 0
+
+## Adding in the height classes for woody and herbaceous. Eventually I'll generalize these so that custom classes can be used, but it's not worth it right now.
+lpi$calibration.raw$woody.0.50[lpi$calibration.raw$HeightWoody <= 50] <- 1
+lpi$calibration.raw$woody.51.200[lpi$calibration.raw$HeightWoody > 50 & lpi$calibration.raw$HeightWoody <= 200] <- 1
+lpi$calibration.raw$woody.201.500[lpi$calibration.raw$HeightWoody > 200 & lpi$calibration.raw$HeightWoody <= 500] <- 1
+lpi$calibration.raw$woody.501[lpi$calibration.raw$HeightWoody > 500] <- 1
+lpi$calibration.raw$herbaceous.0.50[lpi$calibration.raw$HeightHerbaceous <= 50] <- 1
+lpi$calibration.raw$herbaceous.51.200[lpi$calibration.raw$HeightHerbaceous > 50 & lpi$calibration.raw$HeightHerbaceous <= 200] <- 1
+lpi$calibration.raw$herbaceous.201.500[lpi$calibration.raw$HeightHerbaceous > 200 & lpi$calibration.raw$HeightHerbaceous <= 500] <- 1
+lpi$calibration.raw$herbaceous.501[lpi$calibration.raw$HeightHerbaceous > 500] <- 1
+
+
+
+## Taking those raw data and converting them into the various indicators we want for each observer, specifically: percent total foliar cover, percent bare soil, percent basal cover, percent rock fragments,
+## and the woody and herbaceous heights by height classes
+lpi$calibration <- lpi$calibration.raw %>% group_by(Observer) %>%
+  summarize(records = n(),
+            foliar.hits = sum(foliar.cover, na.rm = T),
+            basal.hits = sum(basal.cover, na.rm = T),
+            rock.frag.hits = sum(rock.fragments, na.rm = T),
+            bare.soil.hits = sum(bare.soil, na.rm = T),
+            ## All these heights are still hard-coded, but will probably eventually be generalized. It's just a real pain to do so
+            woody.plants.0.50.count = sum(woody.0.50, na.rm = T),
+            woody.plants.51.200.count = sum(woody.51.200, na.rm = T),
+            woody.plants.201.500.count = sum(woody.201.500, na.rm = T),
+            woody.plants.501.count = sum(woody.501, na.rm = T),
+            herbaceous.plants.0.50.count = sum(herbaceous.0.50, na.rm = T),
+            herbaceous.plants.51.200.count = sum(herbaceous.51.200, na.rm = T),
+            herbaceous.plants.201.500.count = sum(herbaceous.201.500, na.rm = T),
+            herbaceous.plants.501.count = sum(herbaceous.501, na.rm = T))
+
+## Calculating percentages for the appropriate indicators
+lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct = 100*(foliar.hits/records),
+                                              basal.cover.pct = 100*(basal.hits/records),
+                                              rock.fragments.pct = 100*(rock.frag.hits/records),
+                                              bare.soil.pct = 100*(bare.soil.hits/records))
+
+## Now to add in the means for each indicator, again all hard-coded
+lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct.mean = mean(foliar.cover.pct),
+                                              basal.cover.pct.mean = mean(basal.cover.pct),
+                                              rock.fragments.pct.mean = mean(rock.fragments.pct),
+                                              bare.soil.pct.mean = mean(bare.soil.pct),
+                                              woody.plants.0.50.mean = mean(woody.plants.0.50.count),
+                                              woody.plants.51.200.mean = mean(woody.plants.51.200.count),
+                                              woody.plants.201.500.mean = mean(woody.plants.201.500.count),
+                                              woody.plants.501.mean = mean(woody.plants.501.count),
+                                              herbaceous.plants.0.50.mean = mean(herbaceous.plants.0.50.count),
+                                              herbaceous.plants.51.200.mean = mean(herbaceous.plants.51.200.count),
+                                              herbaceous.plants.201.500.mean = mean(herbaceous.plants.201.500.count),
+                                              herbaceous.plants.501.mean = mean(herbaceous.plants.501.count))
+
+## And now to add the calibrated-or-not logical values! Still all hard-coded
+lpi$calibration$foliar.cover.calibrated <- abs(lpi$calibration$foliar.cover.pct - lpi$calibration$foliar.cover.pct.mean) < tolerances$lpi$foliar
+lpi$calibration$basal.cover.calibrated <- abs(lpi$calibration$basal.cover.pct - lpi$calibration$basal.cover.pct.mean) < tolerances$lpi$basalcover
+lpi$calibration$bare.soil.calibrated <- abs(lpi$calibration$bare.soil.pct - lpi$calibration$bare.soil.pct.mean) < tolerances$lpi$baresoil
+lpi$calibration$rock.fragments.calibrated <- abs(lpi$calibration$rock.fragments.pct - lpi$calibration$rock.fragments.pct.mean) < tolerances$lpi$rockfragments
+
+lpi$calibration$woody.plants.0.50.calibrated <- abs(lpi$calibration$woody.plants.0.50.count - lpi$calibration$woody.plants.0.50.mean) < tolerances$lpi$heights
+lpi$calibration$woody.plants.51.200.calibrated <- abs(lpi$calibration$woody.plants.51.200.count - lpi$calibration$woody.plants.51.200.mean) < tolerances$lpi$heights
+lpi$calibration$woody.plants.201.500.calibrated <- abs(lpi$calibration$woody.plants.201.500.count - lpi$calibration$woody.plants.201.500.mean) < tolerances$lpi$heights
+lpi$calibration$woody.plants.501.calibrated <- abs(lpi$calibration$woody.plants.501.count - lpi$calibration$woody.plants.501.mean) < tolerances$lpi$heights
+lpi$calibration$herbaceous.plants.0.50.calibrated <- abs(lpi$calibration$herbaceous.plants.0.50.count - lpi$calibration$herbaceous.plants.0.50.mean) < tolerances$lpi$heights
+lpi$calibration$herbaceous.plants.51.200.calibrated <- abs(lpi$calibration$herbaceous.plants.51.200.count - lpi$calibration$herbaceous.plants.51.200.mean) < tolerances$lpi$heights
+lpi$calibration$herbaceous.plants.201.500.calibrated <- abs(lpi$calibration$herbaceous.plants.201.500.count - lpi$calibration$herbaceous.plants.201.500.mean) < tolerances$lpi$heights
+lpi$calibration$herbaceous.plants.501.calibrated <- abs(lpi$calibration$herbaceous.plants.501.count - lpi$calibration$herbaceous.plants.501.mean) < tolerances$lpi$heights
+#################################################################################
+
+#################################################################################
+### CALIBRATION CHECKING FOR GAPS
+## The indicator being evaluated percentage of line[s] in gaps of lengths 25-50 cm, 51-100 cm, 101-200 cm, and >200 cm. Additionally, the gap count for each size class is included
+## This is currently set up so that it'll work regardless of how many lines were read
+
+## Subset to just the data from the calibration plot
+gaps$calibration.raw <- gaps$raw %>% subset(SiteID == calibration.SiteID) %>% subset(PlotID == calibration.PlotID)
+
+## Writing in variables to keep track of what size class these belong to
+gaps$calibration.raw$gap.25.50[gaps$calibration.raw$Gap >= 25 & gaps$calibration.raw$Gap <= 50] <- 1
+gaps$calibration.raw$gap.51.100[gaps$calibration.raw$Gap > 50 & gaps$calibration.raw$Gap <= 100] <- 1
+gaps$calibration.raw$gap.101.200[gaps$calibration.raw$Gap > 100 & gaps$calibration.raw$Gap <= 200] <- 1
+gaps$calibration.raw$gap.201[gaps$calibration.raw$Gap > 200] <- 1
+
+## Counting gaps and finding their sums. This was the quick-and-dirty solution where I just filtered by the classes and kept merging them into the same calibration data frame
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.25.50 == 1) %>% summarize(gap.25.50.count = n(),
+                                                                                                         gap.25.50.cm.sum = sum(Gap, na.rm = T),
+                                                                                                         length.total.cm = first(LineLengthAmount))
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.51.100 == 1) %>% summarize(gap.51.100.count = n(),
+                                                                                                          gap.51.100.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.101.200 == 1) %>% summarize(gap.101.200.count = n(),
+                                                                                                           gap.101.200.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.201 == 1) %>% summarize(gap.201.count = n(),
+                                                                                                       gap.201.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
+
+## We've got NAs, but those are really 0s, so let's change them
+gaps$calibration <- gaps$calibration %>% replace(., is.na(.), 0)
+
+## Now we'll add the percent of length and the mean percent of length in each gap class and mean count
+gaps$calibration <- gaps$calibration %>% mutate(gap.25.50.pct = 100*(gap.25.50.cm.sum/length.total.cm),
+                                                gap.51.100.pct = 100*(gap.51.100.cm.sum/length.total.cm),
+                                                gap.101.200.pct = 100*(gap.101.200.cm.sum/length.total.cm),
+                                                gap.201.pct = 100*(gap.201.cm.sum/length.total.cm),
+                                                gap.25.50.pct.mean = 100*(mean(gap.25.50.cm.sum, na.rm = T)/length.total.cm),
+                                                gap.51.100.pct.mean = 100*(mean(gap.51.100.cm.sum, na.rm = T)/length.total.cm),
+                                                gap.101.200.pct.mean = 100*(mean(gap.101.200.cm.sum, na.rm = T)/length.total.cm),
+                                                gap.201.pct.mean = 100*(mean(gap.201.cm.sum, na.rm = T)/length.total.cm),
+                                                gap.25.50.count.mean = mean(gap.25.50.count, na.rm = T),
+                                                gap.51.100.count.mean = mean(gap.51.100.count, na.rm = T),
+                                                gap.101.200.count.mean = mean(gap.101.200.count, na.rm = T),
+                                                gap.201.count.mean = mean(gap.201.count, na.rm = T))
+
+## Final step is to decide if they're calibrated or not
+gaps$calibration$gap.25.50.pct.calibrated <- abs(gaps$calibration$gap.25.50.pct - gaps$calibration$gap.25.50.pct.mean) < tolerances$gaps$gappercent
+gaps$calibration$gap.51.100.pct.calibrated <- abs(gaps$calibration$gap.51.100.pct - gaps$calibration$gap.51.100.pct.mean) < tolerances$gaps$gappercent
+gaps$calibration$gap.101.200.pct.calibrated <- abs(gaps$calibration$gap.101.200.pct - gaps$calibration$gap.101.200.pct.mean) < tolerances$gaps$gappercent
+gaps$calibration$gap.201.pct.calibrated <- abs(gaps$calibration$gap.201.pct - gaps$calibration$gap.201.pct.mean) < tolerances$gaps$gappercent
+
+gaps$calibration$gap.25.50.count.calibrated <- abs(gaps$calibration$gap.25.50.count - gaps$calibration$gap.25.50.count.mean) < tolerances$gaps$gapcount
+gaps$calibration$gap.51.100.count.calibrated <- abs(gaps$calibration$gap.51.100.count - gaps$calibration$gap.51.100.count.mean) < tolerances$gaps$gapcount
+gaps$calibration$gap.101.200.count.calibrated <- abs(gaps$calibration$gap.101.200.count - gaps$calibration$gap.101.200.count.mean) < tolerances$gaps$gapcount
+gaps$calibration$gap.201.count.calibrated <- abs(gaps$calibration$gap.201.count - gaps$calibration$gap.201.count.mean) < tolerances$gaps$gapcount
+#################################################################################
+
+#################################################################################
+### COMBINING AND WRITING CALIBRATION RESULTS
+## So, now there're two data frames—one for LPI and one for gaps, but we want them combined and written out
+calibration.results <- merge(lpi$calibration, gaps$calibration, all = T)
+write.csv(calibration.results, "C:/Users/nstauffe/Documents/Projects/Shiny_QAQC/calibration_results.csv")
+
+#################################################################################
+
+#################################################################################
+### GENERATING FIGURES
+## To be completed
+
+## Create scatter plots for the indicators showing deviation from mean, preferably color coding points to indicate <2.5%, 2.5-5%, and >5% as great, okay, and unacceptable
+
+#################################################################################
