@@ -110,8 +110,15 @@ proj.points <- subset(master.point.fc, LUPA_E_LUP_NAME=="Generic RMP")
 ## Most projects are assigned strata based on grouping values in a field, usually BPS_GROUPNAME
 ## This can easily be adapted to play nice with a field brought in from a raster or polygon shapefile
 
+## Defining the filename to look for and use
+lutname <- "billings_bps_lut.csv"
+
+## Don't have your BPS_GROUPNAME lookup table defined yet? This will write out the .csv so you can populate the STRATUM field
+## The APPROX.ACRES field takes the number of master sample points in that BpS group and multiplies it by 85 acres, the density of the master sample
+# proj.points %>% as.data.frame() %>% group_by(BPS_GROUPNAME) %>% summarize(APPROX.ACRES = 85*n()) %>% mutate(STRATUM = "") %>%
+#   write.csv(., paste(getwd(), projectpath, lutname, sep = "/"))
+
 ## This imports a .csv file from the folder projectpath that has a column called STRATUM and one called BPS_GROUPNAME
-lutname <- "lookuptablefilename.csv"
 lut.strata <- read.csv(paste(getwd(), projectpath, lutname, sep = "/"), stringsAsFactors = F)
 
 ## This line is for if the lookup table is something like an exported attribute table from a shapefile and has multiple entries per BPS_GROUPNAME
