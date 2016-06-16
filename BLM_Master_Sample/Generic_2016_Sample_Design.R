@@ -111,7 +111,7 @@ proj.points <- subset(master.point.fc, LUPA_E_LUP_NAME=="Generic RMP")
 ## This can easily be adapted to play nice with a field brought in from a raster or polygon shapefile
 
 ## Defining the filename to look for and use
-lutname <- "billings_bps_lut.csv"
+lutname <- "lutfilename.csv"
 
 ## Don't have your BPS_GROUPNAME lookup table defined yet? This will write out the .csv so you can populate the STRATUM field
 ## The APPROX.ACRES field takes the number of master sample points in that BpS group and multiplies it by 85 acres, the density of the master sample
@@ -157,6 +157,7 @@ min_oversample <- 10
 
 ##To get a data frame for use in calculating proportional point allocations
 stratum.info <- as.data.frame(proj.points) %>% group_by(stratum) %>% summarize(count=n()) %>%
+  mutate(approximate_acres = count * 85) %>%
   mutate(total_master_sample_points = sum(count)) %>%
   mutate(proportion = count/total_master_sample_points,
          single_panel_base = round(min_points + (sample_size - (min_points * length(unique(proj.points$stratum)))) * count / total_master_sample_points)) %>%
