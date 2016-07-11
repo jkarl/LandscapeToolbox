@@ -12,6 +12,7 @@
 ## Getting the packages
 require(RODBC)
 require(dplyr)
+require(ggplot2)
 #################################################################################
 
 #################################################################################
@@ -23,18 +24,27 @@ require(dplyr)
 tolerances <- list()
 
 ## LPI tolerances
-# Unless otherwise noted, the tolerances are in percent from mean
-tolerances$lpi$foliar <- 5
-tolerances$lpi$baresoil <- 5
-tolerances$lpi$basalcover <- 5
-tolerances$lpi$rockfragments <- 5
-# tolerance.heights is a count, not a percentage
-tolerances$lpi$heights <- 3
+# These four are the tolerance for (maximum observed percent on plot - minimum observed percent on plot)
+tolerances$lpi$foliar.percent.range <- 10
+tolerances$lpi$baresoil.percent.range <- 10
+tolerances$lpi$basalcover.percent.range <- 10
+tolerances$lpi$rockfragments.percent.range <- 10
+# These four are maximum tolerance in abs(individual's observed percentage - mean plot percentage)
+tolerances$lpi$foliar.percent <- tolerances$lpi$foliar.percent.range/2
+tolerances$lpi$baresoil.percent <- tolerances$lpi$baresoil.percent.range/2
+tolerances$lpi$basalcover.percent <- tolerances$lpi$basalcover.percent.range/2
+tolerances$lpi$rockfragments.percent <- tolerances$lpi$rockfragments.percent.range/2
+# Tolerance for (maximum observed count within a height class - minimum observed count within a height class)
+tolerances$lpi$heights.count.range <- 4
+# Tolerance for abs(individual's observed count within a height class - mean observed count on plot within a height class)
+tolerances$lpi$heights.count <- tolerances$lpi$heights.count.range/2
+
 
 ## Gap tolerances
-# tolerance.gapcount is unused and also a count, not a percentage
-tolerances$gaps$gapcount <- 2
-tolerances$gaps$gappercent <- 5
+tolerances$gaps$gap.pct.range <- 10
+tolerances$gaps$gap.percent <- tolerances$gaps$gap.pct.range/2
+# gap.count is currently unused
+tolerances$gaps$gap.count <- 2
 #################################################################################
 
 
@@ -62,6 +72,8 @@ lpi <- list()
 gaps <- list()
 
 ## Note that I'm using the function odbcConnectAccess2007() because I have 64-bit R and 64-bit Access installed. If your Access install is 32-bit, use odbcConnectAccess() in 32-bit R
+## I also never trust factored fields to work with functions that I want to use, so I avoid them in the first place
+## This is just connecting to the database and running the SQL queries then storing the results
 lpi$raw <- odbcConnectAccess2007(dima.location) %>% sqlQuery(., queries$lpi, stringsAsFactors = F)
 gaps$raw <- odbcConnectAccess2007(dima.location) %>% sqlQuery(., queries$gaps, stringsAsFactors = F)
 odbcCloseAll()
@@ -69,9 +81,12 @@ odbcCloseAll()
 ## The line length is in meters, but we need cm, so we'll quickly do that
 gaps$raw$LineLengthAmount <- gaps$raw$LineLengthAmount*100
 
-## We'll set up some objects we can use to populate options in the Shiny tool
+## We'll set up some objects we can use to populate options in the Shiny tool that maybe will one day be built
 sites.plots <- rbind(gaps$raw[,c("SiteID", "PlotID")], lpi$raw[,c("SiteID", "PlotID")]) %>% unique()
 observers.all <- c(gaps$raw$Observer, lpi$raw$Observer) %>% unique()
+
+## If you want to see your options for the calibration Plot- and SiteID, use this
+# sites.plots %>% View()
 
 ## Where's the calibration data? Specify the SiteID and the PlotID
 calibration.SiteID <- "Canyonlands Calibration"
@@ -118,7 +133,7 @@ lpi$calibration.raw$herbaceous.501[lpi$calibration.raw$HeightHerbaceous > 500] <
 ## Taking those raw data and converting them into the various indicators we want for each observer, specifically: percent total foliar cover, percent bare soil, percent basal cover, percent rock fragments,
 ## and the woody and herbaceous heights by height classes
 lpi$calibration <- lpi$calibration.raw %>% group_by(Observer) %>%
-  summarize(records = n(),
+  summarize(records.lpi = n(),
             foliar.hits = sum(foliar.cover, na.rm = T),
             basal.hits = sum(basal.cover, na.rm = T),
             rock.frag.hits = sum(rock.fragments, na.rm = T),
@@ -134,10 +149,36 @@ lpi$calibration <- lpi$calibration.raw %>% group_by(Observer) %>%
             herbaceous.plants.501.count = sum(herbaceous.501, na.rm = T))
 
 ## Calculating percentages for the appropriate indicators
-lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct = 100*(foliar.hits/records),
-                                              basal.cover.pct = 100*(basal.hits/records),
-                                              rock.fragments.pct = 100*(rock.frag.hits/records),
-                                              bare.soil.pct = 100*(bare.soil.hits/records))
+lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct = 100*(foliar.hits/records.lpi),
+                                              basal.cover.pct = 100*(basal.hits/records.lpi),
+                                              rock.fragments.pct = 100*(rock.frag.hits/records.lpi),
+                                              bare.soil.pct = 100*(bare.soil.hits/records.lpi))
+
+## Now to add in the min and max for each indicator, again all hard-coded
+lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct.min = min(foliar.cover.pct),
+                                              basal.cover.pct.min = min(basal.cover.pct),
+                                              rock.fragments.pct.min = min(rock.fragments.pct),
+                                              bare.soil.pct.min = min(bare.soil.pct),
+                                              woody.plants.0.50.count.min = min(woody.plants.0.50.count),
+                                              woody.plants.51.200.count.min = min(woody.plants.51.200.count),
+                                              woody.plants.201.500.count.min = min(woody.plants.201.500.count),
+                                              woody.plants.501.count.min = min(woody.plants.501.count),
+                                              herbaceous.plants.0.50.count.min = min(herbaceous.plants.0.50.count),
+                                              herbaceous.plants.51.200.count.min = min(herbaceous.plants.51.200.count),
+                                              herbaceous.plants.201.500.count.min = min(herbaceous.plants.201.500.count),
+                                              herbaceous.plants.501.count.min = min(herbaceous.plants.501.count),
+                                              foliar.cover.pct.max = max(foliar.cover.pct),
+                                              basal.cover.pct.max = max(basal.cover.pct),
+                                              rock.fragments.pct.max = max(rock.fragments.pct),
+                                              bare.soil.pct.max = max(bare.soil.pct),
+                                              woody.plants.0.50.count.max = max(woody.plants.0.50.count),
+                                              woody.plants.51.200.count.max = max(woody.plants.51.200.count),
+                                              woody.plants.201.500.count.max = max(woody.plants.201.500.count),
+                                              woody.plants.501.count.max = max(woody.plants.501.count),
+                                              herbaceous.plants.0.50.count.max = max(herbaceous.plants.0.50.count),
+                                              herbaceous.plants.51.200.count.max = max(herbaceous.plants.51.200.count),
+                                              herbaceous.plants.201.500.count.max = max(herbaceous.plants.201.500.count),
+                                              herbaceous.plants.501.count.max = max(herbaceous.plants.501.count))
 
 ## Now to add in the means for each indicator, again all hard-coded
 lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct.mean = mean(foliar.cover.pct),
@@ -153,20 +194,35 @@ lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct.mean = mean(folia
                                               herbaceous.plants.201.500.mean = mean(herbaceous.plants.201.500.count),
                                               herbaceous.plants.501.mean = mean(herbaceous.plants.501.count))
 
-## And now to add the calibrated-or-not logical values! Still all hard-coded
-lpi$calibration$foliar.cover.calibrated <- abs(lpi$calibration$foliar.cover.pct - lpi$calibration$foliar.cover.pct.mean) < tolerances$lpi$foliar
-lpi$calibration$basal.cover.calibrated <- abs(lpi$calibration$basal.cover.pct - lpi$calibration$basal.cover.pct.mean) < tolerances$lpi$basalcover
-lpi$calibration$bare.soil.calibrated <- abs(lpi$calibration$bare.soil.pct - lpi$calibration$bare.soil.pct.mean) < tolerances$lpi$baresoil
-lpi$calibration$rock.fragments.calibrated <- abs(lpi$calibration$rock.fragments.pct - lpi$calibration$rock.fragments.pct.mean) < tolerances$lpi$rockfragments
+## And now to add the calibrated-or-not logical values! Still all hard-coded to check that the minimum-to-maximum range is less than or equal to the tolerance
+lpi$calibration$foliar.cover.calibrated <- (lpi$calibration$foliar.cover.pct.max - lpi$calibration$foliar.cover.pct.min) <= tolerances$lpi$foliar.percent.range
+lpi$calibration$basal.cover.calibrated <- (lpi$calibration$basal.cover.pct.max - lpi$calibration$basal.cover.pct.min) <= tolerances$lpi$basalcover.percent.range
+lpi$calibration$bare.soil.calibrated <- (lpi$calibration$bare.soil.pct.max - lpi$calibration$bare.soil.pct.min) <= tolerances$lpi$baresoil.percent.range
+lpi$calibration$rock.fragments.calibrated <- (lpi$calibration$rock.fragments.pct.max - lpi$calibration$rock.fragments.pct.min) <= tolerances$lpi$rockfragments.percent.range
 
-lpi$calibration$woody.plants.0.50.calibrated <- abs(lpi$calibration$woody.plants.0.50.count - lpi$calibration$woody.plants.0.50.mean) < tolerances$lpi$heights
-lpi$calibration$woody.plants.51.200.calibrated <- abs(lpi$calibration$woody.plants.51.200.count - lpi$calibration$woody.plants.51.200.mean) < tolerances$lpi$heights
-lpi$calibration$woody.plants.201.500.calibrated <- abs(lpi$calibration$woody.plants.201.500.count - lpi$calibration$woody.plants.201.500.mean) < tolerances$lpi$heights
-lpi$calibration$woody.plants.501.calibrated <- abs(lpi$calibration$woody.plants.501.count - lpi$calibration$woody.plants.501.mean) < tolerances$lpi$heights
-lpi$calibration$herbaceous.plants.0.50.calibrated <- abs(lpi$calibration$herbaceous.plants.0.50.count - lpi$calibration$herbaceous.plants.0.50.mean) < tolerances$lpi$heights
-lpi$calibration$herbaceous.plants.51.200.calibrated <- abs(lpi$calibration$herbaceous.plants.51.200.count - lpi$calibration$herbaceous.plants.51.200.mean) < tolerances$lpi$heights
-lpi$calibration$herbaceous.plants.201.500.calibrated <- abs(lpi$calibration$herbaceous.plants.201.500.count - lpi$calibration$herbaceous.plants.201.500.mean) < tolerances$lpi$heights
-lpi$calibration$herbaceous.plants.501.calibrated <- abs(lpi$calibration$herbaceous.plants.501.count - lpi$calibration$herbaceous.plants.501.mean) < tolerances$lpi$heights
+lpi$calibration$woody.plants.0.50.calibrated <- (lpi$calibration$woody.plants.0.50.count.max - lpi$calibration$woody.plants.0.50.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$woody.plants.51.200.calibrated <- (lpi$calibration$woody.plants.51.200.count.max - lpi$calibration$woody.plants.51.200.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$woody.plants.201.500.calibrated <- (lpi$calibration$woody.plants.201.500.count.max - lpi$calibration$woody.plants.201.500.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$woody.plants.501.calibrated <- (lpi$calibration$woody.plants.501.count.max - lpi$calibration$woody.plants.501.min) < tolerances$lpi$heights.count.range
+lpi$calibration$herbaceous.plants.0.50.calibrated <- (lpi$calibration$herbaceous.plants.0.50.count.max - lpi$calibration$herbaceous.plants.0.50.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$herbaceous.plants.51.200.calibrated <- (lpi$calibration$herbaceous.plants.51.200.count.max - lpi$calibration$herbaceous.plants.51.200.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$herbaceous.plants.201.500.calibrated <- (lpi$calibration$herbaceous.plants.201.500.count.max - lpi$calibration$herbaceous.plants.201.500.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$herbaceous.plants.501.calibrated <- (lpi$calibration$herbaceous.plants.501.count.max - lpi$calibration$herbaceous.plants.501.min) <= tolerances$lpi$heights.count.range
+
+## The calibration checks using the deviation from the mean as the metric. This is not the standard practice
+# lpi$calibration$foliar.cover.calibrated <- abs(lpi$calibration$foliar.cover.pct - lpi$calibration$foliar.cover.pct.mean) <= tolerances$lpi$foliar.percent
+# lpi$calibration$basal.cover.calibrated <- abs(lpi$calibration$basal.cover.pct - lpi$calibration$basal.cover.pct.mean) <= tolerances$lpi$basalcover.percent
+# lpi$calibration$bare.soil.calibrated <- abs(lpi$calibration$bare.soil.pct - lpi$calibration$bare.soil.pct.mean) <= tolerances$lpi$baresoil.percent
+# lpi$calibration$rock.fragments.calibrated <- abs(lpi$calibration$rock.fragments.pct - lpi$calibration$rock.fragments.pct.mean) <= tolerances$lpi$rockfragments.percent
+# 
+# lpi$calibration$woody.plants.0.50.calibrated <- abs(lpi$calibration$woody.plants.0.50.count - lpi$calibration$woody.plants.0.50.mean) <= tolerances$lpi$heights.count
+# lpi$calibration$woody.plants.51.200.calibrated <- abs(lpi$calibration$woody.plants.51.200.count - lpi$calibration$woody.plants.51.200.mean) <= tolerances$lpi$heights.count
+# lpi$calibration$woody.plants.201.500.calibrated <- abs(lpi$calibration$woody.plants.201.500.count - lpi$calibration$woody.plants.201.500.mean) <= tolerances$lpi$heights.count
+# lpi$calibration$woody.plants.501.calibrated <- abs(lpi$calibration$woody.plants.501.count - lpi$calibration$woody.plants.501.mean) < tolerances$lpi$heights.count
+# lpi$calibration$herbaceous.plants.0.50.calibrated <- abs(lpi$calibration$herbaceous.plants.0.50.count - lpi$calibration$herbaceous.plants.0.50.mean) <= tolerances$lpi$heights.count
+# lpi$calibration$herbaceous.plants.51.200.calibrated <- abs(lpi$calibration$herbaceous.plants.51.200.count - lpi$calibration$herbaceous.plants.51.200.mean) <= tolerances$lpi$heights.count
+# lpi$calibration$herbaceous.plants.201.500.calibrated <- abs(lpi$calibration$herbaceous.plants.201.500.count - lpi$calibration$herbaceous.plants.201.500.mean) <= tolerances$lpi$heights.count
+# lpi$calibration$herbaceous.plants.501.calibrated <- abs(lpi$calibration$herbaceous.plants.501.count - lpi$calibration$herbaceous.plants.501.mean) <= tolerances$lpi$heights.count
 #################################################################################
 
 #################################################################################
@@ -194,8 +250,27 @@ gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.1
 gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.201 == 1) %>% summarize(gap.201.count = n(),
                                                                                                        gap.201.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
 
-## We've got NAs, but those are really 0s, so let's change them
+## We've got NAs, but those are really 0s because this data frame is restricted to observers who completed gap forms, so let's change them
 gaps$calibration <- gaps$calibration %>% replace(., is.na(.), 0)
+
+## We need the minimum and maximum gap counts and percent in each gap class
+gaps$calibration$gap.25.50.pct.max <- 100*max(gaps$calibration$gap.25.50.cm.sum/gaps$calibration$length.total.cm)
+gaps$calibration$gap.51.100.pct.max <- 100*max(gaps$calibration$gap.51.100.cm.sum/gaps$calibration$length.total.cm)
+gaps$calibration$gap.101.200.pct.max <- 100*max(gaps$calibration$gap.101.200.cm.sum/gaps$calibration$length.total.cm)
+gaps$calibration$gap.201.pct.max <- 100*max(gaps$calibration$gap.201.cm.sum/gaps$calibration$length.total.cm)
+gaps$calibration$gap.25.50.pct.min <- 100*min(gaps$calibration$gap.25.50.cm.sum/gaps$calibration$length.total.cm)
+gaps$calibration$gap.51.100.pct.min <- 100*min(gaps$calibration$gap.51.100.cm.sum/gaps$calibration$length.total.cm)
+gaps$calibration$gap.101.200.pct.min <- 100*min(gaps$calibration$gap.101.200.cm.sum/gaps$calibration$length.total.cm)
+gaps$calibration$gap.201.pct.min <- 100*min(gaps$calibration$gap.201.cm.sum/gaps$calibration$length.total.cm)
+
+gaps$calibration$gap.25.50.count.max = max(gaps$calibration$gap.25.50.count)
+gaps$calibration$gap.51.100.count.max = max(gaps$calibration$gap.51.100.count)
+gaps$calibration$gap.101.200.count.max = max(gaps$calibration$gap.101.200.count)
+gaps$calibration$gap.201.count.max = max(gaps$calibration$gap.201.count)
+gaps$calibration$gap.25.50.count.min = min(gaps$calibration$gap.25.50.count)
+gaps$calibration$gap.51.100.count.min = min(gaps$calibration$gap.51.100.count)
+gaps$calibration$gap.101.200.count.min = min(gaps$calibration$gap.101.200.count)
+gaps$calibration$gap.201.count.min = min(gaps$calibration$gap.201.count)
 
 ## Now we'll add the percent of length and the mean percent of length in each gap class and mean count
 gaps$calibration <- gaps$calibration %>% mutate(gap.25.50.pct = 100*(gap.25.50.cm.sum/length.total.cm),
@@ -211,16 +286,27 @@ gaps$calibration <- gaps$calibration %>% mutate(gap.25.50.pct = 100*(gap.25.50.c
                                                 gap.101.200.count.mean = mean(gap.101.200.count, na.rm = T),
                                                 gap.201.count.mean = mean(gap.201.count, na.rm = T))
 
-## Final step is to decide if they're calibrated or not
-gaps$calibration$gap.25.50.pct.calibrated <- abs(gaps$calibration$gap.25.50.pct - gaps$calibration$gap.25.50.pct.mean) < tolerances$gaps$gappercent
-gaps$calibration$gap.51.100.pct.calibrated <- abs(gaps$calibration$gap.51.100.pct - gaps$calibration$gap.51.100.pct.mean) < tolerances$gaps$gappercent
-gaps$calibration$gap.101.200.pct.calibrated <- abs(gaps$calibration$gap.101.200.pct - gaps$calibration$gap.101.200.pct.mean) < tolerances$gaps$gappercent
-gaps$calibration$gap.201.pct.calibrated <- abs(gaps$calibration$gap.201.pct - gaps$calibration$gap.201.pct.mean) < tolerances$gaps$gappercent
+## Final step is to decide if they're calibrated or not.
+gaps$calibration$gap.25.50.pct.calibrated <- (gaps$calibration$gap.25.50.pct.max - gaps$calibration$gap.25.50.pct.min) <= tolerances$gaps$gap.pct.range
+gaps$calibration$gap.51.100.pct.calibrated <- (gaps$calibration$gap.51.100.pct.max - gaps$calibration$gap.51.100.pct.min) <= tolerances$gaps$gap.pct.range
+gaps$calibration$gap.101.200.pct.calibrated <- (gaps$calibration$gap.101.200.pct.max - gaps$calibration$gap.101.200.pct.min) <= tolerances$gaps$gap.pct.range
+gaps$calibration$gap.201.pct.calibrated <- (gaps$calibration$gap.201.pct.max - gaps$calibration$gap.201.pct.min) <= tolerances$gaps$gap.pct.range
 
-gaps$calibration$gap.25.50.count.calibrated <- abs(gaps$calibration$gap.25.50.count - gaps$calibration$gap.25.50.count.mean) < tolerances$gaps$gapcount
-gaps$calibration$gap.51.100.count.calibrated <- abs(gaps$calibration$gap.51.100.count - gaps$calibration$gap.51.100.count.mean) < tolerances$gaps$gapcount
-gaps$calibration$gap.101.200.count.calibrated <- abs(gaps$calibration$gap.101.200.count - gaps$calibration$gap.101.200.count.mean) < tolerances$gaps$gapcount
-gaps$calibration$gap.201.count.calibrated <- abs(gaps$calibration$gap.201.count - gaps$calibration$gap.201.count.mean) < tolerances$gaps$gapcount
+gaps$calibration$gap.25.50.count.calibrated <- (gaps$calibration$gap.25.50.count.max - gaps$calibration$gap.25.50.count.min) <= tolerances$gaps$gap.count
+gaps$calibration$gap.51.100.count.calibrated <- (gaps$calibration$gap.51.100.count.max - gaps$calibration$gap.51.100.count.min) <= tolerances$gaps$gap.count
+gaps$calibration$gap.101.200.count.calibrated <- (gaps$calibration$gap.101.200.count.max - gaps$calibration$gap.101.200.count.min) <= tolerances$gaps$gap.count
+gaps$calibration$gap.201.count.calibrated <- (gaps$calibration$gap.201.count.max - gaps$calibration$gap.201.count.min) <= tolerances$gaps$gap.count
+
+## Figuring out calibration when the rule is "within 5% of the mean" but that's not standard practice for determining calibration
+# gaps$calibration$gap.25.50.pct.calibrated <- abs(gaps$calibration$gap.25.50.pct - gaps$calibration$gap.25.50.pct.mean) <= tolerances$gaps$gap.percent
+# gaps$calibration$gap.51.100.pct.calibrated <- abs(gaps$calibration$gap.51.100.pct - gaps$calibration$gap.51.100.pct.mean) <= tolerances$gaps$gap.percent
+# gaps$calibration$gap.101.200.pct.calibrated <- abs(gaps$calibration$gap.101.200.pct - gaps$calibration$gap.101.200.pct.mean) <= tolerances$gaps$gap.percent
+# gaps$calibration$gap.201.pct.calibrated <- abs(gaps$calibration$gap.201.pct - gaps$calibration$gap.201.pct.mean) <= tolerances$gaps$gap.percent
+# 
+# gaps$calibration$gap.25.50.count.calibrated <- abs(gaps$calibration$gap.25.50.count - gaps$calibration$gap.25.50.count.mean) <= tolerances$gaps$gap.count
+# gaps$calibration$gap.51.100.count.calibrated <- abs(gaps$calibration$gap.51.100.count - gaps$calibration$gap.51.100.count.mean) <= tolerances$gaps$gap.count
+# gaps$calibration$gap.101.200.count.calibrated <- abs(gaps$calibration$gap.101.200.count - gaps$calibration$gap.101.200.count.mean) <= tolerances$gaps$gap.count
+# gaps$calibration$gap.201.count.calibrated <- abs(gaps$calibration$gap.201.count - gaps$calibration$gap.201.count.mean) <= tolerances$gaps$gap.count
 #################################################################################
 
 #################################################################################
@@ -233,8 +319,14 @@ write.csv(calibration.results, "C:/Users/nstauffe/Documents/Projects/Shiny_QAQC/
 
 #################################################################################
 ### GENERATING FIGURES
-## To be completed
-
 ## Create scatter plots for the indicators showing deviation from mean, preferably color coding points to indicate <2.5%, 2.5-5%, and >5% as great, okay, and unacceptable
+
+## Scatterplot for foliar cover. X axis is observer and Y axis is the absolute value of the difference between mean percent foliar cover and the observered percent foliar cover
+calibration.results %>% na.omit() %>%
+  ggplot(aes(Observer, (foliar.cover.pct - foliar.cover.pct.mean), color = foliar.cover.calibrated)) + geom_point() +
+ggtitle("Calibration for Percent Foliar Cover by Observer") +
+labs(x = "Observer name", y = "Deviation from mean in percent")
+
+calibration.results %>% na.omit()
 
 #################################################################################
