@@ -13,6 +13,15 @@
 require(RODBC)
 require(dplyr)
 require(ggplot2)
+
+# Filepath to find the DIMA
+path.read <- "C:/Users/nstauffe/Documents/Projects/Shiny_QAQC"
+# DIMA filename
+name.dima <- "CRC_training_2016_calibration_DIMA_4.1.mdb"
+# Filepath to write out the .csv of calibration results
+path.write <- "C:/Users/nstauffe/Documents/Projects/Shiny_QAQC"
+# Filename for the .csv that you want to write out the results in
+filneame.output <- "calibration_results.csv"
 #################################################################################
 
 #################################################################################
@@ -51,18 +60,18 @@ tolerances$gaps$gap.count <- 2
 #################################################################################
 ### PULLING THE DATA FROM A DATABASE
 ## Specify the DIMA filepath
-dima.location <- "C:/Users/nstauffe/Documents/Projects/Shiny_QAQC/CRC_training_2016_calibration_DIMA_4.1.mdb"
+dima.location <- paste(path.read, name.dima, sep = "/")
 
 ## Initialize our queries list
 queries <- list()
 
 ## SQL query for getting a table of all LPI hits by layer with recorder, observer,, heights and species for heights by woody and herbaceous, point location on line,
 ## point number on line, line, plot, site, and date
-queries$lpi <- "SELECT joinSitePlotLine.SiteID, joinSitePlotLine.PlotID, joinSitePlotLine.LineID, tblLPIHeader.FormDate, tblLPIHeader.Observer, tblLPIHeader.Recorder, tblLPIDetail.PointLoc, tblLPIDetail.PointNbr, tblLPIDetail.TopCanopy, tblLPIDetail.Lower1, tblLPIDetail.Lower2, tblLPIDetail.Lower3, tblLPIDetail.Lower4, tblLPIDetail.SoilSurface, tblLPIDetail.HeightWoody, tblLPIDetail.SpeciesWoody, tblLPIDetail.HeightHerbaceous, tblLPIDetail.SpeciesHerbaceous
+queries$lpi <- "SELECT joinSitePlotLine.SiteID, joinSitePlotLine.PlotID, joinSitePlotLine.PlotKey, joinSitePlotLine.LineID, tblLPIHeader.FormDate, tblLPIHeader.Observer, tblLPIHeader.Recorder, tblLPIDetail.PointLoc, tblLPIDetail.PointNbr, tblLPIDetail.TopCanopy, tblLPIDetail.Lower1, tblLPIDetail.Lower2, tblLPIDetail.Lower3, tblLPIDetail.Lower4, tblLPIDetail.SoilSurface, tblLPIDetail.HeightWoody, tblLPIDetail.SpeciesWoody, tblLPIDetail.HeightHerbaceous, tblLPIDetail.SpeciesHerbaceous
 FROM joinSitePlotLine INNER JOIN (tblLPIHeader LEFT JOIN tblLPIDetail ON tblLPIHeader.RecKey = tblLPIDetail.RecKey) ON joinSitePlotLine.LineKey = tblLPIHeader.LineKey;"
 
 ## SQL query for getting a table of gaps with observer, recorder, line, plot,site, and date
-queries$gaps <- "SELECT joinSitePlotLine.SiteID, joinSitePlotLine.PlotID, joinSitePlotLine.LineID, tblGapHeader.FormDate, tblGapHeader.Observer, tblGapHeader.Recorder, tblGapDetail.Gap, tblGapHeader.LineLengthAmount
+queries$gaps <- "SELECT joinSitePlotLine.SiteID, joinSitePlotLine.PlotID, joinSitePlotLine.PlotKey, joinSitePlotLine.LineID, tblGapHeader.FormDate, tblGapHeader.Observer, tblGapHeader.Recorder, tblGapDetail.Gap, tblGapHeader.LineLengthAmount
 FROM joinSitePlotLine INNER JOIN (tblGapHeader INNER JOIN tblGapDetail ON tblGapHeader.RecKey = tblGapDetail.RecKey) ON joinSitePlotLine.LineKey = tblGapHeader.LineKey;"
 
 
@@ -81,26 +90,58 @@ odbcCloseAll()
 ## The line length is in meters, but we need cm, so we'll quickly do that
 gaps$raw$LineLengthAmount <- gaps$raw$LineLengthAmount*100
 
+## We also want the plot keys to be strings, not numeric values
+lpi$raw$PlotKey <- as.character(lpi$raw$PlotKey)
+gaps$raw$PlotKey <- as.character(gaps$raw$PlotKey)
+
 ## We'll set up some objects we can use to populate options in the Shiny tool that maybe will one day be built
-sites.plots <- rbind(gaps$raw[,c("SiteID", "PlotID")], lpi$raw[,c("SiteID", "PlotID")]) %>% unique()
+sites.plots <- rbind(gaps$raw[,c("SiteID", "PlotID", "PlotKey")], lpi$raw[,c("SiteID", "PlotID", "PlotKey")]) %>% unique()
 observers.all <- c(gaps$raw$Observer, lpi$raw$Observer) %>% unique()
 
-## If you want to see your options for the calibration Plot- and SiteID, use this
+## If you want to see your options for the calibration PlotKey, Plot-, and SiteID, use this
 # sites.plots %>% View()
 
-## Where's the calibration data? Specify the SiteID and the PlotID
+## Where's the calibration data? Specify the SiteID and the PlotID, although all we really need is the key
+## This was originally—naively—written to use a combination of the Site- and PlotIDs on a one-at-a-time basis
+## We've moved onto a loop that'll look at all the plots in a database using the plotkeys that were found
 calibration.SiteID <- "Canyonlands Calibration"
 calibration.PlotID <- "Calibration: NWDO"
+## Humans struggle with reliably typing out a plot key, so let's just extract it based on the friendlier Site- and PlotIDs
+calibration.PlotKey <- sites.plots$PlotKey[sites.plots$SiteID == calibration.SiteID & sites.plots$PlotID == calibration.PlotID]
 #################################################################################
 
 
+#################################################################################
+############# KICKING OFF THE LOOP THAT'LL ITERATE THROUGH ALL PLOTS ############
+#################################################################################
+## For general purposes, we need to make a final data table that has calibration information for every plot
+## in the database instead of just one at a time. So, we'll loop through each of the plot keys in turn and
+## mash together the results from the data associated to each key.
+## Obviously, the conclusion to this needs to come at the end of all the calibration work, so if you comment this
+## out make sure you also comment out that section
+
+## This is predicated on the assumption that the database contains only calibration plots. If there's just one calibration
+## plot, just make sure it's set up above. If you have multiple calibration plots, let this do its thing and then
+## just filter/subset at the end of it all. Your life will be much better for it.
+
+for (n in seq_along(sites.plots$PlotKey)){
+  calibration.PlotKey <- sites.plots$PlotKey[n]
+  
+## I'm aware that this is slow and inelegant, but the script was written assuming a single plot and this is much easier
+## than working to rewrite to do calculations without looping and it's not that much data, really
+#################################################################################
+  
+  
+  
 #################################################################################
 ### CALIBRATION CHECKING FOR LPI
 ## The indicators being evaluated are Foliar Cover, Bare Soil, Litter, Basal Cover, Rock Fragments, Vegetation Heights (by woody/herbaceous and height classes)
 ## This is currently set up so that it'll work regardless of how many lines were read
 
 ## Create a data frame of just the LPI data from the calibration plot so we can get to work looking at it
-lpi$calibration.raw <- lpi$raw %>% subset(SiteID == calibration.SiteID) %>% subset(PlotID == calibration.PlotID)
+## This first line is from the dark times when we didn't use plot keys
+# lpi$calibration.raw <- lpi$raw %>% subset(SiteID == calibration.SiteID) %>% subset(PlotID == calibration.PlotID)
+lpi$calibration.raw <- lpi$raw %>% subset(PlotKey == calibration.PlotKey)
 ## Add in some extra variables so we can calculate the indicators relatively painlessly. Normally I wouldn't do this, but summarize() is fighting me and this should make it possible
 ## First up is to add a 1 to all observations where the top canopy hit isn't a "None" so that we can find the sum to know how many foliar hits there were
 lpi$calibration.raw$foliar.cover[lpi$calibration.raw$TopCanopy != "None"] <- 1
@@ -132,7 +173,7 @@ lpi$calibration.raw$herbaceous.501[lpi$calibration.raw$HeightHerbaceous > 500] <
 
 ## Taking those raw data and converting them into the various indicators we want for each observer, specifically: percent total foliar cover, percent bare soil, percent basal cover, percent rock fragments,
 ## and the woody and herbaceous heights by height classes
-lpi$calibration <- lpi$calibration.raw %>% group_by(Observer) %>%
+lpi$calibration <- lpi$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>%
   summarize(records.lpi = n(),
             foliar.hits = sum(foliar.cover, na.rm = T),
             basal.hits = sum(basal.cover, na.rm = T),
@@ -200,14 +241,14 @@ lpi$calibration$basal.cover.calibrated <- (lpi$calibration$basal.cover.pct.max -
 lpi$calibration$bare.soil.calibrated <- (lpi$calibration$bare.soil.pct.max - lpi$calibration$bare.soil.pct.min) <= tolerances$lpi$baresoil.percent.range
 lpi$calibration$rock.fragments.calibrated <- (lpi$calibration$rock.fragments.pct.max - lpi$calibration$rock.fragments.pct.min) <= tolerances$lpi$rockfragments.percent.range
 
-lpi$calibration$woody.plants.0.50.calibrated <- (lpi$calibration$woody.plants.0.50.count.max - lpi$calibration$woody.plants.0.50.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$woody.plants.51.200.calibrated <- (lpi$calibration$woody.plants.51.200.count.max - lpi$calibration$woody.plants.51.200.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$woody.plants.201.500.calibrated <- (lpi$calibration$woody.plants.201.500.count.max - lpi$calibration$woody.plants.201.500.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$woody.plants.501.calibrated <- (lpi$calibration$woody.plants.501.count.max - lpi$calibration$woody.plants.501.min) < tolerances$lpi$heights.count.range
-lpi$calibration$herbaceous.plants.0.50.calibrated <- (lpi$calibration$herbaceous.plants.0.50.count.max - lpi$calibration$herbaceous.plants.0.50.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$herbaceous.plants.51.200.calibrated <- (lpi$calibration$herbaceous.plants.51.200.count.max - lpi$calibration$herbaceous.plants.51.200.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$herbaceous.plants.201.500.calibrated <- (lpi$calibration$herbaceous.plants.201.500.count.max - lpi$calibration$herbaceous.plants.201.500.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$herbaceous.plants.501.calibrated <- (lpi$calibration$herbaceous.plants.501.count.max - lpi$calibration$herbaceous.plants.501.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$woody.plants.0.50.calibrated <- (lpi$calibration$woody.plants.0.50.count.max - lpi$calibration$woody.plants.0.50.count.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$woody.plants.51.200.calibrated <- (lpi$calibration$woody.plants.51.200.count.max - lpi$calibration$woody.plants.51.200.count.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$woody.plants.201.500.calibrated <- (lpi$calibration$woody.plants.201.500.count.max - lpi$calibration$woody.plants.201.500.count.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$woody.plants.501.calibrated <- (lpi$calibration$woody.plants.501.count.max - lpi$calibration$woody.plants.501.count.min) < tolerances$lpi$heights.count.range
+lpi$calibration$herbaceous.plants.0.50.calibrated <- (lpi$calibration$herbaceous.plants.0.50.count.max - lpi$calibration$herbaceous.plants.0.50.count.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$herbaceous.plants.51.200.calibrated <- (lpi$calibration$herbaceous.plants.51.200.count.max - lpi$calibration$herbaceous.plants.51.200.count.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$herbaceous.plants.201.500.calibrated <- (lpi$calibration$herbaceous.plants.201.500.count.max - lpi$calibration$herbaceous.plants.201.500.count.min) <= tolerances$lpi$heights.count.range
+lpi$calibration$herbaceous.plants.501.calibrated <- (lpi$calibration$herbaceous.plants.501.count.max - lpi$calibration$herbaceous.plants.501.count.min) <= tolerances$lpi$heights.count.range
 
 ## The calibration checks using the deviation from the mean as the metric. This is not the standard practice
 # lpi$calibration$foliar.cover.calibrated <- abs(lpi$calibration$foliar.cover.pct - lpi$calibration$foliar.cover.pct.mean) <= tolerances$lpi$foliar.percent
@@ -231,7 +272,9 @@ lpi$calibration$herbaceous.plants.501.calibrated <- (lpi$calibration$herbaceous.
 ## This is currently set up so that it'll work regardless of how many lines were read
 
 ## Subset to just the data from the calibration plot
-gaps$calibration.raw <- gaps$raw %>% subset(SiteID == calibration.SiteID) %>% subset(PlotID == calibration.PlotID)
+## This used to use a combination of Site- and PlotID, but much more reasonably, if less readably, now uses plot keys
+# gaps$calibration.raw <- gaps$raw %>% subset(SiteID == calibration.SiteID) %>% subset(PlotID == calibration.PlotID)
+gaps$calibration.raw <- gaps$raw %>% subset(PlotKey == calibration.PlotKey)
 
 ## Writing in variables to keep track of what size class these belong to
 gaps$calibration.raw$gap.25.50[gaps$calibration.raw$Gap >= 25 & gaps$calibration.raw$Gap <= 50] <- 1
@@ -240,14 +283,14 @@ gaps$calibration.raw$gap.101.200[gaps$calibration.raw$Gap > 100 & gaps$calibrati
 gaps$calibration.raw$gap.201[gaps$calibration.raw$Gap > 200] <- 1
 
 ## Counting gaps and finding their sums. This was the quick-and-dirty solution where I just filtered by the classes and kept merging them into the same calibration data frame
-gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.25.50 == 1) %>% summarize(gap.25.50.count = n(),
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.25.50 == 1) %>% summarize(gap.25.50.count = n(),
                                                                                                          gap.25.50.cm.sum = sum(Gap, na.rm = T),
                                                                                                          length.total.cm = first(LineLengthAmount))
-gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.51.100 == 1) %>% summarize(gap.51.100.count = n(),
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.51.100 == 1) %>% summarize(gap.51.100.count = n(),
                                                                                                           gap.51.100.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
-gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.101.200 == 1) %>% summarize(gap.101.200.count = n(),
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.101.200 == 1) %>% summarize(gap.101.200.count = n(),
                                                                                                            gap.101.200.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
-gaps$calibration <- gaps$calibration.raw %>% group_by(Observer) %>% filter(gap.201 == 1) %>% summarize(gap.201.count = n(),
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.201 == 1) %>% summarize(gap.201.count = n(),
                                                                                                        gap.201.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
 
 ## We've got NAs, but those are really 0s because this data frame is restricted to observers who completed gap forms, so let's change them
@@ -310,23 +353,28 @@ gaps$calibration$gap.201.count.calibrated <- (gaps$calibration$gap.201.count.max
 #################################################################################
 
 #################################################################################
+############# CONCLUDING THE LOOP THAT'LL ITERATE THROUGH ALL PLOTS #############
+#################################################################################
+## And now we wrap up the loop set in motion above. This will result in a single data frame output that contains all the calibration
+## information for each observer by plot.
+
+## On the first trip through the loop, it just creates calibration.results
+  if (n < 2){
+    calibration.results <- merge(lpi$calibration, gaps$calibration, all = T)
+    ## On subsequent loops, the calibration.results data frame exists, so the new plot's results are just appended to avoid overwriting
+  } else {
+    calibration.results <- merge(lpi$calibration, gaps$calibration, all = T) %>% rbind(., calibration.results)
+  }
+}
+
+#################################################################################
+
+
+#################################################################################
 ### COMBINING AND WRITING CALIBRATION RESULTS
-## So, now there're two data frames—one for LPI and one for gaps, but we want them combined and written out
-calibration.results <- merge(lpi$calibration, gaps$calibration, all = T)
-write.csv(calibration.results, "C:/Users/nstauffe/Documents/Projects/Shiny_QAQC/calibration_results.csv")
-
-#################################################################################
-
-#################################################################################
-### GENERATING FIGURES
-## Create scatter plots for the indicators showing deviation from mean, preferably color coding points to indicate <2.5%, 2.5-5%, and >5% as great, okay, and unacceptable
-
-## Scatterplot for foliar cover. X axis is observer and Y axis is the absolute value of the difference between mean percent foliar cover and the observered percent foliar cover
-calibration.results %>% na.omit() %>%
-  ggplot(aes(Observer, (foliar.cover.pct - foliar.cover.pct.mean), color = foliar.cover.calibrated)) + geom_point() +
-ggtitle("Calibration for Percent Foliar Cover by Observer") +
-labs(x = "Observer name", y = "Deviation from mean in percent")
-
-calibration.results %>% na.omit()
+## So, now there're two data frames—one for LPI and one for gaps—but we want them combined and written out
+## This needs to be uncommented to combine things if you aren't using the whole-database loop!
+## calibration.results <- merge(lpi$calibration, gaps$calibration, all = T)
+write.csv(calibration.results, paste(path.write, filename.output, sep = "/"))
 
 #################################################################################
