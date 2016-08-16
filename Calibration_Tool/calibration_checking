@@ -20,7 +20,7 @@ name.dima <- "training__calibration_DIMA_4.1.mdb"
 # Filepath to write out the .csv of calibration results
 path.write <- "C:/Users/username/Documents/Projects/"
 # Filename for the .csv that you want to write out the results in
-filname.output <- "calibration_results.csv"
+filename.output <- "calibration_results.csv"
 #################################################################################
 
 #################################################################################
