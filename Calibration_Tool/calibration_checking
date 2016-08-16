@@ -283,14 +283,16 @@ gaps$calibration.raw$gap.201[gaps$calibration.raw$Gap > 200] <- 1
 
 ## Counting gaps and finding their sums. This was the quick-and-dirty solution where I just filtered by the classes and kept merging them into the same calibration data frame
 gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.25.50 == 1) %>% summarize(gap.25.50.count = n(),
-                                                                                                         gap.25.50.cm.sum = sum(Gap, na.rm = T),
-                                                                                                         length.total.cm = first(LineLengthAmount))
+                                                                                                         gap.25.50.cm.sum = sum(Gap, na.rm = T))
 gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.51.100 == 1) %>% summarize(gap.51.100.count = n(),
                                                                                                           gap.51.100.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
 gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.101.200 == 1) %>% summarize(gap.101.200.count = n(),
                                                                                                            gap.101.200.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
 gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.201 == 1) %>% summarize(gap.201.count = n(),
                                                                                                        gap.201.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
+
+## Adding in the line lengths on a per-observer basis in case they maybe read different lengths even though they shouldn't
+gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% summarize(length.total.cm = first(LineLengthAmount)) %>% merge (x = ., y = gaps$calibration, all = T)
 
 ## We've got NAs, but those are really 0s because this data frame is restricted to observers who completed gap forms, so let's change them
 gaps$calibration <- gaps$calibration %>% replace(., is.na(.), 0)
