@@ -12,7 +12,6 @@
 ## Getting the packages
 require(RODBC)
 require(dplyr)
-require(ggplot2)
 
 # Filepath to find the DIMA
 path.read <- "C:/Users/nstauffe/Documents/Projects/Shiny_QAQC"
