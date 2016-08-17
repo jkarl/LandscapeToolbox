@@ -8,7 +8,8 @@
 #################################################################################
 
 #################################################################################
-### BASIC CONFIGURATION
+### BASIC CONFIGURATION #########################################################
+#################################################################################
 ## Getting the packages
 require(RODBC)
 require(dplyr)
@@ -24,7 +25,8 @@ filename.output <- "calibration_results.csv"
 #################################################################################
 
 #################################################################################
-### SETTING CALIBRATION TOLERANCES
+### SETTING CALIBRATION TOLERANCES ##############################################
+#################################################################################
 ## In the end, we need everyone to be within tolerances, which is ±5% from the mean for anything reported in percentages and ±2 on the species counts
 ## I'm still defining them as values in a list in case we want to let people set different tolerances eventually
 
@@ -61,7 +63,8 @@ tolerances$gaps$gap.count <- 2
 
 
 #################################################################################
-### PULLING THE DATA FROM A DATABASE
+### PULLING THE DATA FROM A DATABASE ############################################
+#################################################################################
 ## Specify the DIMA filepath
 dima.location <- paste(path.read, name.dima, sep = "/")
 
@@ -115,7 +118,7 @@ calibration.PlotKey <- sites.plots$PlotKey[sites.plots$SiteID == calibration.Sit
 
 
 #################################################################################
-############# KICKING OFF THE LOOP THAT'LL ITERATE THROUGH ALL PLOTS ############
+### KICKING OFF THE LOOP THAT'LL ITERATE THROUGH ALL PLOTS ######################
 #################################################################################
 ## For general purposes, we need to make a final data table that has calibration information for every plot
 ## in the database instead of just one at a time. So, we'll loop through each of the plot keys in turn and
@@ -137,7 +140,8 @@ for (n in seq_along(sites.plots$PlotKey)){
   
   
 #################################################################################
-### CALIBRATION CHECKING FOR LPI
+### CALIBRATION CHECKING FOR LPI ################################################
+#################################################################################
 ## The indicators being evaluated are Foliar Cover, Bare Soil, Litter, Basal Cover, Rock Fragments, Vegetation Heights (by woody/herbaceous and height classes)
 ## This is currently set up so that it'll work regardless of how many lines were read
 
@@ -252,21 +256,6 @@ lpi$calibration$herbaceous.plants.0.50.calibrated <- (lpi$calibration$herbaceous
 lpi$calibration$herbaceous.plants.51.200.calibrated <- (lpi$calibration$herbaceous.plants.51.200.count.max - lpi$calibration$herbaceous.plants.51.200.count.min) <= tolerances$lpi$heights.count.range
 lpi$calibration$herbaceous.plants.201.500.calibrated <- (lpi$calibration$herbaceous.plants.201.500.count.max - lpi$calibration$herbaceous.plants.201.500.count.min) <= tolerances$lpi$heights.count.range
 lpi$calibration$herbaceous.plants.501.calibrated <- (lpi$calibration$herbaceous.plants.501.count.max - lpi$calibration$herbaceous.plants.501.count.min) <= tolerances$lpi$heights.count.range
-
-## The calibration checks using the deviation from the mean as the metric. This is not the standard practice
-# lpi$calibration$foliar.cover.calibrated <- abs(lpi$calibration$foliar.cover.pct - lpi$calibration$foliar.cover.pct.mean) <= tolerances$lpi$foliar.percent
-# lpi$calibration$basal.cover.calibrated <- abs(lpi$calibration$basal.cover.pct - lpi$calibration$basal.cover.pct.mean) <= tolerances$lpi$basalcover.percent
-# lpi$calibration$bare.soil.calibrated <- abs(lpi$calibration$bare.soil.pct - lpi$calibration$bare.soil.pct.mean) <= tolerances$lpi$baresoil.percent
-# lpi$calibration$rock.fragments.calibrated <- abs(lpi$calibration$rock.fragments.pct - lpi$calibration$rock.fragments.pct.mean) <= tolerances$lpi$rockfragments.percent
-# 
-# lpi$calibration$woody.plants.0.50.calibrated <- abs(lpi$calibration$woody.plants.0.50.count - lpi$calibration$woody.plants.0.50.mean) <= tolerances$lpi$heights.count
-# lpi$calibration$woody.plants.51.200.calibrated <- abs(lpi$calibration$woody.plants.51.200.count - lpi$calibration$woody.plants.51.200.mean) <= tolerances$lpi$heights.count
-# lpi$calibration$woody.plants.201.500.calibrated <- abs(lpi$calibration$woody.plants.201.500.count - lpi$calibration$woody.plants.201.500.mean) <= tolerances$lpi$heights.count
-# lpi$calibration$woody.plants.501.calibrated <- abs(lpi$calibration$woody.plants.501.count - lpi$calibration$woody.plants.501.mean) < tolerances$lpi$heights.count
-# lpi$calibration$herbaceous.plants.0.50.calibrated <- abs(lpi$calibration$herbaceous.plants.0.50.count - lpi$calibration$herbaceous.plants.0.50.mean) <= tolerances$lpi$heights.count
-# lpi$calibration$herbaceous.plants.51.200.calibrated <- abs(lpi$calibration$herbaceous.plants.51.200.count - lpi$calibration$herbaceous.plants.51.200.mean) <= tolerances$lpi$heights.count
-# lpi$calibration$herbaceous.plants.201.500.calibrated <- abs(lpi$calibration$herbaceous.plants.201.500.count - lpi$calibration$herbaceous.plants.201.500.mean) <= tolerances$lpi$heights.count
-# lpi$calibration$herbaceous.plants.501.calibrated <- abs(lpi$calibration$herbaceous.plants.501.count - lpi$calibration$herbaceous.plants.501.mean) <= tolerances$lpi$heights.count
 #################################################################################
 
 #################################################################################
@@ -372,7 +361,7 @@ for (n in seq_along(tolerances$gaps$gap.classes)){
 #################################################################################
 
 #################################################################################
-############# CONCLUDING THE LOOP THAT'LL ITERATE THROUGH ALL PLOTS #############
+### CONCLUDING THE LOOP THAT'LL ITERATE THROUGH ALL PLOTS #######################
 #################################################################################
 ## And now we wrap up the loop set in motion above. This will result in a single data frame output that contains all the calibration
 ## information for each observer by plot.
@@ -389,6 +378,8 @@ for (n in seq_along(tolerances$gaps$gap.classes)){
 #################################################################################
 
 
+#################################################################################
+### COMBINING AND WRITING CALIBRATION RESULTS ###################################
 #################################################################################
 ### COMBINING AND WRITING CALIBRATION RESULTS
 ## So, now there're two data frames—one for LPI and one for gaps—but we want them combined and written out
