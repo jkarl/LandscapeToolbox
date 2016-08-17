@@ -169,16 +169,53 @@ lpi$calibration.raw$bare.soil[lpi$calibration.raw$Lower2 != ""] <- 0
 lpi$calibration.raw$bare.soil[lpi$calibration.raw$Lower3 != ""] <- 0
 lpi$calibration.raw$bare.soil[lpi$calibration.raw$Lower4 != ""] <- 0
 
-## Adding in the height classes for woody and herbaceous. Eventually I'll generalize these so that custom classes can be used, but it's not worth it right now.
-lpi$calibration.raw$woody.0.50[lpi$calibration.raw$HeightWoody <= 50] <- 1
-lpi$calibration.raw$woody.51.200[lpi$calibration.raw$HeightWoody > 50 & lpi$calibration.raw$HeightWoody <= 200] <- 1
-lpi$calibration.raw$woody.201.500[lpi$calibration.raw$HeightWoody > 200 & lpi$calibration.raw$HeightWoody <= 500] <- 1
-lpi$calibration.raw$woody.501[lpi$calibration.raw$HeightWoody > 500] <- 1
-lpi$calibration.raw$herbaceous.0.50[lpi$calibration.raw$HeightHerbaceous <= 50] <- 1
-lpi$calibration.raw$herbaceous.51.200[lpi$calibration.raw$HeightHerbaceous > 50 & lpi$calibration.raw$HeightHerbaceous <= 200] <- 1
-lpi$calibration.raw$herbaceous.201.500[lpi$calibration.raw$HeightHerbaceous > 200 & lpi$calibration.raw$HeightHerbaceous <= 500] <- 1
-lpi$calibration.raw$herbaceous.501[lpi$calibration.raw$HeightHerbaceous > 500] <- 1
+## The NAs were a complete nightmare to deal with, so I turned them into -1s. After this next bit I'll turn them back
+lpi$calibration.raw$HeightWoody[is.na(lpi$calibration.raw$HeightWoody)] <- -1
+lpi$calibration.raw$HeightHerbaceous[is.na(lpi$calibration.raw$HeightHerbaceous)] <- -1
 
+## Adding in the height classes for woody and herbaceous.
+for (n in seq_along(tolerances$lpi$heights.breaks)){
+  ## For the first loop, we're checking for plants shorter than or equal to the first height break
+  if (n == min(seq_along(tolerances$lpi$heights.breaks))){
+    # That !is.na() wrapped around the logical statement is because for some reason it was returning a vector of TRUE and NA instead of TRUE and FALSE
+    lpi$calibration.raw[lpi$calibration.raw$HeightWoody <= tolerances$lpi$heights.breaks[n] &
+                           lpi$calibration.raw$HeightWoody > 0,
+                        paste0("woody.0.", tolerances$lpi$heights.breaks[n])] <- 1
+    lpi$calibration.raw[lpi$calibration.raw$HeightHerbaceous <= tolerances$lpi$heights.breaks[n] &
+                          lpi$calibration.raw$HeightHerbaceous > 0,
+                        paste0("herbaceous.0.", tolerances$lpi$heights.breaks[n])] <- 1
+  ## The last loop will just look for anything larger than the last height break
+  } else if (n == max(seq_along(tolerances$lpi$heights.breaks))){
+    lpi$calibration.raw[lpi$calibration.raw$HeightWoody > tolerances$lpi$heights.breaks[n-1] &
+                          lpi$calibration.raw$HeightWoody <= tolerances$lpi$heights.breaks[n] &
+                          lpi$calibration.raw$HeightWoody > 0,
+                        paste0("woody.", tolerances$lpi$heights.breaks[n-1]+1, ".", tolerances$lpi$heights.breaks[n])] <- 1
+    lpi$calibration.raw[lpi$calibration.raw$HeightHerbaceous > tolerances$lpi$heights.breaks[n-1] &
+                          lpi$calibration.raw$Heightherbaceous <= tolerances$lpi$heights.breaks[n],
+                        paste0("herbaceous.", tolerances$lpi$heights.breaks[n-1]+1, ".", tolerances$lpi$heights.breaks[n])] <- 1
+    lpi$calibration.raw[lpi$calibration.raw$HeightWoody > tolerances$lpi$heights.breaks[n] &
+                          lpi$calibration.raw$HeightWoody > 0,
+                        paste0("woody.", tolerances$lpi$heights.breaks[n] + 1)] <- 1
+    lpi$calibration.raw[lpi$calibration.raw$HeightHerbaceous > tolerances$lpi$heights.breaks[n],
+                        paste0("herbaceous.", tolerances$lpi$heights.breaks[n] + 1)] <- 1
+  ## All other loops will find plants greater than the previous height break AND shorter than or equal to the current one
+  } else {
+    lpi$calibration.raw[lpi$calibration.raw$HeightWoody > tolerances$lpi$heights.breaks[n-1] &
+                          lpi$calibration.raw$HeightWoody <= tolerances$lpi$heights.breaks[n] &
+                          lpi$calibration.raw$HeightWoody > 0,
+                        paste0("woody.", tolerances$lpi$heights.breaks[n-1]+1, ".", tolerances$lpi$heights.breaks[n])] <- 1
+    lpi$calibration.raw[lpi$calibration.raw$HeightHerbaceous > tolerances$lpi$heights.breaks[n-1] &
+                          lpi$calibration.raw$Heightherbaceous <= tolerances$lpi$heights.breaks[n],
+                        paste0("herbaceous.", tolerances$lpi$heights.breaks[n-1]+1, ".", tolerances$lpi$heights.breaks[n])] <- 1
+  }
+}
+
+## Restoring the NAs so that we can tell that there weren't values there
+lpi$calibration.raw$HeightWoody[lpi$calibration.raw$HeightWoody == -1] <- NA
+lpi$calibration.raw$HeightHerbaceous[lpi$calibration.raw$HeightHerbaceous == -1] <- NA
+
+## Storing the column names we just generated for future reference
+tolerances$lpi$heights.classes <- tail(colnames(lpi$calibration.raw), (length(tolerances$lpi$heights.breaks) + 1)*2)
 
 
 ## Taking those raw data and converting them into the various indicators we want for each observer, specifically: percent total foliar cover, percent bare soil, percent basal cover, percent rock fragments,
@@ -188,16 +225,14 @@ lpi$calibration <- lpi$calibration.raw %>% group_by(Observer, SiteID, PlotID, Pl
             foliar.hits = sum(foliar.cover, na.rm = T),
             basal.hits = sum(basal.cover, na.rm = T),
             rock.frag.hits = sum(rock.fragments, na.rm = T),
-            bare.soil.hits = sum(bare.soil, na.rm = T),
-            ## All these heights are still hard-coded, but will probably eventually be generalized. It's just a real pain to do so
-            woody.plants.0.50.count = sum(woody.0.50, na.rm = T),
-            woody.plants.51.200.count = sum(woody.51.200, na.rm = T),
-            woody.plants.201.500.count = sum(woody.201.500, na.rm = T),
-            woody.plants.501.count = sum(woody.501, na.rm = T),
-            herbaceous.plants.0.50.count = sum(herbaceous.0.50, na.rm = T),
-            herbaceous.plants.51.200.count = sum(herbaceous.51.200, na.rm = T),
-            herbaceous.plants.201.500.count = sum(herbaceous.201.500, na.rm = T),
-            herbaceous.plants.501.count = sum(herbaceous.501, na.rm = T))
+            bare.soil.hits = sum(bare.soil, na.rm = T))
+
+for (n in seq_along(tolerances$lpi$heights.classes)){
+  lpi$calibration <- lpi$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>%
+    summarize_(paste0("sum(", tolerances$lpi$heights.classes[n], ", na.rm = T)")) %>%
+    merge(y = ., x = lpi$calibration, all = T)
+  colnames(lpi$calibration)[length(colnames(lpi$calibration))] <- paste0(tolerances$lpi$heights.classes[n], ".count")
+}
 
 ## Calculating percentages for the appropriate indicators
 lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct = 100*(foliar.hits/records.lpi),
@@ -205,60 +240,35 @@ lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct = 100*(foliar.hit
                                               rock.fragments.pct = 100*(rock.frag.hits/records.lpi),
                                               bare.soil.pct = 100*(bare.soil.hits/records.lpi))
 
-## Now to add in the min and max for each indicator, again all hard-coded
+## Now to add in the min and max for each indicator
 lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct.min = min(foliar.cover.pct),
                                               basal.cover.pct.min = min(basal.cover.pct),
                                               rock.fragments.pct.min = min(rock.fragments.pct),
                                               bare.soil.pct.min = min(bare.soil.pct),
-                                              woody.plants.0.50.count.min = min(woody.plants.0.50.count),
-                                              woody.plants.51.200.count.min = min(woody.plants.51.200.count),
-                                              woody.plants.201.500.count.min = min(woody.plants.201.500.count),
-                                              woody.plants.501.count.min = min(woody.plants.501.count),
-                                              herbaceous.plants.0.50.count.min = min(herbaceous.plants.0.50.count),
-                                              herbaceous.plants.51.200.count.min = min(herbaceous.plants.51.200.count),
-                                              herbaceous.plants.201.500.count.min = min(herbaceous.plants.201.500.count),
-                                              herbaceous.plants.501.count.min = min(herbaceous.plants.501.count),
                                               foliar.cover.pct.max = max(foliar.cover.pct),
                                               basal.cover.pct.max = max(basal.cover.pct),
                                               rock.fragments.pct.max = max(rock.fragments.pct),
-                                              bare.soil.pct.max = max(bare.soil.pct),
-                                              woody.plants.0.50.count.max = max(woody.plants.0.50.count),
-                                              woody.plants.51.200.count.max = max(woody.plants.51.200.count),
-                                              woody.plants.201.500.count.max = max(woody.plants.201.500.count),
-                                              woody.plants.501.count.max = max(woody.plants.501.count),
-                                              herbaceous.plants.0.50.count.max = max(herbaceous.plants.0.50.count),
-                                              herbaceous.plants.51.200.count.max = max(herbaceous.plants.51.200.count),
-                                              herbaceous.plants.201.500.count.max = max(herbaceous.plants.201.500.count),
-                                              herbaceous.plants.501.count.max = max(herbaceous.plants.501.count))
+                                              bare.soil.pct.max = max(bare.soil.pct))
 
-## Now to add in the means for each indicator, again all hard-coded
-lpi$calibration <- lpi$calibration %>% mutate(foliar.cover.pct.mean = mean(foliar.cover.pct),
-                                              basal.cover.pct.mean = mean(basal.cover.pct),
-                                              rock.fragments.pct.mean = mean(rock.fragments.pct),
-                                              bare.soil.pct.mean = mean(bare.soil.pct),
-                                              woody.plants.0.50.mean = mean(woody.plants.0.50.count),
-                                              woody.plants.51.200.mean = mean(woody.plants.51.200.count),
-                                              woody.plants.201.500.mean = mean(woody.plants.201.500.count),
-                                              woody.plants.501.mean = mean(woody.plants.501.count),
-                                              herbaceous.plants.0.50.mean = mean(herbaceous.plants.0.50.count),
-                                              herbaceous.plants.51.200.mean = mean(herbaceous.plants.51.200.count),
-                                              herbaceous.plants.201.500.mean = mean(herbaceous.plants.201.500.count),
-                                              herbaceous.plants.501.mean = mean(herbaceous.plants.501.count))
+for (n in seq_along(tolerances$lpi$heights.classes)){
+  lpi$calibration <- lpi$calibration %>% mutate_(paste0("min(",tolerances$lpi$heights.classes[n],".count)"),
+                                                 paste0("max(",tolerances$lpi$heights.classes[n],".count)"),
+                                                 paste0("max(",tolerances$lpi$heights.classes[n],".count) - min(",tolerances$lpi$heights.classes[n],".count)"))
+  colnames(lpi$calibration)[tail(seq_along(colnames(lpi$calibration)), 3)] <- c(paste0(tolerances$lpi$heights.classes[n], ".count.min"),
+                                                                                paste0(tolerances$lpi$heights.classes[n], ".count.max"),
+                                                                                paste0(tolerances$lpi$heights.classes[n], ".count.range"))
+}
 
-## And now to add the calibrated-or-not logical values! Still all hard-coded to check that the minimum-to-maximum range is less than or equal to the tolerance
+
+## And now to add the calibrated-or-not logical values!
 lpi$calibration$foliar.cover.calibrated <- (lpi$calibration$foliar.cover.pct.max - lpi$calibration$foliar.cover.pct.min) <= tolerances$lpi$foliar.percent.range
 lpi$calibration$basal.cover.calibrated <- (lpi$calibration$basal.cover.pct.max - lpi$calibration$basal.cover.pct.min) <= tolerances$lpi$basalcover.percent.range
 lpi$calibration$bare.soil.calibrated <- (lpi$calibration$bare.soil.pct.max - lpi$calibration$bare.soil.pct.min) <= tolerances$lpi$baresoil.percent.range
 lpi$calibration$rock.fragments.calibrated <- (lpi$calibration$rock.fragments.pct.max - lpi$calibration$rock.fragments.pct.min) <= tolerances$lpi$rockfragments.percent.range
 
-lpi$calibration$woody.plants.0.50.calibrated <- (lpi$calibration$woody.plants.0.50.count.max - lpi$calibration$woody.plants.0.50.count.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$woody.plants.51.200.calibrated <- (lpi$calibration$woody.plants.51.200.count.max - lpi$calibration$woody.plants.51.200.count.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$woody.plants.201.500.calibrated <- (lpi$calibration$woody.plants.201.500.count.max - lpi$calibration$woody.plants.201.500.count.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$woody.plants.501.calibrated <- (lpi$calibration$woody.plants.501.count.max - lpi$calibration$woody.plants.501.count.min) < tolerances$lpi$heights.count.range
-lpi$calibration$herbaceous.plants.0.50.calibrated <- (lpi$calibration$herbaceous.plants.0.50.count.max - lpi$calibration$herbaceous.plants.0.50.count.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$herbaceous.plants.51.200.calibrated <- (lpi$calibration$herbaceous.plants.51.200.count.max - lpi$calibration$herbaceous.plants.51.200.count.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$herbaceous.plants.201.500.calibrated <- (lpi$calibration$herbaceous.plants.201.500.count.max - lpi$calibration$herbaceous.plants.201.500.count.min) <= tolerances$lpi$heights.count.range
-lpi$calibration$herbaceous.plants.501.calibrated <- (lpi$calibration$herbaceous.plants.501.count.max - lpi$calibration$herbaceous.plants.501.count.min) <= tolerances$lpi$heights.count.range
+for (n in seq_along(tolerances$lpi$heights.classes)){
+  lpi$calibration[,paste0(tolerances$lpi$heights.classes[n], ".calibrated")] <- lpi$calibration[, paste0(tolerances$lpi$heights.classes[n], ".count.range")] <= tolerances$lpi$heights.count.range
+}
 #################################################################################
 
 #################################################################################
