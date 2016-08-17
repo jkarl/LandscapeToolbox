@@ -51,6 +51,10 @@ tolerances$lpi$heights.count <- tolerances$lpi$heights.count.range/2
 ## Gap tolerances
 tolerances$gaps$gap.pct.range <- 10
 tolerances$gaps$gap.percent <- tolerances$gaps$gap.pct.range/2
+## The breaking points in cm for the gap classes. For the first gap class, the check is inclusive, e.g. >= 25 & <=50
+## For other gaps, the check is inclusive on the high end, e.g. >50 & <=100
+## For the largest gap class, the upper limit is unbound, e.g. >200
+tolerances$gaps$gap.breaks <- c(25, 50, 100, 200)
 # gap.count is currently unused
 tolerances$gaps$gap.count <- 2
 #################################################################################
