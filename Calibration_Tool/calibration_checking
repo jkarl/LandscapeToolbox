@@ -48,6 +48,9 @@ tolerances$lpi$rockfragments.percent <- tolerances$lpi$rockfragments.percent.ran
 tolerances$lpi$heights.count.range <- 4
 # Tolerance for abs(individual's observed count within a height class - mean observed count on plot within a height class)
 tolerances$lpi$heights.count <- tolerances$lpi$heights.count.range/2
+# The breaking points in cm for the height classes. The upper bound is inclusive on each, e.g. <=50, >50 & <=200, >200
+tolerances$lpi$heights.breaks <- c(50, 200, 500)
+
 
 
 ## Gap tolerances
