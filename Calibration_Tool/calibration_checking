@@ -270,30 +270,73 @@ lpi$calibration$herbaceous.plants.501.calibrated <- (lpi$calibration$herbaceous.
 #################################################################################
 
 #################################################################################
-### CALIBRATION CHECKING FOR GAPS
-## The indicator being evaluated percentage of line[s] in gaps of lengths 25-50 cm, 51-100 cm, 101-200 cm, and >200 cm. Additionally, the gap count for each size class is included
-## This is currently set up so that it'll work regardless of how many lines were read
+### CALIBRATION CHECKING FOR GAPS ###############################################
+#################################################################################
+## The indicator being evaluated percentage of line[s] in gaps of of size classes defined by the values in tolerances$gaps$gap.breaks.
+## Additionally, the gap count for each size class is included
+## This is currently set up so that it'll work regardless of how many lines were read or number of gap classes
 
 ## Subset to just the data from the calibration plot
 ## This used to use a combination of Site- and PlotID, but much more reasonably, if less readably, now uses plot keys
 # gaps$calibration.raw <- gaps$raw %>% subset(SiteID == calibration.SiteID) %>% subset(PlotID == calibration.PlotID)
-gaps$calibration.raw <- gaps$raw %>% subset(PlotKey == calibration.PlotKey)
+## It also omits all rows with NA values, so just be aware
+gaps$calibration.raw <- gaps$raw %>% subset(PlotKey == calibration.PlotKey) %>% na.omit()
 
 ## Writing in variables to keep track of what size class these belong to
-gaps$calibration.raw$gap.25.50[gaps$calibration.raw$Gap >= 25 & gaps$calibration.raw$Gap <= 50] <- 1
-gaps$calibration.raw$gap.51.100[gaps$calibration.raw$Gap > 50 & gaps$calibration.raw$Gap <= 100] <- 1
-gaps$calibration.raw$gap.101.200[gaps$calibration.raw$Gap > 100 & gaps$calibration.raw$Gap <= 200] <- 1
-gaps$calibration.raw$gap.201[gaps$calibration.raw$Gap > 200] <- 1
+## These are generalized so that no matter what the gap breaks are or how many size classes they result in, you should get the appropriate
+## number of columns with intelligible names
+for (n in seq_along(tolerances$gaps$gap.breaks)){
+  # This evaluates for the first gap class, which is inclusive of the lower bounding cm value and the upper
+  if (n == min(seq_along(tolerances$gaps$gap.breaks))){
+    # This is the standard situation for the smallest gap class, but it only applies if there's more than one gap class
+    if (length(tolerances$gaps$gap.breaks) > 1){
+      # This creates a column with the name of "gap.[lowerbound].[upperbound]" and writes a 1 into it in every row where the size of the gap is both >= the lowest bound and <= the next break
+      gaps$calibration.raw[gaps$calibration.raw$Gap >= tolerances$gaps$gap.breaks[n] & gaps$calibration.raw$Gap <= tolerances$gaps$gap.breaks[n+1], paste("gap", tolerances$gaps$gap.breaks[n], tolerances$gaps$gap.breaks[n+1], sep = ".")] <- 1
+      # Otherwise, if for some reason there's only one size class, this will handle that situation
+    } else {
+      gaps$calibration.raw[gaps$calibration.raw$Gap >= tolerances$gaps$gap.breaks[n], paste("gap", tolerances$gaps$gap.breaks[n], sep = ".")] <- 1
+    }
+    # This evaluates the largest gap class, which has no upper bound on size and is not inclusive on the lower bound
+  } else if (n == max(seq_along(tolerances$gaps$gap.breaks))){
+    gaps$calibration.raw[gaps$calibration.raw$Gap > tolerances$gaps$gap.breaks[n], paste("gap", tolerances$gaps$gap.breaks[n] + 1, sep = ".")] <- 1
+    # This evaluates all other gap classes, which are inclusive only on the upper bound   
+  } else {
+    gaps$calibration.raw[gaps$calibration.raw$Gap > tolerances$gaps$gap.breaks[n] & gaps$calibration.raw$Gap <= tolerances$gaps$gap.breaks[n+1], paste("gap", tolerances$gaps$gap.breaks[n], tolerances$gaps$gap.breaks[n+1] + 1, sep = ".")] <- 1
+  }
+}
+
+## Just going to store the resulting gap classes' column names for future reference. They're the only ones with "gap." in them at this point
+## Basically every loop after this takes advantage of this vector because it's so useful
+tolerances$gaps$gap.classes <- colnames(gaps$calibration.raw)[grep("gap.", colnames(gaps$calibration.raw))]
 
 ## Counting gaps and finding their sums. This was the quick-and-dirty solution where I just filtered by the classes and kept merging them into the same calibration data frame
-gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.25.50 == 1) %>% summarize(gap.25.50.count = n(),
-                                                                                                         gap.25.50.cm.sum = sum(Gap, na.rm = T))
-gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.51.100 == 1) %>% summarize(gap.51.100.count = n(),
-                                                                                                          gap.51.100.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
-gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.101.200 == 1) %>% summarize(gap.101.200.count = n(),
-                                                                                                           gap.101.200.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
-gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% filter(gap.201 == 1) %>% summarize(gap.201.count = n(),
-                                                                                                       gap.201.cm.sum = sum(Gap, na.rm = T)) %>% merge (x = ., y = gaps$calibration, all = T)
+for (n in seq_along(tolerances$gaps$gap.classes)){
+  ## As ever, we want to do something different on the first pass because we're creating gaps.calibration here, but with later passes we'll merge
+  if (n == min(seq_along(tolerances$gaps$gap.classes))){
+    ## Step one is to group the data by an observer on the plot
+    gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>%
+      ## Then we use filter_() to get only the rows where the currently-being-evaluated gap class was recorded
+      ## I guess that filter_() lets us pass strings as arguments whereas filter() doesn't, so we can create a string of "[column name] == 1"
+      ## to use as our evaluations statement
+      filter_(paste0(tolerances$gaps$gap.classes[n], "==", 1)) %>%
+      ## Finish off with summarizing the number of gaps and the sum of the gaps' lengths in that size class, with appropriate but still ambiguously-named columns
+      summarize(count = n(), cm.sum = sum(Gap, na.rm = T))
+    ## Renaming those columns because doing it inside the summarize() was too hard to implement. Frankly this isn't much easier, but at least it works
+    ## The grep() is looking for a column that exactly matches the string provided. "^" indicates that that's the start of the string and "$" is the end
+    ## so "^count$" will only return the index of "count" but not "counts" or "account"
+    colnames(gaps$calibration)[grep("^count$", colnames(gaps$calibration))] <- paste0(tolerances$gaps$gap.classes[n], ".count")
+    colnames(gaps$calibration)[grep("^cm.sum$", colnames(gaps$calibration))] <- paste0(tolerances$gaps$gap.classes[n], ".cm.sum")
+    ## And on any subsequent passes, we do the same thing, but merge in so as to not overwrite
+  } else {
+    gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>%
+      filter_(paste0(tolerances$gaps$gap.classes[n], "==", 1)) %>%
+      summarize(count = n(), cm.sum = sum(Gap, na.rm = T)) %>%
+      ## The only difference from above is that this line merges because gaps$calibration already has data in it
+      merge (x = ., y = gaps$calibration, all = T)
+    colnames(gaps$calibration)[grep("^count$", colnames(gaps$calibration))] <- paste0(tolerances$gaps$gap.classes[n], ".count")
+    colnames(gaps$calibration)[grep("^cm.sum$", colnames(gaps$calibration))] <- paste0(tolerances$gaps$gap.classes[n], ".cm.sum")
+  }
+}
 
 ## Adding in the line lengths on a per-observer basis in case they maybe read different lengths even though they shouldn't
 gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, PlotKey) %>% summarize(length.total.cm = first(LineLengthAmount)) %>% merge (x = ., y = gaps$calibration, all = T)
@@ -302,59 +345,30 @@ gaps$calibration <- gaps$calibration.raw %>% group_by(Observer, SiteID, PlotID, 
 gaps$calibration <- gaps$calibration %>% replace(., is.na(.), 0)
 
 ## We need the minimum and maximum gap counts and percent in each gap class
-gaps$calibration$gap.25.50.pct.max <- 100*max(gaps$calibration$gap.25.50.cm.sum/gaps$calibration$length.total.cm)
-gaps$calibration$gap.51.100.pct.max <- 100*max(gaps$calibration$gap.51.100.cm.sum/gaps$calibration$length.total.cm)
-gaps$calibration$gap.101.200.pct.max <- 100*max(gaps$calibration$gap.101.200.cm.sum/gaps$calibration$length.total.cm)
-gaps$calibration$gap.201.pct.max <- 100*max(gaps$calibration$gap.201.cm.sum/gaps$calibration$length.total.cm)
-gaps$calibration$gap.25.50.pct.min <- 100*min(gaps$calibration$gap.25.50.cm.sum/gaps$calibration$length.total.cm)
-gaps$calibration$gap.51.100.pct.min <- 100*min(gaps$calibration$gap.51.100.cm.sum/gaps$calibration$length.total.cm)
-gaps$calibration$gap.101.200.pct.min <- 100*min(gaps$calibration$gap.101.200.cm.sum/gaps$calibration$length.total.cm)
-gaps$calibration$gap.201.pct.min <- 100*min(gaps$calibration$gap.201.cm.sum/gaps$calibration$length.total.cm)
-
-gaps$calibration$gap.25.50.count.max = max(gaps$calibration$gap.25.50.count)
-gaps$calibration$gap.51.100.count.max = max(gaps$calibration$gap.51.100.count)
-gaps$calibration$gap.101.200.count.max = max(gaps$calibration$gap.101.200.count)
-gaps$calibration$gap.201.count.max = max(gaps$calibration$gap.201.count)
-gaps$calibration$gap.25.50.count.min = min(gaps$calibration$gap.25.50.count)
-gaps$calibration$gap.51.100.count.min = min(gaps$calibration$gap.51.100.count)
-gaps$calibration$gap.101.200.count.min = min(gaps$calibration$gap.101.200.count)
-gaps$calibration$gap.201.count.min = min(gaps$calibration$gap.201.count)
+for (n in seq_along(tolerances$gaps$gap.classes)){
+  gaps$calibration[,paste0(tolerances$gaps$gap.classes[n], ".pct.max")] <- 100*max(gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".cm.sum")]/gaps$calibration$length.total.cm)
+  gaps$calibration[,paste0(tolerances$gaps$gap.classes[n], ".pct.min")] <- 100*min(gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".cm.sum")]/gaps$calibration$length.total.cm)
+  gaps$calibration[,paste0(tolerances$gaps$gap.classes[n], ".count.max")] <- max(gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".count")])
+  gaps$calibration[,paste0(tolerances$gaps$gap.classes[n], ".count.min")] <- min(gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".count")])
+}
 
 ## Now we'll add the percent of length and the mean percent of length in each gap class and mean count
-gaps$calibration <- gaps$calibration %>% mutate(gap.25.50.pct = 100*(gap.25.50.cm.sum/length.total.cm),
-                                                gap.51.100.pct = 100*(gap.51.100.cm.sum/length.total.cm),
-                                                gap.101.200.pct = 100*(gap.101.200.cm.sum/length.total.cm),
-                                                gap.201.pct = 100*(gap.201.cm.sum/length.total.cm),
-                                                gap.25.50.pct.mean = 100*(mean(gap.25.50.cm.sum, na.rm = T)/length.total.cm),
-                                                gap.51.100.pct.mean = 100*(mean(gap.51.100.cm.sum, na.rm = T)/length.total.cm),
-                                                gap.101.200.pct.mean = 100*(mean(gap.101.200.cm.sum, na.rm = T)/length.total.cm),
-                                                gap.201.pct.mean = 100*(mean(gap.201.cm.sum, na.rm = T)/length.total.cm),
-                                                gap.25.50.count.mean = mean(gap.25.50.count, na.rm = T),
-                                                gap.51.100.count.mean = mean(gap.51.100.count, na.rm = T),
-                                                gap.101.200.count.mean = mean(gap.101.200.count, na.rm = T),
-                                                gap.201.count.mean = mean(gap.201.count, na.rm = T))
+for (n in seq_along(tolerances$gaps$gap.classes)){
+  gaps$calibration <-  gaps$calibration %>% mutate_(paste0("100*(", tolerances$gaps$gap.classes[n], ".cm.sum/length.total.cm)"),
+                                                    paste0("100*(mean(", tolerances$gaps$gap.classes[n], ".cm.sum, na.rm = T)/length.total.cm)"),
+                                                    paste0(" mean(", tolerances$gaps$gap.classes[n], ".count, na.rm = T)")
+  )
+  ## So, I can't be bothered to fight naming mutate_() columns anymore. This takes the last three column names in the data frame
+  ## using the tail() function to get the indices for them in the vector from colnames() and uses those to rename them with the same paste0()
+  ## results that I couldn't get working in the mutate_()
+  colnames(gaps$calibration)[tail(seq_along(colnames(gaps$calibration)), 3)] <- c(paste0(tolerances$gaps$gap.classes[n], ".pct"), paste0(tolerances$gaps$gap.classes[n], ".pct.mean"), paste0(tolerances$gaps$gap.classes[n], ".count.mean"))
+}
 
 ## Final step is to decide if they're calibrated or not.
-gaps$calibration$gap.25.50.pct.calibrated <- (gaps$calibration$gap.25.50.pct.max - gaps$calibration$gap.25.50.pct.min) <= tolerances$gaps$gap.pct.range
-gaps$calibration$gap.51.100.pct.calibrated <- (gaps$calibration$gap.51.100.pct.max - gaps$calibration$gap.51.100.pct.min) <= tolerances$gaps$gap.pct.range
-gaps$calibration$gap.101.200.pct.calibrated <- (gaps$calibration$gap.101.200.pct.max - gaps$calibration$gap.101.200.pct.min) <= tolerances$gaps$gap.pct.range
-gaps$calibration$gap.201.pct.calibrated <- (gaps$calibration$gap.201.pct.max - gaps$calibration$gap.201.pct.min) <= tolerances$gaps$gap.pct.range
-
-gaps$calibration$gap.25.50.count.calibrated <- (gaps$calibration$gap.25.50.count.max - gaps$calibration$gap.25.50.count.min) <= tolerances$gaps$gap.count
-gaps$calibration$gap.51.100.count.calibrated <- (gaps$calibration$gap.51.100.count.max - gaps$calibration$gap.51.100.count.min) <= tolerances$gaps$gap.count
-gaps$calibration$gap.101.200.count.calibrated <- (gaps$calibration$gap.101.200.count.max - gaps$calibration$gap.101.200.count.min) <= tolerances$gaps$gap.count
-gaps$calibration$gap.201.count.calibrated <- (gaps$calibration$gap.201.count.max - gaps$calibration$gap.201.count.min) <= tolerances$gaps$gap.count
-
-## Figuring out calibration when the rule is "within 5% of the mean" but that's not standard practice for determining calibration
-# gaps$calibration$gap.25.50.pct.calibrated <- abs(gaps$calibration$gap.25.50.pct - gaps$calibration$gap.25.50.pct.mean) <= tolerances$gaps$gap.percent
-# gaps$calibration$gap.51.100.pct.calibrated <- abs(gaps$calibration$gap.51.100.pct - gaps$calibration$gap.51.100.pct.mean) <= tolerances$gaps$gap.percent
-# gaps$calibration$gap.101.200.pct.calibrated <- abs(gaps$calibration$gap.101.200.pct - gaps$calibration$gap.101.200.pct.mean) <= tolerances$gaps$gap.percent
-# gaps$calibration$gap.201.pct.calibrated <- abs(gaps$calibration$gap.201.pct - gaps$calibration$gap.201.pct.mean) <= tolerances$gaps$gap.percent
-# 
-# gaps$calibration$gap.25.50.count.calibrated <- abs(gaps$calibration$gap.25.50.count - gaps$calibration$gap.25.50.count.mean) <= tolerances$gaps$gap.count
-# gaps$calibration$gap.51.100.count.calibrated <- abs(gaps$calibration$gap.51.100.count - gaps$calibration$gap.51.100.count.mean) <= tolerances$gaps$gap.count
-# gaps$calibration$gap.101.200.count.calibrated <- abs(gaps$calibration$gap.101.200.count - gaps$calibration$gap.101.200.count.mean) <= tolerances$gaps$gap.count
-# gaps$calibration$gap.201.count.calibrated <- abs(gaps$calibration$gap.201.count - gaps$calibration$gap.201.count.mean) <= tolerances$gaps$gap.count
+for (n in seq_along(tolerances$gaps$gap.classes)){
+  gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".pct.calibrated")] <- (gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".pct.max")] - gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".pct.min")]) <= tolerances$gaps$gap.pct.range
+  gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".count.calibrated")] <- (gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".count.max")] - gaps$calibration[, paste0(tolerances$gaps$gap.classes[n], ".count.min")]) <= tolerances$gaps$gap.count
+}
 #################################################################################
 
 #################################################################################
