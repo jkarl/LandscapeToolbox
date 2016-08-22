@@ -133,8 +133,8 @@ calibration.PlotKey <- sites.plots$PlotKey[sites.plots$SiteID == calibration.Sit
 ## plot, just make sure it's set up above. If you have multiple calibration plots, let this do its thing and then
 ## just filter/subset at the end of it all. Your life will be much better for it.
 
-for (n in seq_along(sites.plots$PlotKey)){
-  calibration.PlotKey <- sites.plots$PlotKey[n]
+for (i in seq_along(sites.plots$PlotKey)){
+  calibration.PlotKey <- sites.plots$PlotKey[i]
   
 ## I'm aware that this is slow and inelegant, but the script was written assuming a single plot and this is much easier
 ## than working to rewrite to do calculations without looping and it's not that much data, really
@@ -380,7 +380,7 @@ for (n in seq_along(tolerances$gaps$gap.classes)){
 ## information for each observer by plot.
 
 ## On the first trip through the loop, it just creates calibration.results
-  if (n < 2){
+  if (i == 1){
     calibration.results <- merge(lpi$calibration, gaps$calibration, all = T)
     ## On subsequent loops, the calibration.results data frame exists, so the new plot's results are just appended to avoid overwriting
   } else {
