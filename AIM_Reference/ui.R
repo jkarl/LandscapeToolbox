@@ -11,22 +11,22 @@ library(leaflet)
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
+  titlePanel("TerrADat Query"),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
-      sliderInput("bins",
-                  "Number of bins:",
-                  min = 1,
-                  max = 50,
-                  value = 30)
+      textInput("query",
+                label="TerrADat Query",
+                value="ProjectName == \"California NorCal 2013\"",
+                width='100%'),
+      actionButton("goButton",
+                   label="Query TerrADat")
     ),
 
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("distPlot"),
-      leafletOutput("mymap")
+      leafletOutput("AIMmap")
     )
   )
 ))
