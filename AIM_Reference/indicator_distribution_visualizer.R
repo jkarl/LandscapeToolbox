@@ -46,7 +46,13 @@ aquatic.long$indicator.type[aquatic.long$indicator %in% c("XCDENMID", "XCDENBK",
 aquatic.long$indicator.type[aquatic.long$indicator %in% c("XFC_NAT", "PCT_SAFN", "LINCIS_H", "RP100")] <- "riparian"
 
 ## Need to add units here
-# aquatic.long$units[aquatic.long$indicator == "THE INDICATOR"] <- "THE UNIT"
+aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority["Pct.Overhead.Cover"]] <- "percent"
+aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority["Bank.Overhead.Cover"]] <- "percent"
+aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority["Riparian.Veg.Complexity"]] <- "" ## These indicators are unitless
+aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority["Instream.Habitat.Complexity"]] <- ""
+aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority["Pct.Fines"]] <- "percent"
+aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority["Floodplain.Connectivity"]] <- ""
+aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority["Residual.Pool.Depth"]] <- "cm"
 
 ## Creating separate data frames for the two classes of indicators to make figure-making work easier later
 aquatic.reference.instream <- aquatic.long[aquatic.long$indicator.type == "instream" & aquatic.long$RST_FSED_AND_RMD_PHAB != "T",]
