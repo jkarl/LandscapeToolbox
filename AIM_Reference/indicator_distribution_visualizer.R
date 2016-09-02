@@ -55,6 +55,7 @@ aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority[
 aquatic.long$units[aquatic.long$indicator == aquatic.fields$indicators.priority["Residual.Pool.Depth"]] <- "cm"
 
 ## Creating separate data frames for the two classes of indicators to make figure-making work easier later
+## The only non-reference sites are those with a value of "T" in the fields corresponding to the classification for in-stream and riparian
 aquatic.reference.instream <- aquatic.long[aquatic.long$indicator.type == "instream" & aquatic.long$RST_FSED_AND_RMD_PHAB != "T",]
 aquatic.reference.riparian <- aquatic.long[aquatic.long$indicator.type == "riparian" & aquatic.long$RST_FRIP_AND_RMD_PHAB != "T",]
 
