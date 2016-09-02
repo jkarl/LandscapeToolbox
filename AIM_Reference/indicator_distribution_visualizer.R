@@ -62,10 +62,11 @@ ggplot(data = aquatic.reference.long, aes(x = value)) +
   # geom_vline(VERTICAL LINES FOR THE BENCHMARKS/THRESHOLDS) +
   facet_wrap(~ indicator)
 
-for (n in seq_along(aquatic.fields$indicators.priority)){
-  ggplot(data = na.exclude(aquatic.reference), aes(x = aquatic.fields$indicators.priority[n])) +
-    geom_histogram(binwidth = (max(aquatic.reference[, aquatic.fields$indicators.priority[n]]) - min(aquatic.reference[, aquatic.fields$indicators.priority[n]]))/20)
-}
+## This is an attempt to generalize the principles so that it can auto-scale the bin widths relative to the range of values
+# for (n in seq_along(aquatic.fields$indicators.priority)){
+#   ggplot(data = na.exclude(aquatic.reference), aes(x = aquatic.fields$indicators.priority[n])) +
+#     geom_histogram(binwidth = (max(aquatic.reference[, aquatic.fields$indicators.priority[n]]) - min(aquatic.reference[, aquatic.fields$indicators.priority[n]]))/20)
+# }
 
 
 # ## We want the column/variable names
