@@ -76,6 +76,19 @@ shinyUI(fluidPage(
                   width='100%'
                   ),
         ## Select terrestrial project(s) ====
+        selectizeInput(inputId = "terrproject", ## This value is used to narrow down the site and ecosite options next
+                       label = "Select a project or projects to filter by.",
+                       choices = unique(tdat.point.fc@data$ProjectName)
+                       ),
+        selectizeInput(inputId = "terrsiteid",
+                       label = "",
+                       choices = list("needs to be populated based on terrproject")
+                       ),
+        selectizeInput(inputId = "terrecosite",
+                       label = "",
+                       choices = list("needs to be populated based on terrproject")
+                       ),
+        ## Display the button to use the entered query ====
         actionButton(inputId = "terragobutton",
                      label="Query TerrADat")
       ) ## Closure for the TerrADat panels
