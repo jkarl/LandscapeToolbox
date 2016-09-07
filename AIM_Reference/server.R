@@ -47,7 +47,7 @@ shinyServer(function(input, output) {
       } else if (input$indicatortype == "instream"){
         aquatic.indicator <- input$aquaticindicatorinstream
       }
-      ## Then we filter for it and remove all the NAs
+      ## Then we filter for THRESH selection(s) and remove all the NAs
       tmp <- aquatic.reference %>% filter(indicator == aquatic.indicator) %>% filter(!is.na(value), THRESH %in% input$thresh)
       return(tmp)
     })
