@@ -83,8 +83,22 @@ shinyUI(fluidPage(
 
     # The main panel
     mainPanel(
-      plotOutput("histogram")
-      # leafletOutput("AIMmap")
+      ## We're going to make a set of tabs to organize things
+      tabsetPanel(
+        ## The landing tab that explains a bit of what's going on
+        tabPanel(title = "Instructions",
+                 "Select stuff in the side panel to get a histogram of that stuff."
+                 ),
+        ## A tab for the histogram
+        tabPanel(title = "Histogram",
+                 plotOutput("histogram")
+                 ),
+        ## A tab for the TerrADat map
+        ## Maybe make this a map of all the AIM points, terrestrial and aquatic, in different colors?
+        tabPanel(title = "Map",
+                 leafletOutput("AIMmap")
+                 )
+      ) ## Closure for tabsetpanel
     ) ## Closure for mainpanel
   ) ## Closure for sidebarlayout
 ) ## Closure for fluidpage
