@@ -11,7 +11,7 @@ library(leaflet)
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("TerrADat Query"),
+  titlePanel("Indicator Distribution Visualizer"),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
