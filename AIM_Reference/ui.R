@@ -13,7 +13,7 @@ shinyUI(fluidPage(
   # Application title
   titlePanel("Indicator Distribution Visualizer"),
 
-  # Sidebar with a slider input for number of bins
+  ## Setting up the panels
   sidebarLayout(
     sidebarPanel(
       ## Choosing whether you want to look at terrestrial or aquatic data
@@ -23,16 +23,16 @@ shinyUI(fluidPage(
                   selected = "aquadat"
                   ),
 
-      #### The panel of AquADat options visible only when input$domain == "AquADat" ####
+#### The panel of AquADat options visible only when input$domain == "AquADat" ----
       conditionalPanel(
         condition = "input.domain == 'aquadat'",
-        ## Choose between riparian and in-stream indicators
+## Choose between riparian and in-stream indicators ====
         selectInput(inputId = "indicatortype",
                     label = "In-stream or riparian indicator?",
                     choices = list("In-stream" = "instream", "Riparian" = "riparian"),
                     selected = "instream"
                     ),
-        ## Options for when working with in-stream indicators
+## Options for when working with in-stream indicators ====
         conditionalPanel(
           condition = "input.indicatortype == 'instream'",
           ## Indicators to select
@@ -42,7 +42,7 @@ shinyUI(fluidPage(
                       selected = instream.indicators[1]
                       )
           ),
-        ## Options for when working with riparian indicators
+## Options for when working with riparian indicators =====
         conditionalPanel(
           condition = "input.indicatortype == 'riparian'",
           ## Indicators to select
@@ -53,47 +53,47 @@ shinyUI(fluidPage(
                       )
           ),
         
-        ## What THRESH values to use
+## What THRESH values to use ====
         selectizeInput(inputId = "thresh",
                        label = "Select one or more THRESH values to filter data by.",
                        choices = unique(aquatic.reference$THRESH),
                        multiple = T
                        ),
-        ## Display the button to use the entered query
+## Display the button to use the entered query ====
         actionButton(inputId = "aquagobutton",
                      label="Query AquADat")
       ), ## Closure for the AquADat panels
       
-            
-      #### The panel of TerrADat options visible only when input$domain == "TerrADat"
+            # 
+#### The panel of TerrADat options visible only when input$domain == "TerrADat" ----
       conditionalPanel(
         condition = "input.domain == 'terradat'",
         
-        ## Display the option to enter a TerrADat query
+        ## Display the option to enter a TerrADat query ====
         textInput("query",
                   label="TerrADat Query",
                   value="ProjectName == \"California NorCal 2013\"",
                   width='100%'
                   ),
-        ## Display the button to use the entered query
+        ## Select terrestrial project(s) ====
         actionButton(inputId = "terragobutton",
                      label="Query TerrADat")
       ) ## Closure for the TerrADat panels
     ), ## Closure for the sidebar definitions
 
-    # The main panel
+## The main panel ----
     mainPanel(
       ## We're going to make a set of tabs to organize things
       tabsetPanel(
-        ## The landing tab that explains a bit of what's going on
+## The landing tab that explains a bit of what's going on ====
         tabPanel(title = "Instructions",
                  "Select stuff in the side panel to get a histogram of that stuff."
                  ),
-        ## A tab for the histogram
+## A tab for the histogram ====
         tabPanel(title = "Histogram",
                  plotOutput("histogram")
                  ),
-        ## A tab for the TerrADat map
+## A tab for the TerrADat map ====
         ## Maybe make this a map of all the AIM points, terrestrial and aquatic, in different colors?
         tabPanel(title = "Map",
                  leafletOutput("AIMmap")
