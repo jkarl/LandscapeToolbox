@@ -81,7 +81,7 @@ shinyUI(fluidPage(
       ) ## Closure for the TerrADat panels
     ), ## Closure for the sidebar definitions
 
-    # Show a plot of the generated distribution
+    # The main panel
     mainPanel(
       plotOutput("histogram")
       # leafletOutput("AIMmap")
