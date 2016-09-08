@@ -39,7 +39,8 @@ shinyServer(function(input, output) {
       return(tmp)
     })
     
-    ## Filter the aquatic data. We're defining a reactive function that we can use to call aquatic.filtered() and get the currently-defined dataset
+    ## Filter the aquatic data. We're defining a reactive function that we can use eslewhere so that calling aquatic.filtered()
+    ## is equivalent to just inserting the currently-defined dataset
     aquatic.filtered <- reactive({
       ## First up is grabbing the correct indicator, either riparian or in-stream
       if (input$indicatortype == "riparian"){
