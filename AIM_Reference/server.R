@@ -45,6 +45,8 @@ shinyServer(function(input, output) {
     ## is equivalent to just inserting the currently-defined dataset
     aquatic.filtered <- reactive({
       ## First up is grabbing the correct indicator, either riparian or in-stream
+      ## I wasn't getting the expected results when both the in-stream and riparian panels in the UI were writing to the same input object
+      ## so this takes takes the appropriate one based on the indicatortype selection and writes it to an object I can use
       if (input$indicatortype == "riparian"){
         aquatic.indicator <- input$aquaticindicatorriparian
       } else if (input$indicatortype == "instream"){
