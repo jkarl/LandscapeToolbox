@@ -91,10 +91,20 @@ shinyServer(function(input, output) {
     # add points to leaflet map
     #input$goButton
     observeEvent(input$terragobutton,{
-        filtData <- filteredData()
-        leafletProxy("AIMmap",data=filtData) %>%
-        clearMarkers() %>%
-        addCircleMarkers(radius=2,color="#DD7777",layerId=paste("q",1:nrow(filtData),sep=''),popup=~paste("PlotID:",PlotID))
+        filtData <- filteredData() ## The output of filteredData comes from a safe()-wrapped function where we already requested just the "result" from the list
+        filtData %>% str() ## Part of debugging
+        if (!is.null(filtData)){ ## If there was an error in filtering the data, the filtData will be NULL
+          print("Doesn't look like there was an error")
+          output$queryerror <- renderText("") ## There wasn't an error!
+          leafletProxy("AIMmap",data=filtData) %>% ## Adding it to the map
+          clearMarkers() %>%
+          addCircleMarkers(radius=2,color="#DD7777",layerId=paste("q",1:nrow(filtData),sep=''),popup=~paste("PlotID:",PlotID))
+        } else if (is.null(filtData)) { ## The alternative to "we avoided an error" is "an error happened"
+            output$queryerror <- renderText("There was an error in subsetting the data. Check to make sure your query isn't malformed.") ## We can use this value on the UI side to let the user know the query was borked. Logical values aren't allowed, so we're just writing the whole error message
+        }
+        # leafletProxy("AIMmap",data=filtData) %>%
+        # clearMarkers() %>%
+        # addCircleMarkers(radius=2,color="#DD7777",layerId=paste("q",1:nrow(filtData),sep=''),popup=~paste("PlotID:",PlotID))
     })
 
 })
