@@ -15,31 +15,33 @@ library(ggplot2)
 datapath <- getwd()
 TerrADat.gdd <- "Terradat_data_8.17.15_complete.gdb"
 
-## Load TerrADat points
+#### Load TerrADat points ####
 TerrADat.gdb <- paste(datapath,TerrADat.gdd,sep="/")
 ogrListLayers(TerrADat.gdb)
 tdat.point.fc <- readOGR(dsn=TerrADat.gdb, layer="SV_IND_TERRESTRIALAIM",stringsAsFactors=F)
 tdat.prj <- proj4string(tdat.point.fc)
 
-## Load AquADat reference points
+#### Load AquADat reference points ####
 aquatic.reference <- read.csv("aquatic_aim_priority_reference.csv", stringsAsFactors = F)
 
-## Lists of aquatic indicators
+#### Lists of aquatic indicators ####
 riparian.indicators <- list("Percent overhead cover" = "XCDENMID", "Bank overhead cover" = "XCDENBK", "Vegetation Complexity" = "XCMG")
 instream.indicators <- list("Habitat complexity" = "XFC_NAT", "Percent fines" = "PCT_SAFN", "Floodplain connectivity" = "LINCIS_H", "Residual pool depth" = "RP100")
 
 shinyServer(function(input, output) {
 
-    # filter terrestrial data
+#### filter terrestrial data ####
+  ## This is defining a reactive function that takes the query from ui.R and filters by it
     filteredData <- reactive({
-      q.string <- input$query
-      eval.string <- paste('filter(tdat.point.fc@data, ',q.string,')',sep="")
+      q.string <- input$query ## Pull in the query (a string)
+      eval.string <- paste('filter(tdat.point.fc@data, ',q.string,')',sep="") ## Construct a string that constitutes the filter() function and its arguments
       print(eval.string)
-      tmp <- eval(parse(text=eval.string))
+      tmp <- eval(parse(text=eval.string)) ## Run the string as though it were the function+arguments. Because it is
       return(tmp)
     })
     
-    ## Filter the aquatic data. We're defining a reactive function that we can use eslewhere so that calling aquatic.filtered()
+#### Filter the aquatic data ####
+    ## We're defining a reactive function that we can use eslewhere so that calling aquatic.filtered()
     ## is equivalent to just inserting the currently-defined dataset
     aquatic.filtered <- reactive({
       ## First up is grabbing the correct indicator, either riparian or in-stream
