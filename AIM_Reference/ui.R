@@ -95,7 +95,9 @@ shinyUI(fluidPage(
         #                ),
         ## Display the button to use the entered query ====
         actionButton(inputId = "terragobutton",
-                     label="Query TerrADat")
+                     label="Query TerrADat"),
+        ## If the query threw an error, this will let you know
+        helpText(textOutput("queryerror")) ## Jury-rigging because output can't have logical values? If there's an error, output$queryerror is changed to an error message letting the user know they screwed up
       ) ## Closure for the TerrADat panels
     ), ## Closure for the sidebar definitions
 
