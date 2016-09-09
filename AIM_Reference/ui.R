@@ -75,11 +75,11 @@ shinyUI(fluidPage(
                   value="ProjectName == \"California NorCal 2013\"",
                   width='100%'
                   ),
-        fileInput(inputId = "uploadzip",
-                  label = "Upload a polygon shapefile in a .ZIP",
-                  multiple = F,
-                  accept = c("application/zip")
-                  ),
+        # fileInput(inputId = "uploadzip",
+        #           label = "Upload a polygon shapefile in a .ZIP",
+        #           multiple = F,
+        #           accept = c("application/zip")
+        #           ),
         ## Select terrestrial project(s) ====
         # selectizeInput(inputId = "terrproject", ## This value is used to narrow down the site and ecosite options next
         #                label = "Select a project or projects to filter by.",

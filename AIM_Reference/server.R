@@ -12,6 +12,7 @@ library(rgdal)
 library(dplyr)
 library(ggplot2)
 library(purrr)
+library(stringr)
 
 datapath <- getwd()
 TerrADat.gdd <- "Terradat_data_8.17.15_complete.gdb"
