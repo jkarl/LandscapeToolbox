@@ -9,28 +9,75 @@ library(shiny)
 library(leaflet)
 library(sp)
 library(rgdal)
+library(dplyr)
+library(ggplot2)
+library(purrr)
 
 datapath <- getwd()
 TerrADat.gdd <- "Terradat_data_8.17.15_complete.gdb"
 
-## Load TerrADat points
+#### Load TerrADat points ####
 TerrADat.gdb <- paste(datapath,TerrADat.gdd,sep="/")
 ogrListLayers(TerrADat.gdb)
 tdat.point.fc <- readOGR(dsn=TerrADat.gdb, layer="SV_IND_TERRESTRIALAIM",stringsAsFactors=F)
 tdat.prj <- proj4string(tdat.point.fc)
 
+#### Load AquADat reference points ####
+aquatic.reference <- read.csv("aquatic_aim_priority_reference.csv", stringsAsFactors = F)
+
+#### Lists of aquatic indicators ####
+riparian.indicators <- list("Percent overhead cover" = "XCDENMID", "Bank overhead cover" = "XCDENBK", "Vegetation Complexity" = "XCMG")
+instream.indicators <- list("Habitat complexity" = "XFC_NAT", "Percent fines" = "PCT_SAFN", "Floodplain connectivity" = "LINCIS_H", "Residual pool depth" = "RP100")
+
 shinyServer(function(input, output) {
 
-    # filter data
+#### filter terrestrial data ####
+  ## This is defining a reactive function that takes the query from ui.R and filters by it
     filteredData <- reactive({
-      q.string <- input$query
-      eval.string <- paste('filter(tdat.point.fc@data, ',q.string,')',sep="")
+      q.string <- input$query ## Pull in the query (a string)
+      eval.string <- paste('filter(tdat.point.fc@data, ',q.string,')',sep="") ## Construct a string that constitutes the filter() function and its arguments
       print(eval.string)
-      tmp <- eval(parse(text=eval.string))
+      ## Creating a version of eval() using the purrr adverb safely(). safe.eval() returns a named list with "result" and "error", one of which will be NULL
+      ## Calling safe.eval won't crash the app and we can check to see if is.null(output[["result"]]) elsewhere to decide how to procede
+      safe.eval <- safely(eval)
+      tmp <- safe.eval(parse(text=eval.string))[["result"]] ## Run the string as though it were the function+arguments. Because it is, theoretically
       return(tmp)
-      })
+    })
+    
+#### Filter the aquatic data ####
+    ## We're defining a reactive function that we can use eslewhere so that calling aquatic.filtered()
+    ## is equivalent to just inserting the currently-defined dataset
+    aquatic.filtered <- reactive({
+      ## First up is grabbing the correct indicator, either riparian or in-stream
+      ## I wasn't getting the expected results when both the in-stream and riparian panels in the UI were writing to the same input object
+      ## so this takes takes the appropriate one based on the indicatortype selection and writes it to an object I can use
+      if (input$indicatortype == "riparian"){
+        aquatic.indicator <- input$aquaticindicatorriparian
+      } else if (input$indicatortype == "instream"){
+        aquatic.indicator <- input$aquaticindicatorinstream
+      }
+      ## Then we filter for THRESH selection(s) and remove all the NAs
+      tmp <- aquatic.reference %>% filter(indicator == aquatic.indicator) %>% filter(!is.na(value), THRESH %in% input$thresh)
+      return(tmp)
+    })
     
 
+    ## Creating a histogram from the filtered reference data when the query button is hit
+    observeEvent(input$aquagobutton,
+                 {
+                   ## Plotting the figure. This needs further expansion, but is generalized to pull the relevant information in to label the figure
+                   figure.dataset <- aquatic.filtered()
+                   output$histogram <- renderPlot(
+                     figure.dataset %>%
+                     ggplot(.data = figure.dataset, aes(x = value)) +
+                     ## Arbitrarily decided that the resolution should be 20 bins for the figure. This can and should be flexible
+                     geom_histogram(binwidth = {(max(figure.dataset$value) - min(figure.dataset$value)) / 20}) #+ 
+                     #geom_density()
+                   )
+                 }
+                 )
+    
+    
     # Create base leaflet map and add the base TerrADat points
     output$AIMmap <- renderLeaflet({
       leaflet(tdat.point.fc) %>%
@@ -39,15 +86,25 @@ shinyServer(function(input, output) {
         addCircles(data=tdat.point.fc,radius=1,color="#777777",popup=~paste("PlotID:",PlotID)) %>%
         #setView(-115,41,zoom=5)
         fitBounds(tdat.point.fc@bbox[1,1],tdat.point.fc@bbox[2,1],tdat.point.fc@bbox[1,2],tdat.point.fc@bbox[2,2])
-    })    
-    
+    })
+
     # add points to leaflet map
     #input$goButton
-    observeEvent(input$goButton,{
-        filtData <- filteredData()
-        leafletProxy("AIMmap",data=filtData) %>%
-        clearMarkers() %>%
-        addCircleMarkers(radius=2,color="#DD7777",layerId=paste("q",1:nrow(filtData),sep=''),popup=~paste("PlotID:",PlotID))
+    observeEvent(input$terragobutton,{
+        filtData <- filteredData() ## The output of filteredData comes from a safe()-wrapped function where we already requested just the "result" from the list
+        filtData %>% str() ## Part of debugging
+        if (!is.null(filtData)){ ## If there was an error in filtering the data, the filtData will be NULL
+          print("Doesn't look like there was an error")
+          output$queryerror <- renderText("") ## There wasn't an error!
+          leafletProxy("AIMmap",data=filtData) %>% ## Adding it to the map
+          clearMarkers() %>%
+          addCircleMarkers(radius=2,color="#DD7777",layerId=paste("q",1:nrow(filtData),sep=''),popup=~paste("PlotID:",PlotID))
+        } else if (is.null(filtData)) { ## The alternative to "we avoided an error" is "an error happened"
+            output$queryerror <- renderText("There was an error in subsetting the data. Check to make sure your query isn't malformed.") ## We can use this value on the UI side to let the user know the query was borked. Logical values aren't allowed, so we're just writing the whole error message
+        }
+        # leafletProxy("AIMmap",data=filtData) %>%
+        # clearMarkers() %>%
+        # addCircleMarkers(radius=2,color="#DD7777",layerId=paste("q",1:nrow(filtData),sep=''),popup=~paste("PlotID:",PlotID))
     })
 
 })
