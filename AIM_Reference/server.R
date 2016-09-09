@@ -11,6 +11,7 @@ library(sp)
 library(rgdal)
 library(dplyr)
 library(ggplot2)
+library(purrr)
 
 datapath <- getwd()
 TerrADat.gdd <- "Terradat_data_8.17.15_complete.gdb"
@@ -36,7 +37,10 @@ shinyServer(function(input, output) {
       q.string <- input$query ## Pull in the query (a string)
       eval.string <- paste('filter(tdat.point.fc@data, ',q.string,')',sep="") ## Construct a string that constitutes the filter() function and its arguments
       print(eval.string)
-      tmp <- eval(parse(text=eval.string)) ## Run the string as though it were the function+arguments. Because it is
+      ## Creating a version of eval() using the purrr adverb safely(). safe.eval() returns a named list with "result" and "error", one of which will be NULL
+      ## Calling safe.eval won't crash the app and we can check to see if is.null(output[["result"]]) elsewhere to decide how to procede
+      safe.eval <- safely(eval)
+      tmp <- safe.eval(parse(text=eval.string))[["result"]] ## Run the string as though it were the function+arguments. Because it is, theoretically
       return(tmp)
     })
     
