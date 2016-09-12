@@ -30,6 +30,7 @@ aquatic.reference <- read.csv("aquatic_aim_priority_reference.csv", stringsAsFac
 riparian.indicators <- list("Percent overhead cover" = "XCDENMID", "Bank overhead cover" = "XCDENBK", "Vegetation Complexity" = "XCMG")
 instream.indicators <- list("Habitat complexity" = "XFC_NAT", "Percent fines" = "PCT_SAFN", "Floodplain connectivity" = "LINCIS_H", "Residual pool depth" = "RP100")
 
+#### Starting up that Shiny backend! ####
 shinyServer(function(input, output) {
 
 #### filter terrestrial data ####
@@ -63,7 +64,7 @@ shinyServer(function(input, output) {
     })
     
 
-    ## Creating a histogram from the filtered reference data when the query button is hit
+#### Creating a histogram from the filtered reference data when the query button is hit ####
     observeEvent(input$aquagobutton,
                  {
                    ## Plotting the figure. This needs further expansion, but is generalized to pull the relevant information in to label the figure
@@ -79,7 +80,7 @@ shinyServer(function(input, output) {
                  )
     
     
-    # Create base leaflet map and add the base TerrADat points
+#### Create base leaflet map and add the base TerrADat points ####
     output$AIMmap <- renderLeaflet({
       leaflet(tdat.point.fc) %>%
         addProviderTiles("Stamen.TonerLite",
@@ -89,7 +90,7 @@ shinyServer(function(input, output) {
         fitBounds(tdat.point.fc@bbox[1,1],tdat.point.fc@bbox[2,1],tdat.point.fc@bbox[1,2],tdat.point.fc@bbox[2,2])
     })
 
-    # add points to leaflet map
+#### add points to leaflet map ####
     #input$goButton
     observeEvent(input$terragobutton,{
         filtData <- filteredData() ## The output of filteredData comes from a safe()-wrapped function where we already requested just the "result" from the list
