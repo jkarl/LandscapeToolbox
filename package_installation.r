@@ -30,7 +30,7 @@ install.packages(
   c(
     "ggplot2", ## The go-to for figure generation. Most R-using scientists AND Nate Silver use it, so you should too
     "ggthemes", ## Quick themes to painlessly apply to figures from ggplot
-    "ggmap", ## Mapping support for ggplot
+    "ggmap" ## Mapping support for ggplot
   )
 )
 
