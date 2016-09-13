@@ -12,6 +12,7 @@ library(rgdal)
 library(dplyr)
 library(ggplot2)
 library(purrr)
+library(stringr)
 
 datapath <- getwd()
 TerrADat.gdd <- "Terradat_data_8.17.15_complete.gdb"
@@ -29,8 +30,53 @@ aquatic.reference <- read.csv("aquatic_aim_priority_reference.csv", stringsAsFac
 riparian.indicators <- list("Percent overhead cover" = "XCDENMID", "Bank overhead cover" = "XCDENBK", "Vegetation Complexity" = "XCMG")
 instream.indicators <- list("Habitat complexity" = "XFC_NAT", "Percent fines" = "PCT_SAFN", "Floodplain connectivity" = "LINCIS_H", "Residual pool depth" = "RP100")
 
+#### Starting up that Shiny backend! ####
 shinyServer(function(input, output) {
 
+#### We need to handle the extraction and reading-in of the shapefile from a .zip. This is a pain. ####
+  ## The solution is a reactive function. We can call readshp() and it'll take the current input .zip, extract it, and read in the shapefile
+  readshp <- reactive({
+    file <- input$uploadzip ## There should've been an uploaded file and we're storing it as file
+    if (is.null(file)){return(NULL)} ## Emphasis on 'should' so we take precautions in case it's not been uploaded
+    if (!grepl(".zip", file$name, fixed = T)){return(NULL)} ## Check to see if grepl()ing the file name for ".zip" returns FALSE. Because we want to return NULL if that's the case, we use the ! to flip the F to T to get a response when some fool's uploaded a non-.zip
+    ## Theoretically, the preceding two lines caught the worst case scenarios and we have a .zip, so now we can extract its contents
+    print("File exists and ends in .zip")
+    print("The value in file$datapath is:")
+    print(dirname(file$datapath)) ## Just some diagnostic output in the terminal, not that an end-user will ever see it
+    ## This was adapted from the LandscapeToolbox spatially-balanced points tool because that was broken(?????)
+    switch(Sys.info()[["sysname"]], ## switch() takes as its first argument an expression that resolves to a number or character string, then executes the subsequent argument that matches that number or character string
+           Windows = { ## For a Windows system, which should happen when the named value "sysname" in the list resulting from Sys.info() is "Windows", do the following
+             print("This is Windows.")
+             origdir = getwd() ## Save what the current working directory is so we can set it back at the end of this
+             setwd(dirname(file$datapath)) ## Set the new working directory to the uploaded file's datapath. Not sure why this is here, but removing it breaks stuff
+             system(paste0("cmd.exe /c cd ", dirname(file$datapath))) ## Pass this argument to the OS. It changes directories. When making Windows system calls, you need to invoke "cmd.exe /c" first
+             system(paste0("cmd.exe /c \"C:\\Program Files\\7-Zip\\7z\".exe e -aoa ", file$datapath)) ## Pass the extraction argument to the OS. I had to aim it at my 7zip install. If yours is elsewhere, change the filepath to it, but know that those escaped quotation marks are necessary if there are spaces in your folder names. Thanks, Microsoft
+             setwd(origdir) ## Restoring the working directory
+             print("Resetting working directory to:") ## Diagnostic terminal output to reassure a debugger that it is in fact reset to the original working directory
+             print(getwd())
+           },
+           Linux = { ## If the OS is Linux then:
+             print("This is Unix. I know this.")
+             origdir = getwd() ## Store the working directory as is, so we can restore it at the end of unzipping
+             setwd(dirname(file$datapath)) ## Setting the working directory
+             system(sprintf("cd %s", dirname(file$datapath))) ## Passing this to the OS
+             print(getwd()) ## Just checking for debugging
+             system(sprintf("unzip -u %s", inFile$datapath)) ## The unzipping argument to pass to the OS
+             setwd(origdir) ## Set the working directory back
+           }
+        )
+    ## We need the shapefile name and for it to not have the file extension
+    shapename <- list.files(path = dirname(file$datapath), pattern = ".shp$") %>% ## List all the files in the extracted folder that end in .shp. If there's more then one this is almost certainly going to burn.
+      str_replace(., ".shp", "") ## Strip out the .shp
+    print("The shapefile name, sans extension, is:") ## Just diagnostic reassurance.
+    print(shapename) ## If you see "character(0)" then something's wrong, but you probably already knew that
+    ## I suspect the next bit is overcomplicated because SOMEONE didn't know an easier way to use readOGR(), but I can't be bothered to do more than copy/paste right now and it works
+    shape <- readOGR(dsn = dirname(file$datapath), layer = shapename) ## Read in the shapefile using the file location and the shapefile name. Normally I'd provide the full filepath down to the file extension for the dsn argument but this doesn't, so that may explain why someone wrote the next line
+    shape$dirname <- substr(file$datapath, 1, nchar(file$datapath)-2) %>% as.character() %>% paste() ## I rewrote this just to use pipes, but I don't understand why it's here or the specifics of substr()
+    return(shape) ## Can't forget this or we don't get any output from the function!
+  })
+  
+  
 #### filter terrestrial data ####
   ## This is defining a reactive function that takes the query from ui.R and filters by it
     filteredData <- reactive({
@@ -62,7 +108,7 @@ shinyServer(function(input, output) {
     })
     
 
-    ## Creating a histogram from the filtered reference data when the query button is hit
+#### Creating a histogram from the filtered reference data when the query button is hit ####
     observeEvent(input$aquagobutton,
                  {
                    ## Plotting the figure. This needs further expansion, but is generalized to pull the relevant information in to label the figure
@@ -78,7 +124,7 @@ shinyServer(function(input, output) {
                  )
     
     
-    # Create base leaflet map and add the base TerrADat points
+#### Create base leaflet map and add the base TerrADat points ####
     output$AIMmap <- renderLeaflet({
       leaflet(tdat.point.fc) %>%
         addProviderTiles("Stamen.TonerLite",
@@ -88,7 +134,7 @@ shinyServer(function(input, output) {
         fitBounds(tdat.point.fc@bbox[1,1],tdat.point.fc@bbox[2,1],tdat.point.fc@bbox[1,2],tdat.point.fc@bbox[2,2])
     })
 
-    # add points to leaflet map
+#### add points to leaflet map ####
     #input$goButton
     observeEvent(input$terragobutton,{
         filtData <- filteredData() ## The output of filteredData comes from a safe()-wrapped function where we already requested just the "result" from the list
