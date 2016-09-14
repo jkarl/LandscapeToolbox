@@ -30,12 +30,21 @@ install.packages(
   c(
     "ggplot2", ## The go-to for figure generation. Most R-using scientists AND Nate Silver use it, so you should too
     "ggthemes", ## Quick themes to painlessly apply to figures from ggplot
-    "ggmap" ## Mapping support for ggplot
+    "ggmap", ## Mapping support for ggplot
+    "RColorBrewer" ## All about making beautiful color palettes for maps and figures
   )
 )
 
 #### MISCELLANEOUS PACKAGES ####
+## These are more ala carte. Pick and choose as you need them
+install.packages("markdown") ## Generates documents with figures and everything based on your script, which means that if you change the data, the document changes to reflect it. POWERFUL.
+install.packages("rJava") ## Chances are really good that this is already installed as a dependency for another package, but just to be safe, here it is
+install.packages("devtools") ## For more granular control of the R environment when you need it, which may not be very often at all
+install.packages("git2r") ## If you're going to use Git, this is important because it lets you use git from within R. It's a dependency of devtools though, so it may already be installed
 install.packages("arcgisbinding") ## Young and finicky, but once you have it all installed (an ordeal) you should be able to read from and write to file geodatabases from R
 install.packages("gridExtra") ## Lets you make grid objects that you can place ggplot figures into. May occasionally be preferable to faceting in ggplot, but rarely
 install.packages("shiny") ## Required for working with Shiny tools in any form. Can be maddening
 install.packages("purrr") ## Really, really useful for writing functions, particularly those that fail gracefully
+install.packages("gstat") ## For spatial and spatio-temporal geostatistical modelling and simulation
+install.packages("foreach") ## Parallel looping structures. Sarah McCord's thesis work required this
+install.packages("snow") ## If you're doing distributed computing across multiple machines, grab this
