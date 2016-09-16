@@ -104,7 +104,8 @@ shinyServer(function(input, output) {
         aquatic.indicator <- input$aquaticindicatorinstream
       }
       ## Then we filter for THRESH selection(s) and remove all the NAs
-      tmp <- aquatic.reference %>% filter(indicator == aquatic.indicator) %>% filter(!is.na(value), THRESH %in% input$thresh)
+      tmp <- aquatic.reference %>% filter(x = ., indicator == aquatic.indicator) %>%
+        filter(., !is.na(value), THRESH %in% input$thresh)
       return(tmp)
     })
     
@@ -141,7 +142,7 @@ shinyServer(function(input, output) {
         filtData <- filteredData() ## The output of filteredData comes from a safe()-wrapped function where we already requested just the "result" from the list
         filtData %>% str() ## Part of debugging
         if (!is.null(filtData)){ ## If there was an error in filtering the data, the filtData will be NULL
-          print("Doesn't look like there was an error")
+          print("Doesn't look like there was an error") ## For debug purposes
           output$queryerror <- renderText("") ## There wasn't an error!
           leafletProxy("AIMmap",data=filtData) %>% ## Adding it to the map
           clearMarkers() %>%
