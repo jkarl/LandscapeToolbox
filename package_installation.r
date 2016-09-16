@@ -55,3 +55,4 @@ install.packages("purrr") ## Really, really useful for writing functions, partic
 install.packages("gstat") ## For spatial and spatio-temporal geostatistical modelling and simulation
 install.packages("foreach") ## Parallel looping structures. Sarah McCord's thesis work required this
 install.packages("snow") ## If you're doing distributed computing across multiple machines, grab this
+install.packages("vegan") ## Multivariate analysis of things like vegetation communities
