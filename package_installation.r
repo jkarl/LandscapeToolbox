@@ -2,15 +2,22 @@
 ### COMMONLY USED PACKAGES IN AIM R SCRIPTS ###
 ###############################################
 
+#### THE CORE ####
+install.packages("tidyverse")
+## The tidyverse package includes a number of packages also listed below. It's a quick way to bootstrap up a new install of R.
+## They include:
+## broom, DBI, dplyr, forcats, ggplot2, haven, httr, hms, jsonlite, lubridate, magrittr, modelr, purrr, readr, readxl, stringr,
+## tibble, rvest, tidyr, and xml2
+
 #### DATA WRANGLING ####
 install.packages(
   c(
     "dplyr", ## Notably useful for data frame manipulation with group_by(), summarize(), and mutate() and the piping operator %>%. Do you have a moment to hear the good news of our savior, piping?
     "tidyr", ## Lots of useful things, but specifically gather() and spread() for converting wide data frames into long ones and vice versa
+    "broom", ## Get stats objects into tidy data frames. Not as common
     "stringr", ## All about character strings. Great for str_split() in particular, but the whole str_ family of functions are A+
     "RODBC", ## Allows R to pass SQL queries to Access databases and pull out the results
-    "XLSX", ## Read in modern Excel workbooks and spreadsheets
-    "broom" ## Get stats objects into tidy data frames. Not as common
+    "XLSX" ## Read in modern Excel workbooks and spreadsheets
   )
 )
 
@@ -48,3 +55,4 @@ install.packages("purrr") ## Really, really useful for writing functions, partic
 install.packages("gstat") ## For spatial and spatio-temporal geostatistical modelling and simulation
 install.packages("foreach") ## Parallel looping structures. Sarah McCord's thesis work required this
 install.packages("snow") ## If you're doing distributed computing across multiple machines, grab this
+install.packages("vegan") ## Multivariate analysis of things like vegetation communities

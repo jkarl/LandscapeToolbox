@@ -73,6 +73,7 @@ shinyServer(function(input, output) {
     ## I suspect the next bit is overcomplicated because SOMEONE didn't know an easier way to use readOGR(), but I can't be bothered to do more than copy/paste right now and it works
     shape <- readOGR(dsn = dirname(file$datapath), layer = shapename) ## Read in the shapefile using the file location and the shapefile name. Normally I'd provide the full filepath down to the file extension for the dsn argument but this doesn't, so that may explain why someone wrote the next line
     shape$dirname <- substr(file$datapath, 1, nchar(file$datapath)-2) %>% as.character() %>% paste() ## I rewrote this just to use pipes, but I don't understand why it's here or the specifics of substr()
+    shape <- shape %>% spTransform(., CRS(tdat.prj)) ## Pre-emptively get the shapefile into the same projection as the TerrADat data
     return(shape) ## Can't forget this or we don't get any output from the function!
   })
   
@@ -103,7 +104,8 @@ shinyServer(function(input, output) {
         aquatic.indicator <- input$aquaticindicatorinstream
       }
       ## Then we filter for THRESH selection(s) and remove all the NAs
-      tmp <- aquatic.reference %>% filter(indicator == aquatic.indicator) %>% filter(!is.na(value), THRESH %in% input$thresh)
+      tmp <- aquatic.reference %>% filter(x = ., indicator == aquatic.indicator) %>%
+        filter(., !is.na(value), THRESH %in% input$thresh)
       return(tmp)
     })
     
@@ -140,7 +142,7 @@ shinyServer(function(input, output) {
         filtData <- filteredData() ## The output of filteredData comes from a safe()-wrapped function where we already requested just the "result" from the list
         filtData %>% str() ## Part of debugging
         if (!is.null(filtData)){ ## If there was an error in filtering the data, the filtData will be NULL
-          print("Doesn't look like there was an error")
+          print("Doesn't look like there was an error") ## For debug purposes
           output$queryerror <- renderText("") ## There wasn't an error!
           leafletProxy("AIMmap",data=filtData) %>% ## Adding it to the map
           clearMarkers() %>%
