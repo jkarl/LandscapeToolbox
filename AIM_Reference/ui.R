@@ -71,15 +71,20 @@ shinyUI(fluidPage(
         
         ## Display the option to enter a TerrADat query ====
         textInput("query",
-                  label="TerrADat Query",
-                  value="ProjectName == \"California NorCal 2013\"",
-                  width='100%'
+                  label = "TerrADat Query",
+                  value = "ProjectName == \"California NorCal 2013\"",
+                  width = '100%'
                   ),
         fileInput(inputId = "uploadzip",
                   label = "Upload a polygon shapefile in a .ZIP",
                   multiple = F,
                   accept = c("application/zip")
                   ),
+        
+        selectInput(inputId = "fieldname",
+                   label = "Select the relevant field in the shapefile.",
+                   choices = c("")),
+        
         ## Select terrestrial project(s) ====
         # selectizeInput(inputId = "terrproject", ## This value is used to narrow down the site and ecosite options next
         #                label = "Select a project or projects to filter by.",
@@ -95,7 +100,10 @@ shinyUI(fluidPage(
         #                ),
         ## Display the button to use the entered query ====
         actionButton(inputId = "terragobutton",
-                     label="Query TerrADat"),
+                     label = "Query TerrADat"),
+        ## Display the button to filter with
+        actionButton(inputId = "terrapolygobutton",
+                     label = "Filter TerrADat with shapefile"),
         ## If the query threw an error, this will let you know
         helpText(textOutput("queryerror")) ## Jury-rigging because output can't have logical values? If there's an error, output$queryerror is changed to an error message letting the user know they screwed up
       ) ## Closure for the TerrADat panels
