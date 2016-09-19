@@ -14,6 +14,7 @@ library(ggplot2)
 library(purrr)
 library(stringr)
 
+#setwd(paste0(getwd(), "/AIM_Reference/")) ## Because the working directory is one level up when I run this
 datapath <- getwd()
 TerrADat.gdd <- "Terradat_data_8.17.15_complete.gdb"
 
