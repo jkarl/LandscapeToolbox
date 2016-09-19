@@ -31,7 +31,7 @@ riparian.indicators <- list("Percent overhead cover" = "XCDENMID", "Bank overhea
 instream.indicators <- list("Habitat complexity" = "XFC_NAT", "Percent fines" = "PCT_SAFN", "Floodplain connectivity" = "LINCIS_H", "Residual pool depth" = "RP100")
 
 #### Starting up that Shiny backend! ####
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
 
 #### We need to handle the extraction and reading-in of the shapefile from a .zip. This is a pain. ####
   ## The solution is a reactive function. We can call readshp() and it'll take the current input .zip, extract it, and read in the shapefile
@@ -123,6 +123,24 @@ shinyServer(function(input, output) {
                      #geom_density()
                    )
                  }
+                 )
+    
+#### Updating the values of the field selectizeInput() in the UI from our shapefile
+    observeEvent(eventExpr = temp$newshape, ## Theoretically, when there's a new shapefile, this becomes true
+                 handlerExpr = {
+                   print("And the structure of temp$shape is:")
+                   str(temp$shape)
+                   # print("Trying to pull out just the data frame")
+                   # shape.df <- temp$shape@data %>% as.data.frame()
+                   # str(shape.df)
+                   print("The column names of temp$shape@data are:")
+                   print(paste(colnames(temp$shape@data), collapse = " "))
+                   updateSelectInput(session = session,
+                                     inputId = "fieldname",
+                                     choices = as.list(colnames(temp$shape@data)),
+                                     selected = head(colnames(temp$shape@data)))
+                   print("Party on") ## Diagnostic to make sure we made it this far
+                   }
                  )
     
     
