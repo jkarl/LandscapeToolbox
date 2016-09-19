@@ -33,12 +33,14 @@ instream.indicators <- list("Habitat complexity" = "XFC_NAT", "Percent fines" = 
 #### Starting up that Shiny backend! ####
 shinyServer(function(input, output, session) {
 
+  temp <- reactiveValues()
 #### We need to handle the extraction and reading-in of the shapefile from a .zip. This is a pain. ####
-  ## The solution is a reactive function. We can call readshp() and it'll take the current input .zip, extract it, and read in the shapefile
-  readshp <- reactive({
+  ## The solution is a to wrap the process in an observe() so that if any of the inputs it depends on (specifically the uploaded file) changes,
+  ## then the chunk of code will execute and read in the shapefile from the upload
+  observe({
     file <- input$uploadzip ## There should've been an uploaded file and we're storing it as file
-    if (is.null(file)){return(NULL)} ## Emphasis on 'should' so we take precautions in case it's not been uploaded
-    if (!grepl(".zip", file$name, fixed = T)){return(NULL)} ## Check to see if grepl()ing the file name for ".zip" returns FALSE. Because we want to return NULL if that's the case, we use the ! to flip the F to T to get a response when some fool's uploaded a non-.zip
+    if (is.null(file)) {return(NULL)} ## Emphasis on 'should' so we take precautions in case it's not been uploaded
+    if (!grepl(".zip", file$name, fixed = T)) {return(NULL)} ## Check to see if grepl()ing the file name for ".zip" returns FALSE. Because we want to return NULL if that's the case, we use the ! to flip the F to T to get a response when some fool's uploaded a non-.zip
     ## Theoretically, the preceding two lines caught the worst case scenarios and we have a .zip, so now we can extract its contents
     print("File exists and ends in .zip")
     print("The value in file$datapath is:")
@@ -72,9 +74,13 @@ shinyServer(function(input, output, session) {
     print(shapename) ## If you see "character(0)" then something's wrong, but you probably already knew that
     ## I suspect the next bit is overcomplicated because SOMEONE didn't know an easier way to use readOGR(), but I can't be bothered to do more than copy/paste right now and it works
     shape <- readOGR(dsn = dirname(file$datapath), layer = shapename) ## Read in the shapefile using the file location and the shapefile name. Normally I'd provide the full filepath down to the file extension for the dsn argument but this doesn't, so that may explain why someone wrote the next line
-    shape$dirname <- substr(file$datapath, 1, nchar(file$datapath)-2) %>% as.character() %>% paste() ## I rewrote this just to use pipes, but I don't understand why it's here or the specifics of substr()
+    shape$dirname <- substr(file$datapath, 1, nchar(file$datapath) - 2) %>% as.character() %>% paste() ## I rewrote this just to use pipes, but I don't understand why it's here or the specifics of substr()
     shape <- shape %>% spTransform(., CRS(tdat.prj)) ## Pre-emptively get the shapefile into the same projection as the TerrADat data
-    return(shape) ## Can't forget this or we don't get any output from the function!
+    temp$newshape <- T
+    print("The structure of shape before trying to return it from within the observe({})")
+    str(shape@data)
+    temp$shape <- shape
+    str(temp$shape@data)
   })
   
   
