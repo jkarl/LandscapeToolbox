@@ -165,13 +165,13 @@ shinyServer(function(input, output, session) {
                  }
     )
     
-    observeEvent(eventExpr = input$terrapolygobutton,
+    observeEvent(eventExpr = input$terrapolygobutton, ## When they hit the button
                  handlerExpr = {
                    print(paste0("Current selected values in the field ", input$fieldname, " are:"))
                    print(paste(input$fieldvalues, collapse = ", "))
-                   restrictedshape <- temp$shape[(temp$shape@data[, paste(input$fieldname)] %in% as.vector(input$fieldvalues)),]
-                   filterterradatindices <- over(tdat.point.fc, restrictedshape)[, paste(input$fieldname)] %>% is.na() %>% !.
-                   filterterradat <- tdat.point.fc[filterterradatindices,]
+                   restrictedshape <- temp$shape[(temp$shape@data[, paste(input$fieldname)] %in% as.vector(input$fieldvalues)),] ## Slice the polygons down to the areas where the values in the selected field match the values that the user chose
+                   filterterradatindices <- over(tdat.point.fc, restrictedshape)[, paste(input$fieldname)] %>% is.na() %>% !. ## Get the column from the data frame where the points were intersected with the polygons, turn it logical, and flip the values because we want the indices where they overlapped
+                   filterterradat <- tdat.point.fc[filterterradatindices,] ## Couldn't be part of the above line because adding it caused !. to think that it was getting a vector with two dimensions(???)
                    output$filteredtable <- renderTable(filterterradat@data[])
                    # if (!is.null(filterterradat)){ ## If there was an error in filtering the data, this will be NULL
                    #   print("Doesn't look like there was an error") ## For debug purposes
