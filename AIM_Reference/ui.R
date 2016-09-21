@@ -120,7 +120,8 @@ shinyUI(fluidPage(
       tabsetPanel(
 ## The landing tab that explains a bit of what's going on ====
         tabPanel(title = "Instructions",
-                 "Select stuff in the side panel to get a histogram of that stuff."
+                 "Select stuff in the side panel to get a histogram of that stuff.",
+                 dataTableOutput("filteredtable")
                  ),
 ## A tab for the histogram ====
         tabPanel(title = "Histogram",
