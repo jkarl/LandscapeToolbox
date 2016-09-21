@@ -77,10 +77,10 @@ shinyServer(function(input, output, session) {
     shape <- readOGR(dsn = dirname(file$datapath), layer = shapename) ## Read in the shapefile using the file location and the shapefile name. Normally I'd provide the full filepath down to the file extension for the dsn argument but this doesn't, so that may explain why someone wrote the next line
     shape$dirname <- substr(file$datapath, 1, nchar(file$datapath) - 2) %>% as.character() %>% paste() ## I rewrote this just to use pipes, but I don't understand why it's here or the specifics of substr()
     shape <- shape %>% spTransform(., CRS(tdat.prj)) ## Pre-emptively get the shapefile into the same projection as the TerrADat data
-    temp$newshape <- T
-    print("The structure of shape before trying to return it from within the observe({})")
+    print("The structure of shape before trying to write it from within the observe({})")
     str(shape@data)
     temp$shape <- shape
+    print("The structure of the shape now that it's stored in the reactive value object temp")
     str(temp$shape@data)
   })
   
