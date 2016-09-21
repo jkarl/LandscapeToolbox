@@ -82,8 +82,13 @@ shinyUI(fluidPage(
                   ),
         
         selectInput(inputId = "fieldname",
-                   label = "Select the relevant field in the shapefile.",
+                   label = "Select the relevant attribute field in the shapefile:",
                    choices = c("")),
+        
+        selectizeInput(inputId = "fieldvalues",
+                       label = "Select the attribute field values to filter by:",
+                       choices = c(""),
+                       multiple = T),
         
         ## Select terrestrial project(s) ====
         # selectizeInput(inputId = "terrproject", ## This value is used to narrow down the site and ecosite options next

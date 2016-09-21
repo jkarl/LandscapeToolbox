@@ -133,22 +133,59 @@ shinyServer(function(input, output, session) {
                  )
     
 #### Updating the values of the field selectizeInput() in the UI from our shapefile
-    observeEvent(eventExpr = temp$newshape, ## Theoretically, when there's a new shapefile, this becomes true
+    observeEvent(eventExpr = temp$shape, ## Theoretically, when there's a new shapefile, this becomes true
                  handlerExpr = {
-                   print("And the structure of temp$shape is:")
+                   print("The structure of temp$shape is:")
                    str(temp$shape)
-                   # print("Trying to pull out just the data frame")
-                   # shape.df <- temp$shape@data %>% as.data.frame()
-                   # str(shape.df)
                    print("The column names of temp$shape@data are:")
-                   print(paste(colnames(temp$shape@data), collapse = " "))
+                   print(paste(colnames(temp$shape@data), collapse = ", "))
                    updateSelectInput(session = session,
                                      inputId = "fieldname",
                                      choices = as.list(colnames(temp$shape@data)),
                                      selected = head(colnames(temp$shape@data)))
-                   print("Party on") ## Diagnostic to make sure we made it this far
+                   print("Party hard") ## Diagnostic to make sure we made it this far
                    }
                  )
+    
+    observeEvent(eventExpr = !is.null(input$fieldname),
+                 handlerExpr = {
+                   if (input$fieldname != "") {
+                     print("The selected field name is:")
+                     print(paste(input$fieldname))
+                     print("The values in that field in the shapefile are:")
+                     print(paste(temp$shape@data[,input$fieldname], collapse = ", "))
+                     updateSelectizeInput(session = session,
+                                       inputId = "fieldvalues",
+                                       choices = as.character(temp$shape@data[, (colnames(temp$shape@data) %in% input$fieldname)]) %>% unique()
+                                       )
+                     str(as.character(temp$shape@data[, (colnames(temp$shape@data) %in% input$fieldname)]))
+                     str(input$fieldvalues)
+                     print("Rock on") ## Diagnostic to make sure we made it this far
+                   }
+                 }
+    )
+    
+    observeEvent(eventExpr = input$terrapolygobutton,
+                 handlerExpr = {
+                   print(paste0("Current selected values in the field ", input$fieldname, " are:"))
+                   print(paste(input$fieldvalues, collapse = ", "))
+                   restrictedshape <- temp$shape[(temp$shape@data[, paste(input$fieldname)] %in% as.vector(input$fieldvalues)),]
+                   filterterradatindices <- over(tdat.point.fc, restrictedshape)[, paste(input$fieldname)] %>% is.na() %>% !.
+                   filterterradat <- tdat.point.fc[filterterradatindices,]
+                   output$filteredtable <- renderTable(filterterradat@data[])
+                   # if (!is.null(filterterradat)){ ## If there was an error in filtering the data, this will be NULL
+                   #   print("Doesn't look like there was an error") ## For debug purposes
+                   #   leafletProxy("AIMmap", data = filterterradat@data) %>% ## Adding it to the map
+                   #     clearMarkers() %>%
+                   #     addCircleMarkers(radius = 2,
+                   #                      color = "#DD7777",
+                   #                      layerId = paste("q", 1:nrow(filterterradat@data), sep = ''),
+                   #                      popup = ~paste("PlotID:",PlotID)
+                   #                      )
+                   #    }
+                   }
+                 )
+
     
     
 #### Create base leaflet map and add the base TerrADat points ####
