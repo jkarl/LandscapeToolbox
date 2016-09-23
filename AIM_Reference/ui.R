@@ -19,13 +19,13 @@ shinyUI(fluidPage(
       ## Choosing whether you want to look at terrestrial or aquatic data
       selectInput(inputId = "domain",
                   label = "TerrADat or AquADat?",
-                  choices = list("", "AquADat" = "aquadat", "TerrADat" = "terradat"),
+                  choices = list("", "AquADat" = "aquatic", "TerrADat" = "terrestrial"),
                   selected = ""
                   ),
 
 #### The panel of AquADat options visible only when input$domain == "AquADat" ----
       conditionalPanel(
-        condition = "input.domain == 'aquadat'",
+        condition = "input.domain == 'aquatic'",
 ## Choose between riparian and in-stream indicators ====
         selectInput(inputId = "indicatortype",
                     label = "In-stream or riparian indicator?",
