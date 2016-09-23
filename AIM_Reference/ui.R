@@ -67,50 +67,69 @@ shinyUI(fluidPage(
             # 
 #### The panel of TerrADat options visible only when input$domain == "TerrADat" ----
       conditionalPanel(
-        condition = "input.domain == 'terradat'",
+        condition = "input.domain == 'terrestrial'",
+        
+        radioButtons(inputId = "compref",
+                     label = "Defining comparison data or reference data?",
+                     choices = c("Comparison" = "comparison", "Reference" = "reference"),
+                     selected = "comparison",
+                     inline = T
+        ),
+        
+        radioButtons(inputId = "filtertype",
+                     label = "Defining with a shapefile or a query?",
+                     choices = c("Shapefile" = "shape", "Query" = "query"),
+                     selected = "shape",
+                     inline = T
+        ),
         
         ## Display the option to enter a TerrADat query ====
-        textInput("query",
-                  label = "TerrADat Query",
-                  value = "ProjectName == \"California NorCal 2013\"",
-                  width = '100%'
-                  ),
-        fileInput(inputId = "uploadzip",
-                  label = "Upload a polygon shapefile in a .ZIP",
-                  multiple = F,
-                  accept = c("application/zip")
-                  ),
+        conditionalPanel(condition = "input.filtertype == 'query'",
+                         
+                         textInput("query",
+                                   label = "TerrADat Query",
+                                   value = "ProjectName == \"California NorCal 2013\"",
+                                   width = '100%'
+                                  ),
+                         
+                         actionButton(inputId = "terraquery",
+                                      label = "Filter TerrADat by query"),
+                         
+                         helpText(textOutput("queryerror")) ## Jury-rigging because output can't have logical values? If there's an error, output$queryerror is changed to an error message letting the user know they screwed up
+                         ),
         
-        selectInput(inputId = "fieldname",
-                   label = "Select the relevant attribute field in the shapefile:",
-                   choices = c("")),
-        
-        selectizeInput(inputId = "fieldvalues",
-                       label = "Select the attribute field values to filter by:",
-                       choices = c(""),
-                       multiple = T),
-        
-        ## Select terrestrial project(s) ====
-        # selectizeInput(inputId = "terrproject", ## This value is used to narrow down the site and ecosite options next
-        #                label = "Select a project or projects to filter by.",
-        #                choices = unique(tdat.point.fc@data$ProjectName)
-        #                ),
-        # selectizeInput(inputId = "terrsiteid",
-        #                label = "",
-        #                choices = list("needs to be populated based on terrproject")
-        #                ),
-        # selectizeInput(inputId = "terrecosite",
-        #                label = "",
-        #                choices = list("needs to be populated based on terrproject")
-        #                ),
+        conditionalPanel(condition = "input.filtertype == 'shape'",
+                         ## Upload a .zip containing the .shp and attendant files
+                         fileInput(inputId = "uploadzip",
+                                   label = "Upload a polygon shapefile in a .ZIP",
+                                   multiple = F,
+                                   accept = c("application/zip")
+                                   ),
+                         
+                         ## Select the field in the uploaded shapefile to filter with
+                         selectInput(inputId = "fieldname",
+                                     label = "Select the relevant attribute field in the shapefile:",
+                                     choices = c("") ## The server has an observeEvent that populates this once there's a shapefile
+                                     ),
+                         
+                         ## Select the values in the field selected above to use to filter by
+                         selectizeInput(inputId = "fieldvalues",
+                                        label = "Select the attribute field values to filter by:",
+                                        choices = c(""), ## The server has an observeEvent that populates this once there's a field
+                                        multiple = T
+                                        ),
+                         
+                         actionButton(inputId = "terrafilter",
+                                      label = "Filter TerrADat by selection")
+                         )#,
+
         ## Display the button to use the entered query ====
-        actionButton(inputId = "terragobutton",
-                     label = "Query TerrADat"),
-        ## Display the button to filter with
-        actionButton(inputId = "terrapolygobutton",
-                     label = "Filter TerrADat with shapefile"),
+        # actionButton(inputId = "terragobutton",
+        #              label = "Query TerrADat"),
+        # ## Display the button to filter with
+        # actionButton(inputId = "terrapolygobutton",
+        #              label = "Filter TerrADat with shapefile"),
         ## If the query threw an error, this will let you know
-        helpText(textOutput("queryerror")) ## Jury-rigging because output can't have logical values? If there's an error, output$queryerror is changed to an error message letting the user know they screwed up
       ) ## Closure for the TerrADat panels
     ), ## Closure for the sidebar definitions
 
