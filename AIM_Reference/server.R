@@ -19,9 +19,9 @@ datapath <- getwd()
 TerrADat.gdd <- "Terradat_data_8.17.15_complete.gdb"
 
 #### Load TerrADat points ####
-TerrADat.gdb <- paste(datapath,TerrADat.gdd,sep="/")
+TerrADat.gdb <- paste(datapath, TerrADat.gdd, sep = "/")
 ogrListLayers(TerrADat.gdb)
-tdat.point.fc <- readOGR(dsn=TerrADat.gdb, layer="SV_IND_TERRESTRIALAIM",stringsAsFactors=F)
+tdat.point.fc <- readOGR(dsn = TerrADat.gdb, layer = "SV_IND_TERRESTRIALAIM", stringsAsFactors=F)
 tdat.prj <- proj4string(tdat.point.fc)
 
 #### Load AquADat reference points ####
