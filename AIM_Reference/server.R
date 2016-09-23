@@ -35,14 +35,13 @@ instream.indicators <- list("Habitat complexity" = "XFC_NAT", "Percent fines" = 
 shinyServer(function(input, output, session) {
 
   temp <- reactiveValues()
-#### We need to handle the extraction and reading-in of the shapefile from a .zip. This is a pain. ####
-  ## The solution is a to wrap the process in an observe() so that if any of the inputs it depends on (specifically the uploaded file) changes,
-  ## then the chunk of code will execute and read in the shapefile from the upload
-  observe({
+
+#### Function that will take the current uploaded file, check to make sure it's a valid .zip, unzip it, and read in the shapefile ####
+  shapeextract <- reactive({
     file <- input$uploadzip ## There should've been an uploaded file and we're storing it as file
     if (is.null(file)) {return(NULL)} ## Emphasis on 'should' so we take precautions in case it's not been uploaded
-    if (!grepl(".zip", file$name, fixed = T)) {return(NULL)} ## Check to see if grepl()ing the file name for ".zip" returns FALSE. Because we want to return NULL if that's the case, we use the ! to flip the F to T to get a response when some fool's uploaded a non-.zip
-    ## Theoretically, the preceding two lines caught the worst case scenarios and we have a .zip, so now we can extract its contents
+    else if (!grepl(".zip", file$name, fixed = T)) {return(NULL)} ## Check to see if grepl()ing the file name for ".zip" returns FALSE. Because we want to return NULL if that's the case, we use the ! to flip the F to T to get a response when some fool's uploaded a non-.zip
+    else ## Theoretically, the preceding two lines caught the worst case scenarios and we have a .zip, so now we can extract its contents
     print("File exists and ends in .zip")
     print("The value in file$datapath is:")
     print(dirname(file$datapath)) ## Just some diagnostic output in the terminal, not that an end-user will ever see it
