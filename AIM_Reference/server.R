@@ -139,56 +139,55 @@ shinyServer(function(input, output, session) {
                  )
     
 #### Updating the values of the field selectizeInput() in the UI from our shapefile
-    observeEvent(eventExpr = temp$shape, ## Theoretically, when there's a new shapefile, this becomes true
+    observeEvent(eventExpr = {temp$newshape}, ## Theoretically, when there's a new shapefile, this becomes true
                  handlerExpr = {
-                   print("The structure of temp$shape is:")
-                   str(temp$shape)
-                   print("The column names of temp$shape@data are:")
-                   print(paste(colnames(temp$shape@data), collapse = ", "))
-                   updateSelectInput(session = session,
-                                     inputId = "fieldname",
-                                     choices = as.list(colnames(temp$shape@data)),
-                                     selected = head(colnames(temp$shape@data)))
-                   print("Party hard") ## Diagnostic to make sure we made it this far
+                   if (temp$newshape == T) {
+                     print(paste("Current value of temp$newshape is", temp$newshape, sep = " "))
+                     temp$newshape <- F
+                     print("The structure of the new shape is:")
+                     str(temp[[paste0(input$domain, input$filtertype, input$compref)]])
+                     print("The column names of the new shape data frame are:")
+                     print(paste(colnames(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data), collapse = ", "))
+                     updateSelectInput(session = session,
+                                       inputId = "fieldname",
+                                       choices = as.list(colnames(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data)),
+                                       selected = (colnames(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data))[1]
+                                       )
+                     print("Party hard") ## Diagnostic to make sure we made it this far
+                     }
                    }
                  )
     
-    observeEvent(eventExpr = !is.null(input$fieldname),
+    observeEvent(eventExpr = input$fieldname,
                  handlerExpr = {
                    if (input$fieldname != "") {
                      print("The selected field name is:")
                      print(paste(input$fieldname))
                      print("The values in that field in the shapefile are:")
-                     print(paste(temp$shape@data[,input$fieldname], collapse = ", "))
+                     print(paste(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data[,input$fieldname], collapse = ", "))
                      updateSelectizeInput(session = session,
                                        inputId = "fieldvalues",
-                                       choices = as.character(temp$shape@data[, (colnames(temp$shape@data) %in% input$fieldname)]) %>% unique()
+                                       choices = as.character(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data[, (colnames(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data) %in% input$fieldname)]) %>% unique()
                                        )
-                     str(as.character(temp$shape@data[, (colnames(temp$shape@data) %in% input$fieldname)]))
+                     str(as.character(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data[, (colnames(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data) %in% input$fieldname)]))
                      str(input$fieldvalues)
                      print("Rock on") ## Diagnostic to make sure we made it this far
                    }
                  }
     )
     
-    observeEvent(eventExpr = input$terrapolygobutton, ## When they hit the button
+#### Using the choices to filter the data and create a histogram from it
+    observeEvent(eventExpr = input$terrafilter, ## When they hit the button
                  handlerExpr = {
                    print(paste0("Current selected values in the field ", input$fieldname, " are:"))
                    print(paste(input$fieldvalues, collapse = ", "))
-                   restrictedshape <- temp$shape[(temp$shape@data[, paste(input$fieldname)] %in% as.vector(input$fieldvalues)),] ## Slice the polygons down to the areas where the values in the selected field match the values that the user chose
+                   restrictedshape <- temp[[paste0(input$domain, input$filtertype, input$compref)]][(temp[[paste0(input$domain, input$filtertype, input$compref)]]@data[, paste(input$fieldname)] %in% as.vector(input$fieldvalues)),] ## Slice the polygons down to the areas where the values in the selected field match the values that the user chose
+                   print("Getting ready to execute the over(), so make yourself comfortable.")
                    filterterradatindices <- over(tdat.point.fc, restrictedshape)[, paste(input$fieldname)] %>% is.na() %>% !. ## Get the column from the data frame where the points were intersected with the polygons, turn it logical, and flip the values because we want the indices where they overlapped
+                   print("The over() is finally finished!")
                    filterterradat <- tdat.point.fc[filterterradatindices,] ## Couldn't be part of the above line because adding it caused !. to think that it was getting a vector with two dimensions(???)
+                   str(filterterradat@data)
                    output$filteredtable <- renderTable(filterterradat@data[])
-                   # if (!is.null(filterterradat)){ ## If there was an error in filtering the data, this will be NULL
-                   #   print("Doesn't look like there was an error") ## For debug purposes
-                   #   leafletProxy("AIMmap", data = filterterradat@data) %>% ## Adding it to the map
-                   #     clearMarkers() %>%
-                   #     addCircleMarkers(radius = 2,
-                   #                      color = "#DD7777",
-                   #                      layerId = paste("q", 1:nrow(filterterradat@data), sep = ''),
-                   #                      popup = ~paste("PlotID:",PlotID)
-                   #                      )
-                   #    }
                    }
                  )
 
@@ -199,22 +198,28 @@ shinyServer(function(input, output, session) {
       leaflet(tdat.point.fc) %>%
         addProviderTiles("Stamen.TonerLite",
                          options = providerTileOptions(noWrap = TRUE)) %>%
-        addCircles(data=tdat.point.fc,radius=1,color="#777777",popup=~paste("PlotID:",PlotID)) %>%
+                          addCircles(data = tdat.point.fc,
+                                     radius = 1,
+                                     color = "#777777",
+                                     popup = ~paste("PlotID:",PlotID)) %>%
         #setView(-115,41,zoom=5)
         fitBounds(tdat.point.fc@bbox[1,1],tdat.point.fc@bbox[2,1],tdat.point.fc@bbox[1,2],tdat.point.fc@bbox[2,2])
     })
 
 #### add points to leaflet map ####
     #input$goButton
-    observeEvent(input$terragobutton,{
+    observeEvent(input$terraquery,{
         filtData <- filteredData() ## The output of filteredData comes from a safe()-wrapped function where we already requested just the "result" from the list
         filtData %>% str() ## Part of debugging
-        if (!is.null(filtData)){ ## If there was an error in filtering the data, the filtData will be NULL
+        if (!is.null(filtData)) { ## If there was an error in filtering the data, the filtData will be NULL
           print("Doesn't look like there was an error") ## For debug purposes
           output$queryerror <- renderText("") ## There wasn't an error!
-          leafletProxy("AIMmap",data=filtData) %>% ## Adding it to the map
+          leafletProxy("AIMmap" ,data = filtData) %>% ## Adding it to the map
           clearMarkers() %>%
-          addCircleMarkers(radius=2,color="#DD7777",layerId=paste("q",1:nrow(filtData),sep=''),popup=~paste("PlotID:",PlotID))
+          addCircleMarkers(radius = 2,
+                           color = "#DD7777",
+                           layerId = paste("q", 1:nrow(filtData), sep = ''),
+                           popup = ~paste("PlotID:", PlotID))
         } else if (is.null(filtData)) { ## The alternative to "we avoided an error" is "an error happened"
             output$queryerror <- renderText("There was an error in subsetting the data. Check to make sure your query isn't malformed.") ## We can use this value on the UI side to let the user know the query was borked. Logical values aren't allowed, so we're just writing the whole error message
         }
