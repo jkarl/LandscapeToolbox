@@ -66,10 +66,10 @@ shinyServer(function(input, output, session) {
              system(sprintf("unzip -u %s", inFile$datapath)) ## The unzipping argument to pass to the OS
              setwd(origdir) ## Set the working directory back
            }
-        )
+    )
     ## We need the shapefile name and for it to not have the file extension
     shapename <- list.files(path = dirname(file$datapath), pattern = ".shp$") %>% ## List all the files in the extracted folder that end in .shp. If there's more then one this is almost certainly going to burn.
-      str_replace(., ".shp", "") ## Strip out the .shp
+      str_replace(".shp", "") ## Strip out the .shp
     print("The shapefile name, sans extension, is:") ## Just diagnostic reassurance.
     print(shapename) ## If you see "character(0)" then something's wrong, but you probably already knew that
     ## I suspect the next bit is overcomplicated because SOMEONE didn't know an easier way to use readOGR(), but I can't be bothered to do more than copy/paste right now and it works
@@ -78,22 +78,29 @@ shinyServer(function(input, output, session) {
     shape <- shape %>% spTransform(., CRS(tdat.prj)) ## Pre-emptively get the shapefile into the same projection as the TerrADat data
     print("The structure of shape before trying to write it from within the observe({})")
     str(shape@data)
-    temp$shape <- shape
-    print("The structure of the shape now that it's stored in the reactive value object temp")
-    str(temp$shape@data)
+    return(shape)
   })
+  
+## Automatically read in the shapefile when it's uploaded and store it as the correct object
+  observeEvent(eventExpr = input$uploadzip,
+               handlerExpr = {
+                 temp[[paste0(input$domain, input$filtertype, input$compref)]] <- shapeextract()
+                 temp$newshape <- T ## A flag so we can trigger subsequent things
+                 print("The current contents of temp are:")
+                 print(paste(names(temp), collapse = ", "))
+               })
   
   
 #### filter terrestrial data ####
   ## This is defining a reactive function that takes the query from ui.R and filters by it
     filteredData <- reactive({
       q.string <- input$query ## Pull in the query (a string)
-      eval.string <- paste('filter(tdat.point.fc@data, ',q.string,')',sep="") ## Construct a string that constitutes the filter() function and its arguments
+      eval.string <- paste('filter(tdat.point.fc@data, ',q.string,')',sep = "") ## Construct a string that constitutes the filter() function and its arguments
       print(eval.string)
       ## Creating a version of eval() using the purrr adverb safely(). safe.eval() returns a named list with "result" and "error", one of which will be NULL
       ## Calling safe.eval won't crash the app and we can check to see if is.null(output[["result"]]) elsewhere to decide how to procede
       safe.eval <- safely(eval)
-      tmp <- safe.eval(parse(text=eval.string))[["result"]] ## Run the string as though it were the function+arguments. Because it is, theoretically
+      tmp <- safe.eval(parse(text = eval.string))[["result"]] ## Run the string as though it were the function+arguments. Because it is, theoretically
       return(tmp)
     })
     
@@ -104,9 +111,9 @@ shinyServer(function(input, output, session) {
       ## First up is grabbing the correct indicator, either riparian or in-stream
       ## I wasn't getting the expected results when both the in-stream and riparian panels in the UI were writing to the same input object
       ## so this takes takes the appropriate one based on the indicatortype selection and writes it to an object I can use
-      if (input$indicatortype == "riparian"){
+      if (input$indicatortype == "riparian") {
         aquatic.indicator <- input$aquaticindicatorriparian
-      } else if (input$indicatortype == "instream"){
+      } else if (input$indicatortype == "instream") {
         aquatic.indicator <- input$aquaticindicatorinstream
       }
       ## Then we filter for THRESH selection(s) and remove all the NAs
