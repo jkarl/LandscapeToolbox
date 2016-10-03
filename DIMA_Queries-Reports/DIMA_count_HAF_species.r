@@ -8,7 +8,7 @@ DIMA <- "filepath and filename to DIMA"
 haf.list <- read_csv("HAF_preferred_species_by_code.csv") %>% subset(GROWTH.HABIT == "FORB")
 
 channel <- odbcConnectAccess(DIMA) ## Assumes 32-bit R and 32-bit Access. Use odbcConnectAccess2007() if both are 64-bit
-species.lists <- sqlQuery("SELECT joinSitePlotLine.SiteID, joinSitePlotLine.PlotKey, joinSitePlotLine.PlotID, tblSpecRichDetail.SpeciesList FROM joinSitePlotLine INNER JOIN (tblSpecRichHeader LEFT JOIN tblSpecRichDetail ON tblSpecRichHeader.RecKey = tblSpecRichDetail.RecKey) ON joinSitePlotLine.LineKey = tblSpecRichHeader.LineKey;")
+species.lists <- sqlQuery(channel, "SELECT joinSitePlotLine.SiteID, joinSitePlotLine.PlotKey, joinSitePlotLine.PlotID, tblSpecRichDetail.SpeciesList FROM joinSitePlotLine INNER JOIN (tblSpecRichHeader LEFT JOIN tblSpecRichDetail ON tblSpecRichHeader.RecKey = tblSpecRichDetail.RecKey) ON joinSitePlotLine.LineKey = tblSpecRichHeader.LineKey;")
 odbcCloseAll()
 
 
