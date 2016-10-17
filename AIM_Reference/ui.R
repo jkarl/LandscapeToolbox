@@ -121,6 +121,7 @@ fluidPage(theme = shinytheme("united"),
         ),
         
         tabPanel(title = "Histogram",
+                 textOutput("emptyframe"),
                  plotOutput("plot"),
                  checkboxGroupInput(label = "Indicators to plot",
                                     inputId = "plotindicators",
