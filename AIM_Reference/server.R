@@ -270,60 +270,66 @@ shinyServer(function(input, output, session) {
   )
   
   observeEvent(eventExpr = input$plotbutton,
-               handlerExpr = { ## TODO: Add in something to catch when the data frame is empty because there was nothing that fit the filtering
+               handlerExpr = {
                  print("You clicked the plot button, so things're about to get real")
                  print(paste0("Defining compdata as the dataframe ", input$comparisonplotdata))
                  compdata <- temp[[input$comparisonplotdata]]
-                 print("Adding a variable to mark these as comparison")
-                 compdata$type <- "Comparison"
-                 print("Its structure is:")
-                 print(str(compdata))
-                 if (input$referenceplotdata != "None") {
-                   print(paste0("Defining compdata as the dataframe ", input$referenceplotdata))
-                   refdata <- temp[[input$referenceplotdata]]
-                   print("Adding a variable to mark these as reference")
-                   refdata$type <- "Reference"
-                   print("Its structure is:")
-                   str(refdata)
+                 if (nrow(compdata) < 1) {
+                   print("There are no values in this data frame. ABORTING")
+                   output$emptyframe <- renderText(print("The data frame was empty. Your filtering didn't find any matching plots. If you have small polygons or a very specific query within a project area, there may be no plots that meet those criteria. You may also have tried to select part of the landscape where no data have been collected or misspelled part of your query."))
                  } else {
-                   print("No reference data defined, so we're making an empty dataframe with the same column names as compdata")
-                   refdata <- data.frame(matrix(ncol = (ncol(compdata)), nrow = 0))
-                   names(refdata) <- names(compdata)
+                   output$emptyframe <- renderText(print(""))
+                   print("Adding a variable to mark these as comparison")
+                   compdata$type <- "Comparison"
                    print("Its structure is:")
-                   str(refdata)
-                 }
-                 print("Rbinding the compdata and refdata data frames into plotdata")
-                 plotdata <- rbind(compdata, refdata)
-                 print("Its structure is:")
-                 str(plotdata)
-                 print("Filtering to only the indicators that the user wants")
-                 if (input$plotindicators != "none") {
-                   print("Current indicators selected are:")
-                   print(paste(terrestrial.indicators[input$plotindicators], collapse = ", "))
-                   plotdata <- plotdata[plotdata$indicator %in% names(terrestrial.indicators[terrestrial.indicators %in% input$plotindicators]),]
-                 }
-                 print("Its structure now is:")
-                 str(plotdata)
-                 print("Attempting to generate figures")
-                 if (nrow(plotdata) > 0) {
-                   if (plotdata$PlotID[plotdata$type == "Comparison"] %>% unique() %>% length() > 1) {
-                     print("More than one comparison plot selected, so we'll plot two histograms")
-                     output$plot <- renderPlot(
-                       ggplot(plotdata, aes(x = value, fill = type)) +
-                         geom_histogram(alpha = 0.5) +
-                         facet_wrap(~indicator)
-                     )
-                   } else if (plotdata$PlotID[plotdata$type == "Comparison"] %>% unique() %>% length() == 1) {
-                     print("Just one comparison plot selected, so we'll put a vertical line where its value fell")
-                     output$plot <- renderPlot(
-                       ggplot(plotdata, aes(x = value, fill = type)) +
-                         geom_histogram(plotdata[plotdata$type == "Reference",], alpha = 0.5) +
-                         geom_vline(data = plotdata[plotdata$type == "Comparison",], aes(xintercept = value)) +
-                         facet_wrap(~indicator)
-                     )
+                   print(str(compdata))
+                   if (input$referenceplotdata != "None") {
+                     print(paste0("Defining compdata as the dataframe ", input$referenceplotdata))
+                     refdata <- temp[[input$referenceplotdata]]
+                     print("Adding a variable to mark these as reference")
+                     refdata$type <- "Reference"
+                     print("Its structure is:")
+                     str(refdata)
+                   } else {
+                     print("No reference data defined, so we're making an empty dataframe with the same column names as compdata")
+                     refdata <- data.frame(matrix(ncol = (ncol(compdata)), nrow = 0))
+                     names(refdata) <- names(compdata)
+                     print("Its structure is:")
+                     str(refdata)
                    }
+                   print("Rbinding the compdata and refdata data frames into plotdata")
+                   plotdata <- rbind(compdata, refdata)
+                   print("Its structure is:")
+                   str(plotdata)
+                   print("Filtering to only the indicators that the user wants")
+                   if (input$plotindicators != "none") {
+                     print("Current indicators selected are:")
+                     print(paste(terrestrial.indicators[input$plotindicators], collapse = ", "))
+                     plotdata <- plotdata[plotdata$indicator %in% names(terrestrial.indicators[terrestrial.indicators %in% input$plotindicators]),]
+                   }
+                   print("Its structure now is:")
+                   str(plotdata)
+                   print("Attempting to generate figures")
+                   if (nrow(plotdata) > 0) {
+                     if (plotdata$PlotID[plotdata$type == "Comparison"] %>% unique() %>% length() > 1) {
+                       print("More than one comparison plot selected, so we'll plot two histograms")
+                       output$plot <- renderPlot(
+                         ggplot(plotdata, aes(x = value, fill = type)) +
+                           geom_histogram(alpha = 0.5) +
+                           facet_wrap(~indicator)
+                       )
+                     } else if (plotdata$PlotID[plotdata$type == "Comparison"] %>% unique() %>% length() == 1) {
+                       print("Just one comparison plot selected, so we'll put a vertical line where its value fell")
+                       output$plot <- renderPlot(
+                         ggplot(plotdata, aes(x = value, fill = type)) +
+                           geom_histogram(plotdata[plotdata$type == "Reference",], alpha = 0.5) +
+                           geom_vline(data = plotdata[plotdata$type == "Comparison",], aes(xintercept = value)) +
+                           facet_wrap(~indicator)
+                       )
+                     }
+                   }
+                   print("Figures should be done!") 
                  }
-                 print("Figures should be done!")
                }
   )
   
