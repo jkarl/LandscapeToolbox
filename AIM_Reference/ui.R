@@ -1,4 +1,4 @@
-fluidPage(theme = shinytheme("united"),
+fluidPage(
   titlePanel("Indicator Distribution Visualizer"),
   sidebarLayout(
     sidebarPanel(
@@ -9,83 +9,52 @@ fluidPage(theme = shinytheme("united"),
       ),
       
       conditionalPanel(condition = "input.domain != ''",
-                       tabsetPanel(id = "compref",
-                                   "Use the options below to define your comparison or reference data by shapefile or query.",
-                                   tabPanel(title = "Comparison",
-                                            tabsetPanel(id = "filtertype",
-                                                        tabPanel(title = "Shapefile",
-                                                                 fileInput(inputId = "uploadzip",
-                                                                           label = "Upload a polygon shapefile in a .ZIP",
-                                                                           multiple = F,
-                                                                           accept = c("application/zip")
-                                                                 ),
-
-                                                                 ## Select the field in the uploaded shapefile to filter with
-                                                                 selectInput(inputId = "Comparisonfieldname",
-                                                                             label = "Select the relevant attribute field in the shapefile:",
-                                                                             choices = c("") ## The server has an observeEvent that populates this once there's a shapefile
-                                                                 ),
-
-                                                                 ## Select the values in the field selected above to use to filter by
-                                                                 selectizeInput(inputId = "Comparisonfieldvalues",
-                                                                                label = "Select the attribute field values to filter by:",
-                                                                                choices = c(""), ## The server has an observeEvent that populates this once there's a field
-                                                                                multiple = T
-                                                                 ),
-                                                                 actionButton(inputId = "terrafilter",
-                                                                              label = "Filter TerrADat by selection"
-                                                                 )
-                                                        ),
-                                                        tabPanel(title = "Query",
-                                                                 textInput("Comparisonquery",
-                                                                           label = "TerrADat Query",
-                                                                           value = "ProjectName == \"California NorCal 2013\"",
-                                                                           width = '100%'
-                                                                 ),
-
-                                                                 actionButton(inputId = "terraquery",
-                                                                              label = "Filter TerrADat by query"
-                                                                 )
-                                                        )
-                                            )
-                                   ),
-                                   tabPanel(title = "Reference",
-                                            tabsetPanel(id = "filtertype",
-                                                        tabPanel(title = "Shapefile",
-                                                                 fileInput(inputId = "uploadzip",
-                                                                           label = "Upload a polygon shapefile in a .ZIP",
-                                                                           multiple = F,
-                                                                           accept = c("application/zip")
-                                                                 ),
-
-                                                                 selectInput(inputId = "Referencefieldname",
-                                                                             label = "Select the relevant attribute field in the shapefile:",
-                                                                             choices = c("")
-                                                                 ),
-
-
-                                                                 selectizeInput(inputId = "Referencefieldvalues",
-                                                                                label = "Select the attribute field values to filter by:",
-                                                                                choices = c(""),
-                                                                                multiple = T
-                                                                 ),
-                                                                 actionButton(inputId = "terrafilter",
-                                                                              label = "Filter TerrADat by selection"
-                                                        )
-                                                        ),
-                                                        tabPanel(title = "Query",
-                                                                 textInput("query",
-                                                                           label = "TerrADat Query",
-                                                                           value = "ProjectName == \"California NorCal 2013\"",
-                                                                           width = '100%'
-                                                                 ),
-
-                                                                 actionButton(inputId = "terraquery",
-                                                                              label = "Filter TerrADat by query"
-                                                                 )
-                                                        )
-                                            )
-                                   )
+                       radioButtons(inputId = "compref",
+                                    label = "Are you currently defining comparison or reference data?",
+                                    choices = c("Comparison", "Reference")
+                       ),
+                       radioButtons(inputId = "filtertype",
+                                    label = "Defining with a shapefile or a query?",
+                                    choices = c("Shapefile", "Query")
+                       ),
+                       conditionalPanel(condition = "input.filtertype == 'Shapefile'",
+                                        fileInput(inputId = "uploadzip",
+                                                  label = "Upload a polygon shapefile in a .ZIP",
+                                                  multiple = F,
+                                                  accept = c("application/zip")
+                                        ),
+                                        
+                                        selectInput(inputId = "shapefile",
+                                                    label = "Select shapefiles to use from uploaded shapefiles",
+                                                    choices = c("")
+                                        ),
+                                        
+                                        ## Select the field in the uploaded shapefile to filter with
+                                        selectInput(inputId = "fieldname",
+                                                    label = "Select the relevant attribute field in the shapefile:",
+                                                    choices = c("") ## The server has an observeEvent that populates this once there's a shapefile
+                                        ),
+                                        
+                                        ## Select the values in the field selected above to use to filter by
+                                        selectizeInput(inputId = "fieldvalues",
+                                                       label = "Select the attribute field values to filter by:",
+                                                       choices = c(""), ## The server has an observeEvent that populates this once there's a field
+                                                       multiple = T
+                                        ),
+                                        actionButton(inputId = "terrafilter",
+                                                     label = "Filter TerrADat by selection"
+                                        )
+                       ),
+                       conditionalPanel(condition = "input.filtertype == 'Query'",
+                                        textInput("Comparisonquery",
+                                                  label = "TerrADat Query",
+                                                  value = "ProjectName == \"California NorCal 2013\"",
+                                                  width = '100%'
+                                        ),
+                                        
+                                        actionButton(inputId = "terraquery",
+                                                     label = "Filter TerrADat by query"
+                                        )
                        ),
                        
                        selectInput(inputId = "comparisonplotdata",
@@ -110,7 +79,7 @@ fluidPage(theme = shinytheme("united"),
                        )
       )
       
-
+      
     ),
     
     mainPanel(
