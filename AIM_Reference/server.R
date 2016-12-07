@@ -1,5 +1,4 @@
 library(shiny)
-library(shinythemes)
 library(leaflet)
 library(sp)
 library(rgdal)
@@ -8,6 +7,7 @@ library(tidyr)
 library(ggplot2)
 library(purrr)
 library(stringr)
+
 
 #setwd(paste0(getwd(), "/AIM_Reference/")) ## Because the working directory is one level up when I run this
 datapath <- getwd()
@@ -75,12 +75,18 @@ shinyServer(function(input, output, session) {
     terrindicators = {names(names(terrestrial.indicators)) <- unname(terrestrial.indicators)} ## Populating first terrindicators with terrestrial.indicators (just where the names and values swapped) for use in the UI
   )
   
+  ## Priming output with a vector to store the shapefile names in as they're uploaded so that they can be used to populate and option in the UI
+  temp$shapefiles <- as.vector("")
+  
+  ## Priming our newshape logical value
+  temp$newshape <- F
+  
   ## Function to decide what the name of the object the user is working with/on is called based on what tabs are selected
   ## Returns a string, e.g. "terrestrialShapefileComparison" or "terrestrialQueryReference"
   currentobjectname <- reactive({
     print("Trying to make the current object name")
     if (input$domain == "") {
-      print("Your domain was somehow ''???")
+      print("Your domain was somehow an empty string???")
       return(NULL)
     } else {
       objname <- paste0(
@@ -92,24 +98,25 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  
   ## Function that will take the current uploaded file, check to make sure it's a valid .zip, unzip it, and read in the shapefile
   ## Returns a spatial data frame, but doesn't make sure that it's polygons
   shapeextract <- reactive({ ## TODO: Make this work when subsequent files are uploaded and not just the first
-    file <- input$uploadzip ## There should've been an uploaded file and we're storing it as file
-    if (is.null(file)) {return(NULL)} ## Emphasis on 'should' so we take precautions in case it's not been uploaded
-    else if (!grepl(".zip", file$name, fixed = T)) {return(NULL)} ## Check to see if grepl()ing the file name for ".zip" returns FALSE. Because we want to return NULL if that's the case, we use the ! to flip the F to T to get a response when some fool's uploaded a non-.zip
+    shapes <- input$uploadzip ## There should've been an uploaded file and we're storing it as a new object so that this function will trigger on it
+    if (is.null(shapes)) {return(NULL)} ## Emphasis on 'should' so we take precautions in case it's not been uploaded
+    else if (!grepl(".zip", shapes$name, fixed = T)) {return(NULL)} ## Check to see if grepl()ing the file name for ".zip" returns FALSE. Because we want to return NULL if that's the case, we use the ! to flip the F to T to get a response when some fool's uploaded a non-.zip
     else ## Theoretically, the preceding two lines caught the worst case scenarios and we have a .zip, so now we can extract its contents
       print("File exists and ends in .zip")
-    print("The value in file$datapath is:")
-    print(dirname(file$datapath)) ## Just some diagnostic output in the terminal, not that an end-user will ever see it
+    print("The value in shapes$datapath is:")
+    print(dirname(shapes$datapath)) ## Just some diagnostic output in the terminal, not that an end-user will ever see it
     ## This was adapted from the LandscapeToolbox spatially-balanced points tool because that was broken(?????)
     switch(Sys.info()[["sysname"]], ## switch() takes as its first argument an expression that resolves to a number or character string, then executes the subsequent argument that matches that number or character string
            Windows = { ## For a Windows system, which should happen when the named value "sysname" in the list resulting from Sys.info() is "Windows", do the following
              print("This is Windows.")
              origdir = getwd() ## Save what the current working directory is so we can set it back at the end of this
-             setwd(dirname(file$datapath)) ## Set the new working directory to the uploaded file's datapath. Not sure why this is here, but removing it breaks stuff
-             system(paste0("cmd.exe /c cd ", dirname(file$datapath))) ## Pass this argument to the OS. It changes directories. When making Windows system calls, you need to invoke "cmd.exe /c" first
-             system(paste0("cmd.exe /c \"C:\\Program Files\\7-Zip\\7z\".exe e -aoa ", file$datapath)) ## Pass the extraction argument to the OS. I had to aim it at my 7zip install. If yours is elsewhere, change the filepath to it, but know that those escaped quotation marks are necessary if there are spaces in your folder names. Thanks, Microsoft
+             setwd(dirname(shapes$datapath)) ## Set the new working directory to the uploaded file's datapath. Not sure why this is here, but removing it breaks stuff
+             system(paste0("cmd.exe /c cd ", dirname(shapes$datapath))) ## Pass this argument to the OS. It changes directories. When making Windows system calls, you need to invoke "cmd.exe /c" first
+             system(paste0("cmd.exe /c \"C:\\Program Files\\7-Zip\\7z\".exe e -aoa ", shapes$datapath)) ## Pass the extraction argument to the OS. I had to aim it at my 7zip install. If yours is elsewhere, change the filepath to it, but know that those escaped quotation marks are necessary if there are spaces in your folder names. Thanks, Microsoft
              setwd(origdir) ## Restoring the working directory
              print("Resetting working directory to:") ## Diagnostic terminal output to reassure a debugger that it is in fact reset to the original working directory
              print(getwd())
@@ -117,23 +124,24 @@ shinyServer(function(input, output, session) {
            Linux = { ## If the OS is Linux then:
              print("This is Unix. I know this.")
              origdir = getwd() ## Store the working directory as is, so we can restore it at the end of unzipping
-             setwd(dirname(file$datapath)) ## Setting the working directory
-             system(sprintf("cd %s", dirname(file$datapath))) ## Passing this to the OS
+             setwd(dirname(shapes$datapath)) ## Setting the working directory
+             system(sprintf("cd %s", dirname(shapes$datapath))) ## Passing this to the OS
              print(getwd()) ## Just checking for debugging
              system(sprintf("unzip -u %s", inFile$datapath)) ## The unzipping argument to pass to the OS
              setwd(origdir) ## Set the working directory back
            }
     )
     ## We need the shapefile name and for it to not have the file extension
-    shapename <- list.files(path = dirname(file$datapath), pattern = ".shp$") %>% ## List all the files in the extracted folder that end in .shp. If there's more then one this is almost certainly going to burn.
+    shapename <- list.files(path = dirname(shapes$datapath), pattern = ".shp$") %>% ## List all the files in the extracted folder that end in .shp. If there's more then one this is almost certainly going to burn.
       str_replace(".shp", "") ## Strip out the .shp
+    temp$currentshapename <- shapename ## We need this to rename with outside this function later
     print("The shapefile name, sans extension, is:") ## Just diagnostic reassurance.
     print(shapename) ## If you see "character(0)" then something's wrong, but you probably already knew that
     ## I suspect the next bit is overcomplicated because SOMEONE didn't know an easier way to use readOGR(), but I can't be bothered to do more than copy/paste right now and it works
-    shape <- readOGR(dsn = dirname(file$datapath), layer = shapename) ## Read in the shapefile using the file location and the shapefile name. Normally I'd provide the full filepath down to the file extension for the dsn argument but this doesn't, so that may explain why someone wrote the next line
-    shape$dirname <- substr(file$datapath, 1, nchar(file$datapath) - 2) %>% as.character() %>% paste() ## I rewrote this just to use pipes, but I don't understand why it's here or the specifics of substr()
+    shape <- readOGR(dsn = dirname(shapes$datapath), layer = shapename, stringsAsFactors = F) ## Read in the shapefile using the file location and the shapefile name. Normally I'd provide the full filepath down to the file extension for the dsn argument but this doesn't, so that may explain why someone wrote the next line
+    shape$dirname <- substr(shapes$datapath, 1, nchar(shapes$datapath) - 2) %>% as.character() %>% paste() ## I rewrote this just to use pipes, but I don't understand why it's here or the specifics of substr()
     shape <- shape %>% spTransform(., CRS(tdat.prj)) ## Pre-emptively get the shapefile into the same projection as the TerrADat data
-    print("The structure of shape before trying to write it from within the observe({})")
+    print("The structure of shape@data before trying to write it from within the observe({})")
     str(shape@data)
     return(shape)
   })
@@ -141,28 +149,43 @@ shinyServer(function(input, output, session) {
   ## Automatically read in the shapefile when it's uploaded and store it as the correctly named value in temp
   observeEvent(eventExpr = input$uploadzip,
                handlerExpr = {
-                 temp[[currentobjectname()]] <- shapeextract()
+                 
+                 temp$file <- input$uploadzip
+                 temp$shapefile <- shapeextract()
+                 print(paste0("Attempting to assign the value of temp$shapefile to temp$", temp$currentshapename))
+                 temp[[temp$currentshapename]] <- temp$shapefile
+                 print("Is that a spatial data frame?")
+                 is.data.frame(temp[[temp$currentshapename]]@data)
+                 temp$shapefiles <- c(temp$shapefiles, temp$currentshapename)
+                 ## Updating the shapefile options each time a new shapefile is uploaded
+                 print(paste0("Updating the input$shapefile options to: ", paste(temp$shapefiles, collapse = ", ")))
+                 updateSelectInput(session = session,
+                                   inputId = "shapefile",
+                                   choices = temp$shapefiles,
+                                   selected = temp$currentshapename)
+                 print(paste0("The current value of input$shapefile is ", input$shapefile, " and it should be ", temp$currentshapename))
                  temp$newshape <- T ## A flag so we can trigger subsequent things
                  print("The current contents of temp are:")
                  print(paste(names(temp), collapse = ", "))
                })
   
   ## Update the options in the appropriate tab for the fields available in the uploaded shapefile
-  observeEvent(eventExpr = {temp$newshape},
+  observeEvent(eventExpr = {input$shapefile},
                handlerExpr = {
-                 if (temp$newshape == T) {
+                 if (input$shapefile != "") {
                    print(paste("Current value of temp$newshape is", temp$newshape, sep = " "))
                    temp$newshape <- F
                    print(paste("The new value of temp$newshape is", temp$newshape, sep = " "))
-                   print("The structure of the shape being worked with is:")
-                   str(temp[[currentobjectname()]])
+                   print(paste0("The length of the @data slot in, ", input$shapefile, ", is:"))
+                   print(nrow(temp[[input$shapefile]]@data))
                    print("The column names of the that shape's data frame are:")
-                   print(paste(colnames(temp[[currentobjectname()]]@data), collapse = ", "))
-                   print(paste0("Updating options for selectInput() with the id ", paste0(input$compref, "fieldname")))
+                   print(paste(colnames(temp[[input$shapefile]]@data), collapse = ", "))
+                   print(paste0("Updating options for selectInput() for input$fieldname"))
+                   print(paste0("Which should be: ", paste(colnames(temp[[input$shapefile]]@data), collapse = ", ")))
                    updateSelectInput(session = session,
-                                     inputId = paste0(input$compref, "fieldname"),
-                                     choices = as.list(colnames(temp[[currentobjectname()]]@data)),
-                                     selected = (colnames(temp[[currentobjectname()]]@data))[1]
+                                     inputId = "fieldname",
+                                     choices = as.list(colnames(temp[[input$shapefile]]@data)),
+                                     selected = (colnames(temp[[input$shapefile]]@data))[1]
                    )
                    print("Updated fieldname options")
                  }
@@ -170,90 +193,67 @@ shinyServer(function(input, output, session) {
   )
   
   ## Update the options in the appropriate tab for the values in the selected field in the uploaded shapefile
-  observeEvent(eventExpr = input[[paste0(input$compref, "fieldname")]],
+  observeEvent(eventExpr = input$fieldname,
                handlerExpr = {
-                 if (input[[paste0(input$compref, "fieldname")]] != "") {
+                 if (input$fieldname != "") {
                    print("The selected field name is:")
-                   print(paste(input[[paste0(input$compref, "fieldname")]]))
+                   print(input$fieldname)
                    print("The values in that field in the shapefile are:")
-                   print(paste(temp[[currentobjectname()]]@data[, input[[paste0(input$compref, "fieldname")]]], collapse = ", "))
+                   print(paste(temp[[input$shapefile]]@data[, input$fieldname], collapse = ", "))
                    print("Updating the options for the field values to:")
-                   print(paste(as.character(temp[[currentobjectname()]]@data %>% .[, (colnames(temp[[currentobjectname()]]@data) %in% input[[paste0(input$compref, "fieldname")]])]) %>% unique(), collapse = ", "))
+                   print(paste(as.character(temp[[input$shapefile]]@data %>% .[, (colnames(temp[[input$shapefile]]@data) %in% input$fieldname)]) %>% unique(), collapse = ", "))
                    updateSelectizeInput(session = session,
-                                        inputId = paste0(input$compref, "fieldvalues"),
-                                        choices = as.character(temp[[currentobjectname()]]@data %>% .[, (colnames(temp[[currentobjectname()]]@data) %in% input[[paste0(input$compref, "fieldname")]])]) %>% unique()
+                                        inputId = "fieldvalues",
+                                        choices = as.character(temp[[input$shapefile]]@data %>% .[, (colnames(temp[[input$shapefile]]@data) %in% input$fieldname)]) %>% unique()
                    )
                  }
                }
   )
   
-  # observeEvent(eventExpr = input[[paste0(input$compref, "fieldvalues")]],
-  #              handlerExpr = {
-  #                if (input[[paste0(input$compref, "fieldvalues")]] != "") {
-  #                  print("The current selected 'strata' are:")
-  #                  print(paste(input[[paste0(input$compref, "fieldvalues")]], collapse = ", "))
-  #                  print("Making a long form of the data frame")
-  #                  temp[[paste0(currentobjectname(), "longdf")]] <- switch(input$domain,
-  #                                                                          terrestrial = {
-  #                                                                            gather(data = temp[[currentobjectname()]]@data %>%
-  #                                                                                     .[temp[[currentobjectname()]]@data[, input[[paste0(input$compref, "fieldname")]]] %in% input[[paste0(input$compref, "fieldvalues")]]],
-  #                                                                                   indicator,
-  #                                                                                   value,
-  #                                                                                   GapPct_25_50,GapPct_51_100,GapPct_101_200,GapPct_200_plus,GapPct_25_plus,BareSoilCover_FH,TotalFoliarCover_FH,NonInvPerenForbCover_AH,NonInvAnnForbCover_AH,NonInvPerenGrassCover_AH,NonInvAnnGrassCover_AH,NonInvAnnForbGrassCover_AH,NonInvPerenForbGrassCover_AH,NonInvSucculentCover_AH,NonInvShrubCover_AH,NonInvSubShrubCover_AH,NonInvTreeCover_AH,InvPerenForbCover_AH,InvAnnForbCover_AH,InvPerenGrassCover_AH,InvAnnGrassCover_AH,InvAnnForbGrassCover_AH,InvPerenForbGrassCover_AH,InvSucculentCover_AH,InvShrubCover_AH,InvSubShrubCover_AH,InvTreeCover_AH,SagebrushCover_AH,WoodyHgt_Avg,HerbaceousHgt_Avg,SagebrushHgt_Avg,OtherShrubHgt_Avg,NonInvPerenGrassHgt_Avg,InvPerenGrassHgt_Avg,InvPlantCover_AH,InvPlant_NumSp,SoilStability_All,SoilStability_Protected,SoilStability_Unprotected
-  #                                                                            )
-  #                                                                          },
-  #                                                                          aquatic = {
-  #                                                                            gather(data = temp[[currentobjectname()]]@data %>%
-  #                                                                                     .[temp[[currentobjectname()]]@data[, input[[paste0(input$compref, "fieldname")]]] %in% input[[paste0(input$compref, "fieldvalues")]]],
-  #                                                                                   indicator,
-  #                                                                                   value#, TODO: Need to handle an aquatic situation by listing the indicators on the next line. Should be one set for riparian and one for in-stream
-  #                                                                                   # GapPct_25_50,GapPct_51_100,GapPct_101_200,GapPct_200_plus,GapPct_25_plus,BareSoilCover_FH,TotalFoliarCover_FH,NonInvPerenForbCover_AH,NonInvAnnForbCover_AH,NonInvPerenGrassCover_AH,NonInvAnnGrassCover_AH,NonInvAnnForbGrassCover_AH,NonInvPerenForbGrassCover_AH,NonInvSucculentCover_AH,NonInvShrubCover_AH,NonInvSubShrubCover_AH,NonInvTreeCover_AH,InvPerenForbCover_AH,InvAnnForbCover_AH,InvPerenGrassCover_AH,InvAnnGrassCover_AH,InvAnnForbGrassCover_AH,InvPerenForbGrassCover_AH,InvSucculentCover_AH,InvShrubCover_AH,InvSubShrubCover_AH,InvTreeCover_AH,SagebrushCover_AH,WoodyHgt_Avg,HerbaceousHgt_Avg,SagebrushHgt_Avg,OtherShrubHgt_Avg,NonInvPerenGrassHgt_Avg,InvPerenGrassHgt_Avg,InvPlantCover_AH,InvPlant_NumSp,SoilStability_All,SoilStability_Protected,SoilStability_Unprotected
-  #                                                                            )
-  #                                                                          }
-  #                  )
-  #                }
-  #              }
-  # )
   
   observeEvent(eventExpr = input$terrafilter,
                handlerExpr = {
                  print("Restricting the polygons")
-                 restrictedshape <- temp[[currentobjectname()]] %>%
-                   .[(temp[[currentobjectname()]]@data[, input[[paste0(input$compref, "fieldname")]]] %in% as.vector(input[[paste0(input$compref, "fieldvalues")]])),] ## Slice the polygons down to the areas where the values in the selected field match the values that the user chose
-                 print("Here's the structure of restrictedshape@data:")
-                 print(str(restrictedshape@data))
+                 restrictedshape <- temp[[input$shapefile]] %>%
+                   .[(temp[[input$shapefile]]@data[, input$fieldname] %in% as.vector(input$fieldvalues)),] ## Slice the polygons down to the areas where the values in the selected field match the values that the user chose
+                 print(paste("Here's the structure of restrictedshape, which is class ", class(restrictedshape), ":"))
+                 print(str(restrictedshape))
+                 print("Is proj4string the same for the restrictedshape and tdat.point.fc?")
+                 print(paste0("For tdat.point.fc it's ", tdat.point.fc@proj4string@projargs))
+                 print(paste0("For restrictedshape it's ", restrictedshape@proj4string@projargs))
                  print("Getting ready to execute the over(), so make yourself comfortable.")
                  filterterradat <- over(tdat.point.fc, restrictedshape)
                  print("The over() is finally finished! The result was:")
                  print(str(filterterradat))
+                 # print(paste0("Unique values in the column ", input$fieldname, ": ", paste(unique(filterterradat[, input$fieldname]), collapse = ", ")))
                  print("Making a logical vector of points that inherited values from the polygon so we can slice by that")
-                 filterterradatindices <- filterterradat[, input[[paste0(input$compref, "fieldname")]]] %>% as.character() %>% is.na() %>% !. ## Get the column from the data frame where the points were intersected with the polygons, turn it logical, and flip the values because we want the indices where they overlapped
+                 filterterradatindices <- filterterradat[, input$fieldname] %>% as.character() %>% is.na() %>% !. ## Get the column from the data frame where the points were intersected with the polygons, turn it logical, and flip the values because we want the indices where they overlapped
                  print("The number of points that fell in the polygons was:")
                  print(filterterradatindices[filterterradatindices] %>% length())
                  print("Making the long data frame")
-                 temp[[paste0(currentobjectname(), "longdf")]] <- switch(input$domain,
-                                                                         terrestrial = {
-                                                                           gather(data = tdat.point.fc@data[filterterradatindices,],
-                                                                                  indicator,
-                                                                                  value,
-                                                                                  GapPct_25_50,GapPct_51_100,GapPct_101_200,GapPct_200_plus,GapPct_25_plus,BareSoilCover_FH,TotalFoliarCover_FH,NonInvPerenForbCover_AH,NonInvAnnForbCover_AH,NonInvPerenGrassCover_AH,NonInvAnnGrassCover_AH,NonInvAnnForbGrassCover_AH,NonInvPerenForbGrassCover_AH,NonInvSucculentCover_AH,NonInvShrubCover_AH,NonInvSubShrubCover_AH,NonInvTreeCover_AH,InvPerenForbCover_AH,InvAnnForbCover_AH,InvPerenGrassCover_AH,InvAnnGrassCover_AH,InvAnnForbGrassCover_AH,InvPerenForbGrassCover_AH,InvSucculentCover_AH,InvShrubCover_AH,InvSubShrubCover_AH,InvTreeCover_AH,SagebrushCover_AH,WoodyHgt_Avg,HerbaceousHgt_Avg,SagebrushHgt_Avg,OtherShrubHgt_Avg,NonInvPerenGrassHgt_Avg,InvPerenGrassHgt_Avg,InvPlantCover_AH,InvPlant_NumSp,SoilStability_All,SoilStability_Protected,SoilStability_Unprotected
-                                                                           )
-                                                                         }#,
-                                                                         # aquatic = { ## TODO: EVERYTHING AQUATIC. THIS WILL BREAK IF ANYTHING TRIES TO USE IT
-                                                                         #   gather(data = temp[[currentobjectname()]]@data %>%
-                                                                         #            .[temp[[currentobjectname()]]@data[, input[[paste0(input$compref, "fieldname")]]] %in% input[[paste0(input$compref, "fieldvalues")]]],
-                                                                         #          indicator,
-                                                                         #          value#, TODO: Need to handle an aquatic situation by listing the indicators on the next line. Should be one set for riparian and one for in-stream
-                                                                         #          # GapPct_25_50,GapPct_51_100,GapPct_101_200,GapPct_200_plus,GapPct_25_plus,BareSoilCover_FH,TotalFoliarCover_FH,NonInvPerenForbCover_AH,NonInvAnnForbCover_AH,NonInvPerenGrassCover_AH,NonInvAnnGrassCover_AH,NonInvAnnForbGrassCover_AH,NonInvPerenForbGrassCover_AH,NonInvSucculentCover_AH,NonInvShrubCover_AH,NonInvSubShrubCover_AH,NonInvTreeCover_AH,InvPerenForbCover_AH,InvAnnForbCover_AH,InvPerenGrassCover_AH,InvAnnGrassCover_AH,InvAnnForbGrassCover_AH,InvPerenForbGrassCover_AH,InvSucculentCover_AH,InvShrubCover_AH,InvSubShrubCover_AH,InvTreeCover_AH,SagebrushCover_AH,WoodyHgt_Avg,HerbaceousHgt_Avg,SagebrushHgt_Avg,OtherShrubHgt_Avg,NonInvPerenGrassHgt_Avg,InvPerenGrassHgt_Avg,InvPlantCover_AH,InvPlant_NumSp,SoilStability_All,SoilStability_Protected,SoilStability_Unprotected
-                                                                         #   )
-                                                                         # }
+                 temp[[paste0(input$shapefile, input$compref, "longdf")]] <- switch(input$domain,
+                                                                                    terrestrial = {
+                                                                                      gather(data = tdat.point.fc@data[filterterradatindices,],
+                                                                                             indicator,
+                                                                                             value,
+                                                                                             GapPct_25_50,GapPct_51_100,GapPct_101_200,GapPct_200_plus,GapPct_25_plus,BareSoilCover_FH,TotalFoliarCover_FH,NonInvPerenForbCover_AH,NonInvAnnForbCover_AH,NonInvPerenGrassCover_AH,NonInvAnnGrassCover_AH,NonInvAnnForbGrassCover_AH,NonInvPerenForbGrassCover_AH,NonInvSucculentCover_AH,NonInvShrubCover_AH,NonInvSubShrubCover_AH,NonInvTreeCover_AH,InvPerenForbCover_AH,InvAnnForbCover_AH,InvPerenGrassCover_AH,InvAnnGrassCover_AH,InvAnnForbGrassCover_AH,InvPerenForbGrassCover_AH,InvSucculentCover_AH,InvShrubCover_AH,InvSubShrubCover_AH,InvTreeCover_AH,SagebrushCover_AH,WoodyHgt_Avg,HerbaceousHgt_Avg,SagebrushHgt_Avg,OtherShrubHgt_Avg,NonInvPerenGrassHgt_Avg,InvPerenGrassHgt_Avg,InvPlantCover_AH,InvPlant_NumSp,SoilStability_All,SoilStability_Protected,SoilStability_Unprotected
+                                                                                      )
+                                                                                    }#,
+                                                                                    # aquatic = { ## TODO: EVERYTHING AQUATIC. THIS WILL BREAK IF ANYTHING TRIES TO USE IT
+                                                                                    #   gather(data = temp[[currentobjectname()]]@data %>%
+                                                                                    #            .[temp[[currentobjectname()]]@data[, input[[paste0(input$compref, "fieldname")]]] %in% input[[paste0(input$compref, "fieldvalues")]]],
+                                                                                    #          indicator,
+                                                                                    #          value#, TODO: Need to handle an aquatic situation by listing the indicators on the next line. Should be one set for riparian and one for in-stream
+                                                                                    #          # GapPct_25_50,GapPct_51_100,GapPct_101_200,GapPct_200_plus,GapPct_25_plus,BareSoilCover_FH,TotalFoliarCover_FH,NonInvPerenForbCover_AH,NonInvAnnForbCover_AH,NonInvPerenGrassCover_AH,NonInvAnnGrassCover_AH,NonInvAnnForbGrassCover_AH,NonInvPerenForbGrassCover_AH,NonInvSucculentCover_AH,NonInvShrubCover_AH,NonInvSubShrubCover_AH,NonInvTreeCover_AH,InvPerenForbCover_AH,InvAnnForbCover_AH,InvPerenGrassCover_AH,InvAnnGrassCover_AH,InvAnnForbGrassCover_AH,InvPerenForbGrassCover_AH,InvSucculentCover_AH,InvShrubCover_AH,InvSubShrubCover_AH,InvTreeCover_AH,SagebrushCover_AH,WoodyHgt_Avg,HerbaceousHgt_Avg,SagebrushHgt_Avg,OtherShrubHgt_Avg,NonInvPerenGrassHgt_Avg,InvPerenGrassHgt_Avg,InvPlantCover_AH,InvPlant_NumSp,SoilStability_All,SoilStability_Protected,SoilStability_Unprotected
+                                                                                    #   )
+                                                                                    # }
                  )
-                 print(paste0("Just to prove that it worked, here's the structure of the freshly-generated ", paste0(currentobjectname(), "longdf")))
-                 print(str(temp[[paste0(currentobjectname(), "longdf")]]))
+                 print(paste0("Just to prove that it worked, here's the structure of the freshly-generated ", paste0(input$shapefile, "longdf")))
+                 print(str(temp[[paste0(input$shapefile, input$compref, "longdf")]]))
                  print("Updating the options for comparison plotting data")
                  updateSelectInput(session = session,
                                    inputId = "comparisonplotdata",
-                                   choices = c("", names(temp)[grepl(pattern = "longdf$", x = names(temp)) & grepl(pattern = "comparison", x = names(temp), ignore.case = T)])
+                                   choices = c("", names(temp)[grepl(pattern = "longdf$", x = names(temp)) & grepl(ignore.case = T, pattern = "comparison", x = names(temp))])
                  )
                  print("Updating the options for reference plotting data")
                  updateSelectInput(session = session,
@@ -265,7 +265,7 @@ shinyServer(function(input, output, session) {
                                           inputId = "plotindicators",
                                           choices = temp$terrindicators,
                                           selected = unname(temp$terrindicators)[1]
-                                          )
+                 )
                }
   )
   
