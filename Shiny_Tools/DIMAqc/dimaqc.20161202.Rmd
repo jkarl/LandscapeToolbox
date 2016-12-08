@@ -12,11 +12,11 @@ output:
     toc: yes
 params:
   crewvar: yes
-  dimafile: WRFO_2011-2014_DIMA3.1.mdb #AIM_2013.mdb
+  dimafile: AIM_2013.mdb # WRFO_2011-2014_DIMA3.1.mdb 
   missingvals: yes
-  site: all #HAF2012
+  site: HAF2012 #all
   suspectvals: yes
-  year: 2011
+  year: 2013
 ---
 
 ```{r setup, include=FALSE}
