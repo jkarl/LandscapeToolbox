@@ -210,7 +210,59 @@ shinyServer(function(input, output, session) {
                }
   )
   
+  ## TODO: Figure out a way to make the names of the stored TerrADat subsets sane rather than purely functional (Renaming function?)
   
+  ## Filtering by query
+  observeEvent(eventExpr = input$terraquery,
+               handlerExpr = {
+                 if (nchar(input$query) > 3) {
+                   eval.string <- paste0('filter(tdat.point.fc@data, ', input$query, ')') ## Construct a string that constitutes the filter() function and its arguments
+                   print(eval.string)
+                   ## Creating a version of eval() using the purrr adverb safely(). safe.eval() returns a named list with "result" and "error", one of which will be NULL
+                   ## Calling safe.eval won't crash the app and we can check to see if is.null(output[["result"]]) elsewhere to decide how to procede
+                   safe.eval <- safely(eval)
+                   queryfilteredterradat <- safe.eval(parse(text = eval.string))[["result"]] ## Run the string as though it were the function+arguments. Because it is, theoretically
+                   temp[[paste0(input$query, input$compref, "longdf")]] <- switch(input$domain,
+                                                                                      terrestrial = {
+                                                                                        gather(data = queryfilteredterradat,
+                                                                                               indicator,
+                                                                                               value,
+                                                                                               GapPct_25_50,GapPct_51_100,GapPct_101_200,GapPct_200_plus,GapPct_25_plus,BareSoilCover_FH,TotalFoliarCover_FH,NonInvPerenForbCover_AH,NonInvAnnForbCover_AH,NonInvPerenGrassCover_AH,NonInvAnnGrassCover_AH,NonInvAnnForbGrassCover_AH,NonInvPerenForbGrassCover_AH,NonInvSucculentCover_AH,NonInvShrubCover_AH,NonInvSubShrubCover_AH,NonInvTreeCover_AH,InvPerenForbCover_AH,InvAnnForbCover_AH,InvPerenGrassCover_AH,InvAnnGrassCover_AH,InvAnnForbGrassCover_AH,InvPerenForbGrassCover_AH,InvSucculentCover_AH,InvShrubCover_AH,InvSubShrubCover_AH,InvTreeCover_AH,SagebrushCover_AH,WoodyHgt_Avg,HerbaceousHgt_Avg,SagebrushHgt_Avg,OtherShrubHgt_Avg,NonInvPerenGrassHgt_Avg,InvPerenGrassHgt_Avg,InvPlantCover_AH,InvPlant_NumSp,SoilStability_All,SoilStability_Protected,SoilStability_Unprotected
+                                                                                        )
+                                                                                      }#,
+                                                                                      # aquatic = { ## TODO: EVERYTHING AQUATIC. THIS WILL BREAK IF ANYTHING TRIES TO USE IT
+                                                                                      #   gather(data = temp[[currentobjectname()]]@data %>%
+                                                                                      #            .[temp[[currentobjectname()]]@data[, input[[paste0(input$compref, "fieldname")]]] %in% input[[paste0(input$compref, "fieldvalues")]]],
+                                                                                      #          indicator,
+                                                                                      #          value#, TODO: Need to handle an aquatic situation by listing the indicators on the next line. Should be one set for riparian and one for in-stream
+                                                                                      #          # GapPct_25_50,GapPct_51_100,GapPct_101_200,GapPct_200_plus,GapPct_25_plus,BareSoilCover_FH,TotalFoliarCover_FH,NonInvPerenForbCover_AH,NonInvAnnForbCover_AH,NonInvPerenGrassCover_AH,NonInvAnnGrassCover_AH,NonInvAnnForbGrassCover_AH,NonInvPerenForbGrassCover_AH,NonInvSucculentCover_AH,NonInvShrubCover_AH,NonInvSubShrubCover_AH,NonInvTreeCover_AH,InvPerenForbCover_AH,InvAnnForbCover_AH,InvPerenGrassCover_AH,InvAnnGrassCover_AH,InvAnnForbGrassCover_AH,InvPerenForbGrassCover_AH,InvSucculentCover_AH,InvShrubCover_AH,InvSubShrubCover_AH,InvTreeCover_AH,SagebrushCover_AH,WoodyHgt_Avg,HerbaceousHgt_Avg,SagebrushHgt_Avg,OtherShrubHgt_Avg,NonInvPerenGrassHgt_Avg,InvPerenGrassHgt_Avg,InvPlantCover_AH,InvPlant_NumSp,SoilStability_All,SoilStability_Protected,SoilStability_Unprotected
+                                                                                      #   )
+                                                                                      # }
+                   )
+                   print(paste0("Just to prove that it worked, here's the structure of the freshly-generated longdf"))
+                   print(str(temp[[paste0(input$query, input$compref, "longdf")]]))
+                   output$currenttable <- renderTable(temp[[paste0(input$query, input$compref, "longdf")]])
+                   print("Updating the options for comparison plotting data")
+                   updateSelectInput(session = session,
+                                     inputId = "comparisonplotdata",
+                                     choices = c("", names(temp)[grepl(pattern = "longdf$", x = names(temp)) & grepl(ignore.case = T, pattern = "comparison", x = names(temp))])
+                   )
+                   print("Updating the options for reference plotting data")
+                   updateSelectInput(session = session,
+                                     inputId = "referenceplotdata",
+                                     choices = c("None", names(temp)[grepl(pattern = "longdf$", x = names(temp)) & grepl(pattern = "reference", x = names(temp), ignore.case = T)])
+                   )
+                   print("Updating the options for indicators to filter and facet by")
+                   updateCheckboxGroupInput(session = session,
+                                            inputId = "plotindicators",
+                                            choices = temp$terrindicators,
+                                            selected = unname(temp$terrindicators)[1]
+                   )
+                 }
+               }
+               )
+  
+  ## Filtering by polygons
   observeEvent(eventExpr = input$terrafilter,
                handlerExpr = {
                  print("Restricting the polygons")
@@ -250,6 +302,7 @@ shinyServer(function(input, output, session) {
                  )
                  print(paste0("Just to prove that it worked, here's the structure of the freshly-generated ", paste0(input$shapefile, "longdf")))
                  print(str(temp[[paste0(input$shapefile, input$compref, "longdf")]]))
+                 output$currenttable <- renderTable(temp[[paste0(input$shapefile, input$compref, "longdf")]])
                  print("Updating the options for comparison plotting data")
                  updateSelectInput(session = session,
                                    inputId = "comparisonplotdata",
@@ -309,20 +362,28 @@ shinyServer(function(input, output, session) {
                    }
                    print("Its structure now is:")
                    str(plotdata)
+                   
+                   ## TODO: Maybe normalize the histogram y-axis (percentage?)
+                   ## TODO: Beautify the figures
+                   ## TODO: Make histogram tab open when plots are rendered
+                   ## TODO: Fix all errors when there's just one plot in the comparison data
+                   ## TODO: Set up appropriate failsafes for all plot situations (no data in either type of data frame, only one plot in either data frame)
+                   
                    print("Attempting to generate figures")
                    if (nrow(plotdata) > 0) {
                      if (plotdata$PlotID[plotdata$type == "Comparison"] %>% unique() %>% length() > 1) {
                        print("More than one comparison plot selected, so we'll plot two histograms")
                        output$plot <- renderPlot(
                          ggplot(plotdata, aes(x = value, fill = type)) +
-                           geom_histogram(alpha = 0.5) +
+                           geom_histogram(aes(y = ..count../sum(..count..)), alpha = 0.5) + ## That aes(y) argument normalizes the histogram to proportion
                            facet_wrap(~indicator)
                        )
-                     } else if (plotdata$PlotID[plotdata$type == "Comparison"] %>% unique() %>% length() == 1) {
+                       ## This logic is broken currently somehow, I think. TODO: Fix it!
+                     } else if (plotdata$PlotKey[plotdata$type == "Comparison"] %>% unique() %>% length() == 1 & plotdata$PlotKey[plotdata$type == "Reference"] %>% unique() %>% length() > 1) {
                        print("Just one comparison plot selected, so we'll put a vertical line where its value fell")
                        output$plot <- renderPlot(
                          ggplot(plotdata, aes(x = value, fill = type)) +
-                           geom_histogram(plotdata[plotdata$type == "Reference",], alpha = 0.5) +
+                           geom_histogram(plotdata[plotdata$type == "Reference",],aes(y = ..count../sum(..count..)), alpha = 0.5) +
                            geom_vline(data = plotdata[plotdata$type == "Comparison",], aes(xintercept = value)) +
                            facet_wrap(~indicator)
                        )
