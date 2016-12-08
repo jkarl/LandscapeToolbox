@@ -211,6 +211,7 @@ shinyServer(function(input, output, session) {
   )
   
   ## TODO: Figure out a way to make the names of the stored TerrADat subsets sane rather than purely functional (Renaming function?)
+  ## TODO: Prevent output$currenttable from updating when swtching data subset type via radiobutton
   
   ## Filtering by query
   observeEvent(eventExpr = input$terraquery,
@@ -366,7 +367,6 @@ shinyServer(function(input, output, session) {
                    ## TODO: Maybe normalize the histogram y-axis (percentage?)
                    ## TODO: Beautify the figures
                    ## TODO: Make histogram tab open when plots are rendered
-                   ## TODO: Fix all errors when there's just one plot in the comparison data
                    ## TODO: Set up appropriate failsafes for all plot situations (no data in either type of data frame, only one plot in either data frame)
                    
                    print("Attempting to generate figures")
@@ -378,7 +378,7 @@ shinyServer(function(input, output, session) {
                            geom_histogram(aes(y = ..count../sum(..count..)), alpha = 0.5) + ## That aes(y) argument normalizes the histogram to proportion
                            facet_wrap(~indicator)
                        )
-                       ## This logic is broken currently somehow, I think. TODO: Fix it!
+                       ## TODO: Make this prettier, but at least the damn thing works
                      } else if (plotdata$PlotKey[plotdata$type == "Comparison"] %>% unique() %>% length() == 1 & plotdata$PlotKey[plotdata$type == "Reference"] %>% unique() %>% length() > 1) {
                        print("Just one comparison plot selected, so we'll put a vertical line where its value fell")
                        output$plot <- renderPlot(
