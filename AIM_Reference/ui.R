@@ -46,7 +46,7 @@ fluidPage(
                                         )
                        ),
                        conditionalPanel(condition = "input.filtertype == 'Query'",
-                                        textInput("Comparisonquery",
+                                        textInput("query",
                                                   label = "TerrADat Query",
                                                   value = "ProjectName == \"California NorCal 2013\"",
                                                   width = '100%'
@@ -85,8 +85,9 @@ fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel(title = "Instructions",
+                 ## TODO: Flesh these instructions out meaningfully and helpfully
                  "Select stuff in the side panel to get a histogram of that stuff.",
-                 dataTableOutput("filteredtable")
+                 tableOutput("currenttable")
         ),
         
         tabPanel(title = "Histogram",
