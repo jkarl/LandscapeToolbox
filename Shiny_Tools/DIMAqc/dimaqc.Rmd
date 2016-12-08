@@ -1,0 +1,615 @@
+---
+title: "DIMA Quality Control Report"
+description: ''
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+  html_document:
+    fig_caption: yes
+    toc: yes
+  pdf_document:
+    toc: yes
+  word_document:
+    toc: yes
+params:
+  crewvar: yes
+  dimafile: WRFO_2011-2014_DIMA3.1.mdb #AIM_2013.mdb 
+  missingvals: yes
+  site: all
+  suspectvals: yes
+  year: 2012
+---
+
+```{r setup, include=FALSE}
+  knitr::opts_chunk$set(echo = TRUE)
+  library(dplyr)
+  library(ggplot2)
+  library(lubridate)
+  library(quantreg)
+  library(reshape2)
+  library(leaflet)
+  library(multcomp) 
+  if (Sys.info()[1]=="Windows") {
+    library(RODBC)
+  }
+
+  # Load master PLANTS Database list for evaluating plant codes
+  Plants.Master <- read.csv("PLANTSlist_Master.20161116.csv",header=T)
+  
+equivTest <- function(indicator,df, rhs) {
+  # function to do equivalence test between observers for an indicator.
+  # pass a 2-column data frame with col1=observer and col2=indicator
+  # rhs = Right Hand Side of the null hypopthesis - i.e., acceptance zone
+  names(df) <- c("Observer","Indicator")
+  df$Observer <- as.factor(df$Observer)
+  tmp.aov <- aov(Indicator~Observer,data=df)
+  tmp.glht <- glht(tmp.aov,linfct=mcp(Observer="Tukey"),alternative="greater",rhs=rhs)
+  tmp <- summary(tmp.glht)
+  comps<-names(tmp[10][[1]]$coefficients)
+  coef<-tmp[10][[1]]$coefficients
+  std.err <- tmp[10][[1]]$sigma
+  tstat <- tmp[10][[1]]$tstat
+  pvals <- tmp[10][[1]]$pvalues
+  out <- data.frame("Indicator"=indicator,"Comparisons"=(comps),"Estimates"=(coef),"Std Err"=(std.err),"Eval Criterion"=rhs,"t-statistic"=(tstat),"p-value"=pvals)
+  return(out)
+}
+
+
+## Set up vector for custom facet labels in the ggplot graphs
+ind.labels<-c('pctCanopy'='Percent Canopy',"pctBare"="Percent Bare Ground","pctBasal"="Percent Basal Cover","pctLitterTotal"="Percent Total Litter","pctCheckedPlants"="Percent Checked Plants","pctGrCovTotal"="Percent Total Ground Cover","avgHeightWoody"="Average Woody Height","avgHeightHerb"="Average Herbaceous Height","pctCanCat1"="Canopy Gaps 25-50cm","pctCanCat2"="Canopy Gaps 50-100cm","pctCanCat3"="Canopy Gaps 100-200cm","pctCanCat4"="Canopy Gaps >200cm","AllAvgSurf"="AllAvgSurf","ProAvgSurf"="ProAvgSurf","NCAvgSurf"="NCAvgSurf","PctSurf6"="PctSurf6","SpeciesCount"="Plot Species Count","pctLitterUnder"="Percent Litter Under Plant Canopy")
+
+```
+
+```{r loadData, include=FALSE}
+  #####################################################
+  ###### Load and prep the data from the DIMA #########
+  #####################################################
+  warning(params$dimafile)
+  # If running on Windows
+  if (Sys.info()[1]=="Windows") {
+    dima <- odbcConnectAccess(params$dimafile)
+    #sqlTables(dima)  # List all of the tables/querries in the database
+    tblApp <- sqlFetch(dima,"tblApplicationConstants",stringsAsFactors=F)
+    tblPlots <- sqlFetch(dima,"tblPlots",stringsAsFactors=F)
+    tblLines <- sqlFetch(dima,"tblLines",stringsAsFactors=F)
+    tblSites <- sqlFetch(dima,"tblSites",stringsAsFactors=F)
+    tblLPI <- sqlFetch(dima,"tblLPIHeader",stringsAsFactors=F)
+    tblLPIDetail <- sqlFetch(dima,"tblLPIDetail",stringsAsFactors=F)
+    tblGap <- sqlFetch(dima,"tblGapHeader",stringsAsFactors=F)
+    tblSoilStab <- sqlFetch(dima,"tblSoilStabHeader",stringsAsFactors=F)
+    tblSpecRich <- sqlFetch(dima,"tblSpecRichHeader",stringsAsFactors=F)
+    tblSpecRichDetail <- sqlFetch(dima,"tblSpecRichDetail",stringsAsFactors=F)
+    tblSpecies <- sqlFetch(dima,"tblSpecies",stringsAsFactors=F)
+    odbcClose(dima)
+  } else {
+    ## Logic for importing tables in Linux using mdbtools
+    tables <- c("tblApplicationConstants","tblPlots","tblLines","tblSites","tblPeople","tblLPIHeader","tblGapHeader","tblSoilStabHeader","tblSpecRichHeader","tblSpecRichDetail","tblSpecies","tblLPIDetail")
+    for (table in tables) {
+        read.string <- paste("mdb-export -d '|' '",params$dimafile,"' ",table,sep="")
+        #system(read.string)
+        assign(paste(table),read.table(pipe(read.string),sep="|",header=TRUE,stringsAsFactors=FALSE))
+    }
+    ## rename some of the tables
+    tblApp <- tblApplicationConstants
+    tblLPI <- tblLPIHeader
+    tblGap <- tblGapHeader
+    tblSoilStab <- tblSoilStabHeader
+    tblSpecRich <- tblSpecRichHeader
+  }
+  
+  cat("1.1")
+
+  # Winnow and join the tables
+  tblPlots_sub <- dplyr::select(tblPlots, one_of(c("PlotKey","PlotID","SiteKey","EstablishDate","State","County","Slope","Aspect","Elevation",
+                                            "LandscapeType","EcolSite","EcolSiteMLRA","EcolSiteNum","Soil","AvgPrecip","AvgPrecipUOM",
+                                            "ESD_SlopeShape","Easting","Northing","GPSCoordSys","Datum")))
+  tblLines_sub <- dplyr::select(tblLines, one_of(c("PlotKey","LineKey","LineID","Azimuth")))
+  tblSites_sub <- dplyr::select(tblSites, one_of(c("SiteKey","SiteID","SiteName")))
+  tblLPI_sub <- dplyr::select(tblLPI, one_of(c("LineKey","Observer","Observer","Recorder","FormDate","pctCanopy","pctBare","pctBasal",
+                                        "pctCheckedPlants","pctCheckedTopPlants","pctGrCovTotal","pctGrCovUnder","pctGrCovBetween",
+                                        "pctLitterTotal","pctLitterBetween","pctLitterUnder","avgHeightWoody","avgHeightHerb")))
+  names(tblLPI_sub)[2] <- "Observer.LPI"
+  tblGap_sub <- dplyr::select(tblGap, one_of(c("LineKey","Observer","Observer","Recorder","FormDate","pctCanCat1","pctCanCat2",
+                                        "pctCanCat3","pctCanCat4")))
+  names(tblGap_sub)[2] <- "Observer.Gap"
+  tblSoilStab_sub <- dplyr::select(tblSoilStab, one_of(c("PlotKey","FormDate","Observer","AllAvgSurf","ProAvgSurf","NCAvgSurf","PctSurf6")))
+  names(tblSoilStab_sub)[3] <- "Observer.Soil"
+  tblSpecRich_sub <- inner_join(tblLines_sub,tblSpecRich[,c("LineKey","RecKey","Observer","FormDate")],by="LineKey") %>% left_join(tblSpecRichDetail[,c("RecKey","SpeciesCount","SpeciesList")],by="RecKey")
+  names(tblSpecRich_sub)[6] <- "Observer.Spp"
+  
+  # fix the dates and get the year and Julian day for the plots
+  tblPlots_sub$year <- year(as.Date(tblPlots_sub$EstablishDate,format="%m/%d/%y"))
+  tblPlots_sub$yday <- yday(as.Date(tblPlots_sub$EstablishDate,format="%m/%d/%y"))
+  tblLPI_sub$lpiYear <- year(as.Date(tblLPI_sub$FormDate,format="%m/%d/%y"))
+  tblLPI_sub$lpiYday <- yday(as.Date(tblLPI_sub$FormDate,format="%m/%d/%y"))
+  tblGap_sub$gapYear <- year(as.Date(tblGap_sub$FormDate,format="%m/%d/%y"))
+  tblGap_sub$gapYday <- yday(as.Date(tblGap_sub$FormDate,format="%m/%d/%y"))
+  tblSoilStab_sub$ssYear <- year(as.Date(tblSoilStab_sub$FormDate,format="%m/%d/%y"))
+  tblSoilStab_sub$ssYday <- yday(as.Date(tblSoilStab_sub$FormDate,format="%m/%d/%y"))
+  tblSpecRich_sub$sppYear <- year(as.Date(tblSpecRich_sub$FormDate,format="%m/%d/%y"))
+  tblSpecRich_sub$sppYday <- yday(as.Date(tblSpecRich_sub$FormDate,format="%m/%d/%y"))
+  yrs <- unique(tblPlots_sub$year)
+  sites <- unique(tblSites_sub$SiteName)
+  
+  data <- inner_join(tblLines_sub,tblLPI_sub,by="LineKey") %>% left_join(tblGap_sub,by="LineKey") %>% inner_join(tblPlots_sub,by="PlotKey") %>% left_join(tblSites_sub,by="SiteKey")
+  data.soil <- tblPlots_sub %>% left_join(tblSoilStab_sub,by="PlotKey")%>% left_join(tblSpecRich_sub,by="PlotKey") %>% left_join(tblSites_sub,by="SiteKey")  # need to do this separate because it's a plot-level indicator.
+  ## Set up the query string and filter the DIMA data for the report
+  qstring <- ''
+  if (params$year != 'all') {
+    qstring <- paste(qstring,"year == ",params$year,sep='')
+  }
+  if (params$year != 'all' & params$site != 'all') {
+    qstring <- paste(qstring,' & ',sep='')
+  }
+  if (params$site != 'all') {
+    qstring <- paste(qstring,"SiteName == '",params$site,"'",sep='')
+  }
+  data.sub <- data %>% subset(eval(parse(text=qstring)))  # Lines with LPI, Ht, Gap, and Plot info appended
+  data.soil.sub <- data.soil %>% subset(eval(parse(text=qstring))) # Plots with soil stab and spp inv appended
+  plots.sub <- tblPlots_sub %>% inner_join(tblSites_sub,by="SiteKey") %>% subset(eval(parse(text=qstring)))
+  
+  # Set up the date range to report in the report summary
+  date.range <- paste(min(as.Date(data.sub$FormDate.x)),max(as.Date(data.sub$FormDate.x)),sep=" - ")
+  
+```
+***
+
+It is important to understand the quality of monitoring data in order to be able to successfully and responsibly use it to support management decision making. This report is a **Quality Control** assessment of data contained in a DIMA database. The purpose of this report is to identify statistical patterns that exist in core monitoring data (Line-point Intercept [LPI], Vegetation Height, Canopy Gap, Soil Stability, Species Inventory) and to flag data values that are outside of what is expected (i.e., potential errors or extreme events). This report consists of the following sections:
+
+1. DIMA Data Summary
+2. Within-Crew Variability Checks
+3. Missing Value Checks
+4. Data Consistency Checks
+5. Temporal Stability of Indicators
+
+***
+
+# DIMA Data Summary
+
+```{r dataSum, echo=FALSE}
+  nplots <- data.sub %>% group_by(PlotKey) %>% summarise(n=n()) %>% nrow()
+```
+
+## Report parameters and options
+ * DIMA Database: `r params$dimafile` 
+ * Site: `r stringr::str_to_title(params$site)` 
+ * Year: `r params$year` 
+ * Total number of plots sampled: `r nplots`
+ * Date range of plots sampled: `r date.range`
+ 
+## Data Summary
+
+### Temporal Sampling Window
+Knowing when during the year that monitoring data were collected is helpful for evaluating whether or not monitoring data are appropriate or useful for a specific purpose, especially with indicators that are sensitive to phenological stage or time of year when they are collected.
+
+```{r plotsTime, echo=FALSE, warning=FALSE, message=FALSE}
+  mstartdays <- c(0,32,61,92,122,153,183,214,245,275,306,336)
+  mnames=c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec")
+  ggplot(data=data.sub, aes(x=yday)) + geom_histogram(binwidth=(7)) + xlim(0,365) +
+    geom_vline(xintercept=mstartdays,color="white",size=0.75) +
+    scale_x_continuous(breaks=mstartdays, labels=mnames) +
+    ggtitle("Histogram of sample points by week") +
+    theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+    xlab("Day of the year") + ylab("Number of Plots")
+```
+
+### Sample Locations Map
+The map below is drawn from latitude/longitude coordinates contained in the DIMA plots table. This is a useful, fast check if there are gross errors in the plot coordinates that were recorded in DIMA (e.g., Are the plots in the right general place? Are there some plots that are way out of position relative to the others?). The map below is not intended as a substitute for comparing the sampled plot locations against the original sample design because plots could still be mislocated or not within stated QC criteria but still look alright on a coarse-scale map.
+
+```{r, echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
+m <- leaflet() %>% addTiles() %>% addMarkers(data.sub$Easting,data.sub$Northing,popup=data.sub$PlotID)
+m
+```
+
+***
+# Observer data summary
+```{r crewSum, echo=FALSE}
+  obs.lpi <- data.sub %>% group_by(Observer.LPI,PlotKey) %>% summarise(n=n()) %>% group_by(Observer.LPI) %>% summarise(n=n())
+  obs.lpi$method <- "LPI"
+  names(obs.lpi) <- c("Observer","NumPlots","Method")
+  obs.gap <- data.sub %>% group_by(Observer.Gap,PlotKey) %>% summarise(n=n()) %>% group_by(Observer.Gap) %>% summarise(n=n())
+  obs.gap$method <- "Canopy Gap"
+  names(obs.gap) <- c("Observer","NumPlots","Method")
+  obs.tab <- rbind(obs.lpi,obs.gap)
+  obs.soil <- data.soil.sub %>% group_by(Observer.Soil,PlotKey) %>% summarise(n=n()) %>% group_by(Observer.Soil) %>% summarise(n=n())
+  obs.soil$method <- "Soil Stability"
+  names(obs.soil) <- c("Observer","NumPlots","Method")
+  obs.tab <- rbind(obs.tab,obs.soil)
+  obs.spp <- data.soil.sub %>% group_by(Observer.Spp,PlotKey) %>% summarise(n=n()) %>% group_by(Observer.Spp) %>% summarise(n=n())
+  obs.spp$method <- "Species Richness"
+  names(obs.spp) <- c("Observer","NumPlots","Method")
+  obs.tab <- rbind(obs.tab,obs.spp)
+  
+  knitr::kable(dcast(obs.tab,Observer~Method,value.var="NumPlots"),caption="Number of plots on which each crew member was an observer.")
+  
+  #knitr::kable(obs.tab[,c(3,1,2)],caption="Number of plots on which each crew member was an observer.")
+```
+
+## Within-crew Variability by Indicator
+For data quality, it is important that all members of a field crew observe and record characteristics and attributes of a site in the same manner. Following a method's protocol is a central part of this, but there can also be differences between crew members in how things like litter or canopy gaps are identified and recorded. Training and calibration are designed to maximize the consistency in data recording among crew members. 
+
+One way to look at within-crew variability in aggregate is to plot the range of values for an indicator by observer for a large set of plots. This gives an idea of how, on average, each observer compares to the other observers in that crew. Large deviations from the rest of the crew can indicate a crew member that is either not well trained or not calibrated to the rest of the crew. Equivalence tests evaluate the null hypothesis that two crew members are, on average, within a specified equivalence region to each other (i.e., if results are, on average, within a specified amount to each other, we conclude that they're equivalent). The equivalence region for these tests is set to 20% of the overall indicator mean. A low p-value for the significance test indicates that there may be a significant difference in average indicator values between two observers. Equivalence test results should be evaluated alongside the indicator's boxplot. 
+
+Just because an observer's average results are not statistically equivalent to other observers does not necessarily mean that one observer is wrong - other factors may be contributing. For example, it could be that the observer was recording more often for sites of a certain type (e.g., low-productivity sites) and their average results reflect this. Extreme departures from equivalence, though, should be followed up by examination of an observer's data forms to identify what might be causing the issue.
+
+### Within-Crew Equivalence for LPI Indicators 
+
+```{r crewLPI, echo=FALSE}
+###################################################################################
+## Crew-based Analyses
+###################################################################################
+
+# Filter the LPI observers and run analyses
+observers <- data.sub %>% group_by(Observer.LPI) %>% summarise(n=n())
+observers.com <- observers %>% filter(n>=5)
+data.lpi <- data.sub %>% semi_join(observers.com,by="Observer.LPI")
+
+## Equivalence test of indicators by crew member
+if (nrow(observers.com)>1) {
+  lpi.equiv <- equivTest("pctCanopy",data.lpi[,c("Observer.LPI","pctCanopy")],rhs=mean(data.lpi$pctCanopy)*0.2)
+  lpi.equiv <- rbind(lpi.equiv,equivTest("pctBare",data.lpi[,c("Observer.LPI","pctBare")],rhs=mean(data.lpi$pctBare)*0.2))
+  lpi.equiv <- rbind(lpi.equiv,equivTest("pctBasal",data.lpi[,c("Observer.LPI","pctBasal")],rhs=mean(data.lpi$pctBasal)*0.2))
+  lpi.equiv <- rbind(lpi.equiv,equivTest("pctCheckedPlants",data.lpi[,c("Observer.LPI","pctCheckedPlants")],rhs=mean(data.lpi$pctCheckedPlants)*0.2))
+  lpi.equiv <- rbind(lpi.equiv,equivTest("pctLitterTotal",data.lpi[,c("Observer.LPI","pctLitterTotal")],rhs=mean(data.lpi$pctLitterTotal)*0.2))
+  lpi.equiv <- rbind(lpi.equiv,equivTest("pctLitterUnder",data.lpi[,c("Observer.LPI","pctLitterUnder")],rhs=mean(data.lpi$pctLitterUnder)*0.2))
+  
+  knitr::kable(lpi.equiv,caption="Observer equivalence tests by LPI indicator.",row.names=FALSE,digits=4)
+  
+  data.lpi.melt <- data.lpi %>% melt(c("Observer.LPI","year","SiteName"),c("pctCanopy","pctBasal","pctBare","pctCheckedPlants","pctLitterTotal","pctLitterUnder"))
+  ggplot(data.lpi.melt,aes(x=Observer.LPI,y=value))+geom_boxplot(varwidth=TRUE)+facet_wrap("variable",labeller = as_labeller(ind.labels))+
+    ggtitle("Observer Variability by LPI Indicator")+xlab("Observer")+ylab("Indicator Value (% Cover)")
+} else {
+  cat("Not enough plots with data for this indicator or observers who have measured it to test equivalence.")
+}
+```
+
+### Within-Crew Equivalence for Vegetation Height Indicators 
+```{r crewHt, echo=FALSE}
+if (nrow(observers.com)>1) {
+  ht.equiv <- equivTest("Woody Height",data.lpi[,c("Observer.LPI","avgHeightWoody")],rhs=mean(data.lpi$avgHeightWoody)*0.2)
+  ht.equiv <- rbind(ht.equiv,equivTest("Herbaceous Height",data.lpi[,c("Observer.LPI","avgHeightHerb")],rhs=mean(data.lpi$avgHeightHerb)*0.2))
+  knitr::kable(ht.equiv,caption="Observer equivalence tests for Vegetation Height indicators.",row.names=FALSE,digits=4)
+  
+  data.ht.melt <- data.lpi %>% melt(c("Observer.LPI","year","SiteName"),c("avgHeightWoody","avgHeightHerb"))
+  ggplot(data.ht.melt,aes(x=Observer.LPI,y=value))+geom_boxplot()+facet_wrap("variable",labeller = as_labeller(ind.labels))+
+  ggtitle("Observer Variability by Vegetation Height Indicator")+xlab("Observer")+ylab("Indicator Value (cm)")
+} else {
+  cat("Not enough plots with data for this indicator or observers who have measured it to test equivalence.")
+}
+```
+
+### Within-Crew Equivalence for Canopy Gap Indicators
+```{r crewGap, echo=FALSE}
+# Filter the Gap observers and run analyses
+observers <- data.sub %>% group_by(Observer.Gap) %>% summarise(n=n())
+observers.com <- observers %>% filter(n>=5)
+data.gap <- data.sub %>% semi_join(observers.com,by="Observer.Gap")
+
+if(nrow(observers.com>1)) {
+  gap.equiv <- equivTest("pctCanCat1",data.gap[,c("Observer.Gap","pctCanCat1")],rhs=mean(data.gap$pctCanCat1)*0.2)
+  gap.equiv <- rbind(gap.equiv,equivTest("pctCanCat2",data.gap[,c("Observer.Gap","pctCanCat2")],rhs=mean(data.gap$pctCanCat2)*0.2))
+  gap.equiv <- rbind(gap.equiv,equivTest("pctCanCat3",data.gap[,c("Observer.Gap","pctCanCat3")],rhs=mean(data.gap$pctCanCat3)*0.2))
+  gap.equiv <- rbind(gap.equiv,equivTest("pctCanCat4",data.gap[,c("Observer.Gap","pctCanCat4")],rhs=mean(data.gap$pctCanCat4)*0.2))
+  knitr::kable(gap.equiv,caption="Observer equivalence tests for Canopy Gap indicators.",row.names=FALSE,digits=4)
+  
+  data.gap.melt <- data.gap %>% melt(c("Observer.Gap","year","SiteName"),c("pctCanCat1","pctCanCat2","pctCanCat3","pctCanCat4"))
+  ggplot(data.gap.melt,aes(x=Observer.Gap,y=value))+geom_boxplot()+facet_wrap(facets="variable",labeller = as_labeller(ind.labels))+
+  ggtitle("Observer Variability by Canopy Gap Indicator")+xlab("Observer")+ylab("Indicator Value (% transect in canopy gap)")
+} else {
+  cat("Not enough plots with data for this indicator or observers who have measured it to test equivalence.")
+}
+```
+
+### Within-Crew Equivalence for Soil Stability Indicators
+```{r crewSoil, echo=FALSE}
+observers <- data.soil.sub %>% group_by(Observer.Soil) %>% summarise(n=n())
+observers.com <- observers %>% filter(n>=3)
+data.soil <- data.soil.sub %>% semi_join(observers.com,by="Observer.Soil")
+
+if(nrow(observers.com)>1) {
+  soil.equiv <- equivTest("AllAvgSurf",data.soil[,c("Observer.Soil","AllAvgSurf")],rhs=mean(data.soil$AllAvgSurf)*0.2)
+  soil.equiv <- rbind(soil.equiv,equivTest("ProAvgSurf",data.soil[,c("Observer.Soil","AllAvgSurf")],rhs=mean(data.soil$ProAvgSurf)*0.2))
+  soil.equiv <- rbind(soil.equiv,equivTest("NCAvgSurf",data.soil[,c("Observer.Soil","NCAvgSurf")],rhs=mean(data.soil$NCAvgSurf)*0.2))
+  soil.equiv <- rbind(soil.equiv,equivTest("PctSurf6",data.soil[,c("Observer.Soil","PctSurf6")],rhs=mean(data.soil$PctSurf6)*0.2))
+  knitr::kable(soil.equiv,caption="Observer equivalence tests for Soil Stability Indicators",row.names=FALSE,digits=4)
+  
+  data.soil.melt <- data.soil %>% melt(c("Observer.Soil","year","SiteName"),c("AllAvgSurf","ProAvgSurf","NCAvgSurf","PctSurf6"))
+  ggplot(data.soil.melt,aes(x=Observer.Soil,y=value))+geom_boxplot()+facet_wrap(facets="variable",labeller = as_labeller(ind.labels))+
+    ggtitle("Observer Variability by Soil Stability Indicator")+xlab("Observer")+ylab("Indicator Value (Average Soil Stability Rating)")
+} else {
+  cat("Not enough plots with data for this indicator or observers who have measured it to test equivalence.")
+}
+
+
+```
+
+***
+# Missing Value Checks
+Queries/results of plots that have missing information
+
+### Plot Characterization Information Completeness
+Plot characterization information is important for describing the general setting where monitoring data were collected and provide valuable covariate information for analyses. Below is a quick check of how many plots are missing valid values for a set of plot attributes. To find specifically which plots are missing these plot attribute values, check the tblPlots table in DIMA.
+
+```{r plotComplete, echo=FALSE, message=FALSE, warning=FALSE}
+  # Which field in the plots table are missing values?
+  plots <- data.sub %>% group_by(PlotKey) %>% summarise(n=n())
+  plots.sub <- plots %>% inner_join(tblPlots_sub,by="PlotKey")
+  n<- nrow(plots.sub)
+  plotComplete <- data.frame()
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="LandscapeType", "No Value"=sum(is.na(plots.sub$LandscapeType)),"Zero or Unknown"=sum(trimws(plots.sub$LandscapeType)=="UNKNOWN",na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="AvgPrecip", "No Value"=sum(is.na(plots.sub$AvgPrecip)),"Zero or Unknown"=sum(plots.sub$AvgPrecip==0,na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="ESD_SlopeShape", "No Value"=sum(is.na(plots.sub$ESD_SlopeShape)),"Zero or Unknown"=sum(trimws(plots.sub$ESD_SlopeShape)=="UNKNOWN",na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="Elevation", "No Value"=sum(is.na(plots.sub$Elevation)),"Zero or Unknown"=sum(plots.sub$Elevation==0,na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="Aspect", "No Value"=sum(is.na(plots.sub$Aspect),na.rm=T),"Zero or Unknown"=0))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="Slope", "No Value"=sum(is.na(plots.sub$Slope),na.rm=T),"Zero or Unknown"=0))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="State", "No Value"=sum(is.na(plots.sub$State),na.rm=T),"Zero or Unknown"=0))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="County", "No Value"=sum(is.na(plots.sub$County),na.rm=T),"Zero or Unknown"=0))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="EcolSite", "No Value"=sum(is.na(plots.sub$EcolSite)),"Zero or Unknown"=sum(trimws(plots.sub$EcolSite)=="UNKNOWN",na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="EcolSiteMLRA", "No Value"=sum(is.na(plots.sub$EcolSiteMLRA)),"Zero or Unknown"=sum(trimws(plots.sub$EcolSiteMLRA)=="UNKNOWN",na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="EcolSiteNum", "No Value"=sum(is.na(plots.sub$EcolSiteNum)),"Zero or Unknown"=sum(trimws(plots.sub$EcolSiteNum)=="UNKNOWN",na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="Northing", "No Value"=sum(is.na(plots.sub$Northing)),"Zero or Unknown"=sum(plots.sub$Northing==0,na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="Easting", "No Value"=sum(is.na(plots.sub$Easting)),"Zero or Unknown"=sum(plots.sub$Easting==0,na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="GPSCoordSys", "No Value"=sum(is.na(plots.sub$GPSCoordSys)),"Zero or Unknown"=sum(trimws(plots.sub$GPSCoordSys)=="UNKNOWN",na.rm=T)))
+  plotComplete <- rbind(plotComplete,data.frame("indicator"="Datum", "No Value"=sum(is.na(plots.sub$Datum)),"Zero or Unknown"=sum(trimws(plots.sub$Datum)=="UNKNOWN",na.rm=T)))
+  
+  plotComplete$"Values Given" <- n-(plotComplete$No.Value+plotComplete$Zero.or.Unknown)
+  plotComplete.melt <- melt(plotComplete, id.vars="indicator")
+  
+  ggplot(data=plotComplete.melt, aes(indicator,value,fill=variable))+geom_bar(position = "stack", stat = "identity")+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ggtitle("Completeness for Plot Attributes") +
+    xlab("Plot Attribute") + ylab("Number of Plots")
+```
+
+### Core Method Commpleteness by Plot
+This section looks at whether core methods were applied at each plot. Plots were assigned a rating of Complete, Partial or Missing for each of the core methods. For transect-based methods (LPI, Vegetation Height, Canopy Gap), if data were collected on 3 or more transects, it was considered complete for those methods. Data from one or two transects is considered partial. For plot-based methods (Soil Stability, Species Inventory), the method was considered complete if at least one data form exists for the plot. If no data forms for a method exist for the plot, it was marked as missing.
+
+```{r coreComplete, echo=FALSE, fig.height=8, fig.width=8, message=FALSE}
+LPI.count <- plots.sub %>% left_join(tblLines_sub, by="PlotKey") %>% left_join(tblLPI_sub, by="LineKey") %>% group_by(PlotID) %>% summarise(n=n())
+LPI.count$n <- if_else(LPI.count$n>2,"Complete",if_else(LPI.count$n>=1,"Partial","Missing"))
+gap.count <- plots.sub %>% left_join(tblLines_sub, by="PlotKey") %>% left_join(tblGap_sub, by="LineKey") %>% group_by(PlotID) %>% summarise(n=n())
+gap.count$n <- if_else(gap.count$n>2,"Complete",if_else(gap.count$n>=1,"Partial","Missing"))
+ss.count <- plots.sub %>% left_join(tblSoilStab_sub, by="PlotKey") %>% group_by(PlotID) %>% summarise(n=(!is.na(Observer.Soil)))
+ss.count$n <- if_else(ss.count$n==TRUE,"Complete","Missing")
+spp.count <- plots.sub %>% left_join(tblSpecRich_sub, by="PlotKey") %>% group_by(PlotID) %>% summarise(n=(!is.na(Observer.Spp)))
+spp.count$n <- if_else(spp.count$n==TRUE,"Complete","Missing")
+coreComplete <- cbind(LPI.count,gap.count[,2],ss.count[,2],spp.count[,2])
+names(coreComplete) <- c("PlotID","LPI+Height","Canopy Gap","Soil Stability","Species Inventory")
+#knitr::kable(coreComplete)
+coreComplete.1 <- melt(coreComplete, id.vars="PlotID")
+coreComplete.1$value <- factor(coreComplete.1$value, levels=c("Complete","Partial","Missing"))
+ggplot(data=coreComplete.1,aes(y=PlotID,x=variable))+geom_tile(aes(fill=value),linetype="solid",colour="gray80")+
+    scale_fill_manual(values=c("Complete"="#2ca25f","Partial"="#ffeda0","Missing"="#fc9272"),name="Data\nCompleteness",drop=FALSE)+
+    scale_x_discrete(position="top",drop=FALSE)+xlab("Core Indicator")+ggtitle("Completeness of Core Method Data by Plot")
+```
+
+
+***
+# Data Consistency Checks
+Data consistency checks consist of graphs and/or statistical analyses of plot and transect-level indicators to flag possible errant data values. It is important to note that results of the data consistency checks do not necessarily mean that the data are wrong, but that it falls outside of what is expected for an indicator. The appropriate steps to take for data that are flagged in a data consistency check is to go back to the original DIMA forms or paper data sheets, field notes, and plot photos to see if something was possibly recorded incorrectly or if there is another explanation for the values. 
+
+## LPI Values Checks
+
+```{r LPIChecks,include=FALSE}
+plots <- data.sub %>% group_by(PlotKey) %>% summarise(n=n(),PlotID=first(PlotID))
+plotCode.sum <- data.frame()
+height.Outliers <- data.frame()
+for (i in 1:nrow(plots)){ # loop through the lines
+  thePlot <- as.character(plots[i,1])
+  thePlotID <- plots[i,3]
+  lines <- data.sub[data.sub$PlotKey==thePlot,"LineKey"]
+  lpiHead <- tblLPI %>% subset(LineKey %in% lines)
+  lpiDetail <- tblLPIDetail %>% subset(RecKey %in% lpiHead$RecKey)
+  lpiSpp <- lpiDetail[,c(3:9)] %>% melt("PointNbr") %>% group_by(value) %>% summarise(n=n())
+  pattern = '^(AF|AG|PF|PG|SH|TR)[[:digit:]]{1,3}' # RegExp for legit unknown plant codes
+  pattern2 = '^(|L|NL|WL|DS|W|VL|GR|CB|ST|BR|R|S|LC|M|D|R|EL|CY|BY|None)$' # RegEx for lower canopy codes and soil surface codes
+  Spp <- lpiSpp$value[!grepl(pattern2,lpiSpp$value,perl=TRUE)] # Remove soil surface codes
+  totalSpp <- length(Spp) # Count the total number of species including the unknown plant codes
+  Spp <- Spp[!grepl(pattern,Spp,perl=TRUE)] # Remove unknown plant codes
+  SppStr <- paste(Spp,collapse=";") # Form the LPI species list string for the plot
+  unknowns <- length(grep(pattern,lpiSpp$value,perl=TRUE)) # Find the number of unknown species
+  noMatch <- Spp[!(Spp %in% Plants.Master$Symbol)] # Find codes not in the PLANTS master list (excluding unknown species codes)
+  if (length(noMatch) > 0) {
+    Syns <- noMatch[noMatch %in% Plants.Master$Synonym.Symbol]
+    if (length(Syns)==0) {Syns=""}
+    synStr <- paste(Syns,collapse=";")
+    noMatch <- noMatch[!(noMatch %in% Plants.Master$Synonym.Symbol)]
+    noMatchStr <- paste(noMatch,collapse=";")
+  } else {
+    noMatchStr <- ""
+    Syns <- ""
+    synStr <- ""
+  }
+  
+  ds <- length(grep('^DS$',lpiSpp$value,perl=TRUE))
+  vl <- length(grep('^VL$',lpiSpp$value,perl=TRUE))
+  el <- length(grep('^EL$',lpiSpp$value,perl=TRUE))
+  cy <- length(grep('^CY$',lpiSpp$value,perl=TRUE))
+  plotCode.sum <- rbind(plotCode.sum,data.frame("PlotKey"=thePlot,"PlotID"=thePlotID,"totalSpp"=totalSpp,"sppString"=SppStr,"numUnkn"=unknowns,"numDS"=ds,"numVL"=vl,"numEL"=el,"numCY"=cy,"numNoMatch"=length(noMatch),"noMatches"=noMatchStr,"numSyns"=length(Syns),"Synonyms"=synStr))
+  
+    WoodyHeights <- lpiDetail[(lpiDetail$HeightWoody>0&!is.na(lpiDetail$HeightWoody)),"HeightWoody"]
+    if (length(WoodyHeights)>0) {
+      WoodyHeights.out <- boxplot(WoodyHeights)$out
+      if (length(WoodyHeights.out>0)) {
+        height.Outliers <- rbind(height.Outliers,data.frame("PlotKey"=thePlot,"PlotID"=thePlotID,"indicator"="Woody Height","value"=WoodyHeights))
+      }
+    }
+    HerbHeights <- lpiDetail[(lpiDetail$HeightHerbaceous>0&!is.na(lpiDetail$HeightHerbaceous)),"HeightHerbaceous"]
+    if (length(HerbHeights)>0) {
+      HerbHeights.out <- try(boxplot(HerbHeights)$out)
+      if (length(HerbHeights.out)>0) {
+        height.Outliers <- rbind(height.Outliers,data.frame("PlotKey"=thePlot,"PlotID"=thePlotID,"indicator"="Herbaceous Height","value"=HerbHeights))
+      }
+    }
+}
+plotCode.sum$numMatch <- plotCode.sum$totalSpp-(plotCode.sum$numNoMatch+plotCode.sum$numUnkn+plotCode.sum$numSyns)
+
+
+```
+
+
+### Prevalence of unknown plant codes, "retired" plant codes, and codes not in the PLANTS database
+The graph below shows what proportion of the species recorded on a plot were valid plant codes, valid unknown codes, "retired" plant codes, or codes that were not in the PLANTS database. A "retired" plant code is one that used to be a valid PLANTS Database code, but due to taxonomic changes is no longer valid. For example, bluebunch wheatgrass used to have the scientific name of _Agropyron spicatum_, but is now known as _Pseudoroegneria spicata_. Thus the old code of AGSP is no longer valid, and PSSP6 is to be used for data entry. Luckily, the PLANTS Database maintains a listing of the "retired" codes as synonyms of the current codes.
+
+```{r, echo=FALSE, fig.height=5, fig.width=9, message=FALSE, warning=FALSE}
+plotCode.melt <- melt(plotCode.sum[,c("PlotID","numMatch","numUnkn","numNoMatch","numSyns")],id="PlotID")
+ggplot(plotCode.melt,aes(x=PlotID,y=value,fill=variable))+geom_bar(position="fill",stat="identity") +
+  scale_fill_discrete(name="Plant Codes",labels=c("Valid plant codes","Valid Unknown codes","Codes not in PLANTS db",'"Retired" codes'))+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+ylab("Percent of species recorded")+scale_y_continuous(labels=scales::percent)
+```
+
+
+### Check LPI Species Codes
+
+#### Species codes that are not currently valid codes in the PLANTS database
+The following plant codes were not found as current codes in the PLANTS database, but were found as a synonym of a current code. The current code and species information is also presented. Please verify that this is the species that was intended before changing any plant codes.
+```{r, echo=FALSE}
+Syns <- plotCode.sum[plotCode.sum$Synonyms!="","Synonyms"]
+SynsVector <- unique(unlist(strsplit(paste(Syns,collapse=";"),";")))
+SynMaster <- Plants.Master[Plants.Master$Synonym.Symbol %in% SynsVector,]
+if (nrow(SynMaster)>0){
+  knitr::kable(SynMaster[,c(2,1,3,4)],col.names=c("Code in DIMA","Current PLANTS Code","Scientific Name","Common Name"),align=c("l","c","l","l"),row.names=FALSE)
+} else {
+  cat("\nAll plants were recorded with current PLANTS Database codes.\n")
+}
+```
+
+
+#### Species codes not recognized by the PLANTS database
+The following plant codes are not recognized as either a legitimate/current plant code in the USDA PLANTS Database, a synonym of a current code, or an AIM unknown plant code.
+```{r, echo=FALSE}
+if (plotCode.sum$numNoMatch>0) {
+  knitr::kable(plotCode.sum[plotCode.sum$numNoMatch>0,c("PlotID","noMatches")],row.names=FALSE,col.names=c("PlotID","Code not in PLANTS list"))  
+} else {
+  cat("\nnAll plants recorded with valid PLANTS Database codes.\n")
+}
+
+```
+
+***
+
+## Vegetation Height Checks
+The plots shown in the graphs below were flagged as having vegetation heights considered to be outliers (i.e., more than 1.5 times the inner quartile range of all heights measured on the plot). Extreme values for vegetation height do not necessarily mean that an error has occurred, but height values for these plots should be double-checked to ensure accuracy. If a suspicious height value or an error is identified, please make note of it in the QC tracking worksheet.
+  
+```{r, echo=FALSE, fig.height=6, fig.width=9, message=FALSE, warning=FALSE}
+ggplot(data=height.Outliers,aes(x=PlotID,y=value))+geom_boxplot(na.rm=TRUE)+facet_wrap(~indicator,scales="free")+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+ylab("Height Measurement")+
+  ggtitle("Plots having outliers in their vegetation height measurements")
+```
+
+ ***
+
+## Canopy Gap Values Check
+The total amount of canopy gaps recorded on an AIM plot should correlate well to the plot's LPI estimates of bare ground and non-plant ground cover (e.g., rocks, litter) not under a plant canopy. Extreme differences between these two measures may indicate that there is a problem with the canopy gap estimates for the plot. 
+
+```{r gapCheck, echo=FALSE, warning=FALSE}
+  data.sub$totalGapPct <- data.sub$pctCanCat1+data.sub$pctCanCat2+data.sub$pctCanCat3+data.sub$pctCanCat4 
+  data.sub$pctCanopyInv <- 100-data.sub$pctCanopy  
+  g.lm <- lm(totalGapPct~(pctCanopyInv),data=data.sub)
+  data.sub <- cbind(data.sub,predict(g.lm,interval="prediction"))
+  ggplot(data=data.sub,aes(x=pctCanopyInv,y=totalGapPct))+
+    #geom_quantile(quantiles=c(0.025,0.975))+
+    geom_ribbon(aes(ymin=lwr,ymax=upr),fill="blue",alpha=0.2) +
+    geom_abline(intercept=coefficients(g.lm)[1],slope=coefficients(g.lm)[2],color="blue",size=1)+
+    geom_abline(linetype="dotdash",color="darkgray",size=0.5)+
+    geom_point()+
+    geom_text(aes(label=ifelse((totalGapPct<lwr|totalGapPct>upr),PlotID,""), hjust=1.1))+
+    labs(x="LPI-measured No Canopy (i.e., Inverse of %Canopy)", y="Total % of transects in Canopy Gaps")+
+    ggtitle("Comparison of Canopy-Gap- and LPI-measured Canopy Gaps")
+```
+
+Estimates of total amount of "no canopy" along transects based on Canopy Gap and LPI should be a close reflection of each other. The blue shaded region in the graph is the 95% prediction interval for a regression between the LPI and canopy gap measures of "no canopy." Labeled points are extreme values (outside the 95% prediction interval) and should be more closely examined to determine if they represent errors. Points above the blue-shaded region have a significantly larger estimate of "no canopy" from Canopy Gap than was recorded in LPI. Those points below the blue-shaded region have significantly lower estimates of "no canopy" from Canopy Gap than was recorded in LPI.
+
+***
+
+## Plot Species Inventory Data
+The following plots have species codes listed in their species inventory that are not in the DIMA master species table (tblSpecies) list. This is uncommon, but can happen if you override the DIMA check for a species not being in the table when entering data and then fail to enter the species afterward.
+
+```{r, echo=FALSE}
+  
+  unkn.Spp <- data.frame()
+  for (i in 1:length(data.soil.sub)) {
+    plotSppList <- unlist(strsplit(data.soil.sub[i,c("SpeciesList")],';'))
+    miss.spp <- which(!(plotSppList %in% tblSpecies$SpeciesCode))
+    if (length(miss.spp) > 0) {
+      plot.ids <- data.soil.sub[i,c("PlotID")]
+      miss.spp <- paste(plotSppList[miss.spp],collapse=';')
+      unkn.Spp <- rbind(unkn.Spp,data.frame("PlotID"=plot.ids, "Missing Species"=miss.spp))
+    } 
+  }
+
+  if (nrow(unkn.Spp)>0) {
+    knitr::kable(unkn.Spp)  
+  } else {
+    cat("All plant codes in the species inventory are in the DIMA Species Table. Check above for plant codes not in the USDA PLANTS database master list.")
+  }
+  
+```
+
+### Comparison of number of species in species inventory to number from LPI. 
+The graph below plots number of species recorded in a plot's LPI forms against the number of species recorded in the plot-level species inventory. The number of species in the plot inventory should always be greater than or equal to the number of species encountered in LPI. If it is not (i.e., plots below the dashed 1:1 line), then this signifies an error in the plot species inventory and should be noted in the data QC worksheet.
+
+```{r compSpecies, echo=FALSE}
+data.soil.sub$PlotKey <- factor(data.soil.sub$PlotKey)
+spp.comp <- data.soil.sub[,c("PlotKey","PlotID","SpeciesCount","SpeciesList")] %>% inner_join(plotCode.sum[c("PlotKey","totalSpp","sppString")],by="PlotKey")
+spp.lm <- lm(SpeciesCount~(totalSpp),data=spp.comp)
+ggplot(data=spp.comp,aes(x=totalSpp,y=SpeciesCount))+geom_point()+
+  geom_abline(color="black",linetype="dotdash",size=0.66)+
+  geom_abline(intercept=coefficients(spp.lm)[1],slope=coefficients(spp.lm)[2],color="blue",size=0.66)+
+  geom_text(aes(label=ifelse((SpeciesCount<totalSpp),PlotID,""), hjust=1.1))+
+  ggtitle("Species Count from LPI and Plot Inventory")+xlab("LPI Species Count")+ylab("Plot Inventory Species Count")
+```
+
+
+***
+
+## Temporal Stability of Indicators
+Examining the variability of indicators by day across the sampling period can be a useful tool for understanding if there are significant trends due to changes in phenology. For example, values for certain indicators (e.g., forb cover) are believed to be sensitive to sampling date. The graphs below look at how DIMA's standard, pre-calculated indicators for each of the core methods change over the course of the year. A 2nd-order polynomial trend line is fit to the data to help highlight if there is an overall seasonal pattern to the indicator values. Be sure to interpret the trend line in the light of the amount, spread, and pattern of the underlying points (i.e., plot data). 
+
+While this analysis can be valuable for understanding factors that might be influencing monitoring data, the results below should be interpreted with caution - i.e., it is easy to over-interpret these graphs. Many different factors may contribute to a pattern of indicator values by time. For instance, if monitoring plots are visited in such an order that low-productivity sites are visited early in the year and higher-productivity sites visited later, this will manifest as a trend of increaing cover and species diversity with time. In this case, the pattern is a reflection of hitch planning and logistics, and not necessarily due to sampling sites at non-optimal times. Conversely, if data from many different ecosystem types are included in this analysis, then patterns in indicators (e.g., a peak in cover corresponding to peak growing season) may be obscured by data from other systems. Use your knowledge of the data to filter plots in the Shiny tool to include in the analyses and to interpret visible patterns.
+
+```{r lpiStabil, echo=FALSE}
+time.data.lpi <- data.sub[,c("PlotKey","yday","pctBare","pctCanopy","pctBasal","pctGrCovTotal","pctLitterTotal","pctCheckedPlants")] %>% melt(id.vars=c("PlotKey","yday"))
+ggplot(data=time.data.lpi,aes(x=yday,y=value))+geom_point()+geom_smooth(method="lm",formula=y~poly(x,2))+
+  facet_wrap(~variable,labeller=as_labeller(ind.labels),scales="free_y")+
+  ylab("Percent Cover")+xlab("Day of the Year")+ggtitle("Variability of LPI Cover Indicators by Day of the Year")
+
+```
+
+```{r htStabil, echo=FALSE}
+time.data.ht <- data.sub[,c("PlotKey","yday","avgHeightWoody","avgHeightHerb")] %>% melt(id.vars=c("PlotKey","yday"))
+ggplot(data=time.data.ht,aes(x=yday,y=value))+geom_point()+geom_smooth(method="lm",formula=y~poly(x,2))+
+  facet_wrap(~variable,labeller=as_labeller(ind.labels),scales="free_y")+
+  ylab("Average Height")+xlab("Day of the Year")+ggtitle("Variability of Height Indicators by Day of the Year")
+
+```
+
+```{r ssStabil, echo=FALSE}
+time.data.gap <- data.sub[,c("PlotKey","yday","pctCanCat1","pctCanCat2","pctCanCat3","pctCanCat4")] %>% melt(id.vars=c("PlotKey","yday"))
+ggplot(data=time.data.gap,aes(x=yday,y=value))+geom_point()+geom_smooth(method="lm",formula=y~poly(x,2))+
+  facet_wrap(~variable,labeller=as_labeller(ind.labels),scales="free_y")+
+  ylab("Percent of Transect Length")+xlab("Day of the Year")+ggtitle("Variability of Canopy Gap Indicators by Day of the Year")
+
+```
+
+```{r sppStabil, echo=FALSE}
+time.data.ss <- data.soil.sub[,c("PlotKey","yday","AllAvgSurf","ProAvgSurf","NCAvgSurf","PctSurf6")] %>% melt(id.vars=c("PlotKey","yday"))
+ggplot(data=time.data.ss,aes(x=yday,y=value))+geom_point()+geom_smooth(method="lm",formula=y~poly(x,2))+
+  facet_wrap(~variable,labeller=as_labeller(ind.labels),scales="free_y")+
+  ylab("Average Soil Stability Rating")+xlab("Day of the Year")+ggtitle("Variability of Soil Stability Indicators by Day of the Year")
+
+```
+
+
+```{r gapStabil, echo=FALSE}
+time.data.spp <- data.soil.sub[,c("PlotKey","yday","SpeciesCount")] %>% melt(id.vars=c("PlotKey","yday"))
+ggplot(data=time.data.spp,aes(x=yday,y=value))+geom_point()+geom_smooth(method="lm",formula=y~poly(x,2))+
+  facet_wrap(~variable,labeller=as_labeller(ind.labels),scales="free_y")+
+  ylab("Plot Species Count")+xlab("Day of the Year")+ggtitle("Variability of Plot Species Count by Day of the Year")
+
+```
+
+
+
+***
+# Implications
+
+Fill out a data quality workbook that summarizes the significant findings from this QC report and identifies any missing data and/or suspect or abberant plot indicator values.

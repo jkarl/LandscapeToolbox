@@ -1,0 +1,200 @@
+---
+title: "Analysis of Species Codes in TerrADat"
+author: "Jason Karl"
+date: "21 November, 2016"
+output:
+  html_notebook: default
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+***
+This document summarizes an analysis of species codes contained in the TerrADat database for AIM data from 2011 to 2015. This analysis was conducted in an attempt to understand the extent to which non-standardized plant codes are being used in AIM projects. Non-standard codes include plant codes (species and genus) that are not in the USDA PLANTS database and codes that follow the accepted AIM protocol for unknown plants. 
+
+The comparisons below were conducted by comparing the species recorded in the species inventory of an AIM plot to the USDA PLANTS database master list for North America (downloaded 11/16/2016). At this point an analysis of plant codes in LPI was not conducted under the assumption that the species inventory would also include any species identified in LPI. 
+
+Specific questions to be addressed here are:
+
+1. What is the prevalence of unknown and non-standard plant codes by project?
+2. Does the use of unknown and non-standard species codes vary by project and over time?
+3. What are the most common custom codes for unknown plants that do not conform to AIM standards?
+4. How prevalent is the use of "retired" plant codes (e.g., continuing to use AGSP instead of PSSP6)?
+
+***
+```{r envParams, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(arcgisbinding)
+library(markdown)
+library(knitr)
+library(sqldf)
+library(lubridate)
+library(reshape2)
+
+work.dir <- "C:\\Users\\jasokarl\\Google Drive\\Landscape Toolbox\\LandscapeToolbox_GitHub\\LandscapeToolbox\\DIMAqc\\DIMAqc"
+terradat <- "C:\\Users\\jasokarl\\Google Drive\\BLM_AIM\\geodata\\TerrADatExport_19Jan2016.gdb"
+plants.file <- "PLANTSlist_Master_with_attribs.20161116.csv"
+```
+
+
+```{r loadData, include=FALSE}
+setwd(work.dir)
+
+plants.master <- read.csv(plants.file,header=T)
+
+arc<-arc.check_product()
+# load terrestrial AIM featureclass
+
+# load tables with species info and those that are necessary to track back to the plot and project
+#    i.e., species richness detail/header, LPI detail/header, line, plot, sites tables
+tblPlots<-paste(terradat,"tblPlots",sep="/") %>% arc.open %>% arc.select()
+tblLines <- paste(terradat,"tblLines",sep="/") %>% arc.open %>% arc.select()
+tblSites <- paste(terradat,"tblSites",sep="/") %>% arc.open %>% arc.select()
+# Deal with these later if we need to.
+#tblLPIHeader <- paste(terradat,"tblLPIHeader",sep="/") %>% arc.open %>% arc.select()
+#tblLPIDetail <- paste(terradat,"tblLPIDetail",sep="/") %>% arc.open %>% arc.select()
+tblSpecRichHeader <- paste(terradat,"tblSpecRichHeader",sep="/") %>% arc.open %>% arc.select()
+tblSpecRichDetail <- paste(terradat,"tblSpecRichDetail",sep="/") %>% arc.open %>% arc.select()
+
+tblSites$ProjectBase <- substr(tblSites$SiteName,1,nchar(tblSites$SiteName)-5)
+tblSites.sum <- tblSites %>% group_by(SiteKey) %>% summarise(ProjectBase=first(ProjectBase),n=n())
+tblPlots.sum <- tblPlots %>% group_by(PlotKey) %>% summarise(SiteKey=first(SiteKey),PlotID=first(PlotID),n=n())
+tblLines.sum <- tblLines %>% group_by(LineKey) %>% summarise(PlotKey=first(PlotKey),n=n())
+tblPlotLines <- tblPlots.sum %>% inner_join(tblSites.sum,by="SiteKey") %>% inner_join(tblLines.sum,by="PlotKey")
+
+tblSpecRichHeader$year <- year(as.Date(tblSpecRichHeader$FormDate))
+```
+
+## 1. What is the prevalence of unknown and non-standard plant codes by project? 
+```{r, include=FALSE}
+pattern = "^(AF|AG|PF|PG|SH|TR)[[:digit:]]{1,3}" # RegExp for legit unknown plant codes
+species.nomatch <- data.frame()
+species.tally <- data.frame()
+for (i in 1:nrow(tblSpecRichDetail)) {
+  sl <- tblSpecRichDetail[i,"SpeciesList"]
+  if (!is.na(sl)){
+      spp.list <- unlist(strsplit(tblSpecRichDetail[i,"SpeciesList"],";"))
+      spp.total <- length(spp.list)
+      spp.list <- spp.list[grep(pattern,spp.list,invert=TRUE)]  # remove legit unknown plant codes
+      spp.unkn <- spp.total-length(spp.list)
+      not.in <- !(spp.list %in% plants.master$Accepted.Symbol)
+      if (sum(not.in)>0) {
+        species.nomatch <- rbind(species.nomatch,data.frame("RecKey"=tblSpecRichDetail[i,"RecKey"],"Code"=spp.list[not.in]))
+      }
+      if (sum(not.in)>0|length(spp.unkn)>0) {
+          species.tally <- rbind(species.tally,data.frame("RecKey"=tblSpecRichDetail[i,"RecKey"],"TotalSpp"=spp.total,"UnknSpp"=spp.unkn,"NoMatch"=sum(not.in)))
+      }
+  }
+}
+
+# calc pct species not in plants list 
+species.tally$PctNoMatch <- species.tally$NoMatch/species.tally$TotalSpp
+species.tally$PctUnkn <- species.tally$UnknSpp/species.tally$TotalSpp
+avgNoMatch <- mean(species.tally$PctNoMatch)*100
+minNoMatch <- min(species.tally$PctNoMatch)*100
+maxNoMatch <- max(species.tally$PctNoMatch)*100
+avgUnkn <- mean(species.tally$PctUnkn)*100
+minUnkn <- min(species.tally$PctUnkn)*100
+maxUnkn <-max(species.tally$PctUnkn)*100
+
+# Add the plot, and Site numbers/names into 
+species.nomatch.plots <- species.nomatch %>% inner_join(tblSpecRichHeader[,c("RecKey","LineKey","year")],by="RecKey") %>% inner_join(tblPlotLines,by="LineKey")
+species.tally.plots <- species.tally %>% inner_join(tblSpecRichHeader[,c("RecKey","LineKey","year")],by="RecKey") %>% inner_join(tblPlotLines,by="LineKey")
+num.nomatch.proj <- species.nomatch.plots %>% group_by(Code,ProjectBase) %>% summarise(n=n())
+
+```
+
+Percentage of all species in Species Inventory at the plot level* that were recorded with:
+
+Statistic | Official Unknown Plant Code | Plant Code not in PLANTS Database
+--------- | --------------------------- | ---------------------------------
+Average | `r avgUnkn`% | `r avgNoMatch`%
+Minimum | `r minUnkn`% | `r minNoMatch`%
+Maximum | `r maxUnkn`% | `r maxNoMatch`%
+*i.e., an unknown plant code value of 50% would mean that half of all the species in the species inventory were coded as unknown plants.
+\
+\
+\
+
+```{r echo=FALSE, message=FALSE, fig.width=8, fig.height=4}
+plot.data <- species.tally[,c("RecKey","PctUnkn","PctNoMatch")] %>% melt("RecKey")
+ggplot(data=plot.data, aes(x=value*100))+geom_histogram() + facet_wrap(facets="variable", labeller=as_labeller(c('PctUnkn'="Approved Unknown Species Code","PctNoMatch"="Codes not in PLANTS"))) +
+  ylab("Number of plots") + xlab("Percent of species recorded on a plot") + ggtitle("Prevalence of unknown species codes in TerrADat by Plot")
+```
+*See appendix at bottom for list of plots with greater than 40% unknown species or species codes not in PLANTS database.
+\
+\
+
+
+#### Number of plots on which plant species not in the master list were recorded by project area.
+This list does not include legitimate unknown species codes.
+```{r echo=FALSE, message=FALSE, error=FALSE}
+knitr::kable(num.nomatch.proj %>% group_by(ProjectBase)  %>% summarise(n=n()) %>% arrange(desc(n)))
+```
+\
+\
+
+
+***
+
+##2. Does the use of non-standard species codes vary by project and over time?
+```{r an2, echo=FALSE, fig.height=5, fig.width=8}
+nomatch.bytime <- species.tally.plots %>% group_by(ProjectBase,year) %>% summarise(avgUnkn=mean(PctUnkn),avgNoMatch=mean(PctNoMatch))
+ggplot(data=nomatch.bytime, aes(x=factor(year),y=avgNoMatch,fill=factor(year)))+geom_bar(stat="identity")+coord_flip()+facet_wrap(~ProjectBase)+theme(legend.position="none")+xlab("Project Year")+ylab("Average percentage of plot species")+ggtitle("Average number of codes not in PLANTS Database per plot by project and year")
+
+ggplot(data=nomatch.bytime, aes(x=factor(year),y=avgUnkn,fill=factor(year)))+geom_bar(stat="identity")+coord_flip()+facet_wrap(~ProjectBase)+theme(legend.position="none")+xlab("Project Year")+ylab("Average percentage of plot species")+ggtitle("Average number of unknown plants per plot by project and year")
+```
+\
+\
+
+
+***
+
+##3. How prevalent are custom codes for unknown plants that do not conform to AIM standards?
+#### 50 most common custom plant codes and the number of plots on which they were recorded.
+
+```{r, echo=FALSE}
+most.common <- species.nomatch %>% group_by(Code) %>% summarise(numPlots=n()) %>% arrange(desc(numPlots))
+kable(most.common[1:50,])
+```
+
+
+***
+##4. How prevalent is the use of "retired" plant codes (e.g., continuing to use AGSP instead of PSSP6)?
+```{r, echo=FALSE, include=FALSE}
+nomatch.list <- unique(species.nomatch$Code)
+master.synonyms <- unique(plants.master$Synonym.Symbol)
+
+syn.matches <- nomatch.list %in% master.synonyms
+prop.syn <- sum(syn.matches)/length(syn.matches)
+```
+`r sum(syn.matches)` species codes (`r prop.syn*100`% of all species codes not found in PLANTS) had a synonym in the PLANTS database. These may be species for which an old code is being used.
+
+"Retired" plant codes can be found in the synonyms column of the PLANTS database table (or tblSpecies in DIMA). The table below lists the plants that were identified as not matching any current code in the PLANTS database but that do have an entry for a species synonym.
+
+```{r, echo=FALSE}
+tmp <- data.frame("Species.Code"=as.character(nomatch.list[syn.matches])) %>% arrange(Species.Code)
+knitr::kable(tmp)
+```
+
+
+
+***
+### Appendix A. List of plots with more than 25% of species were coded as Unknown or do not occur in the PLANTS database list
+```{r echo=FALSE}
+plots.gt40unkn <- species.tally[species.tally$PctUnkn>=0.25,] %>% inner_join(tblSpecRichHeader[,c("RecKey","LineKey","year")],by="RecKey") %>% inner_join(tblPlotLines,by="LineKey") %>% arrange(desc(PctUnkn))
+plots.gt40nomatch <- species.tally[species.tally$PctNoMatch>0.25,] %>% inner_join(tblSpecRichHeader[,c("RecKey","LineKey","year")],by="RecKey") %>% inner_join(tblPlotLines,by="LineKey") %>% arrange(desc(PctNoMatch))
+```
+#### Plots with more than 25% of species coded as Unknown
+```{r, echo=FALSE}
+knitr::kable(plots.gt40unkn[,c("ProjectBase","year","PlotID","TotalSpp","PctUnkn","PctNoMatch")])
+```
+
+#### Plots with more than 25% of species codes that do not occur in the PLANTS database
+```{r, echo=FALSE}
+knitr::kable(plots.gt40nomatch[,c("ProjectBase","year","PlotID","TotalSpp","PctUnkn","PctNoMatch")])
+```
+
+
+***
+This report was created with RMarkdown, which embeds the R code and results (stats, tables, graphs) in the document with the text. This is really cool.
