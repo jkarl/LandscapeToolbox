@@ -376,18 +376,24 @@ shinyServer(function(input, output, session) {
                        print("More than one comparison plot selected, so we'll plot two histograms")
                        output$plot <- renderPlot(
                          ggplot(plotdata, aes(x = value, fill = type)) +
-                           geom_histogram(aes(y = ..count../sum(..count..)), alpha = 0.5) + ## That aes(y) argument normalizes the histogram to proportion
+                           geom_histogram(aes(y = ..count../sum(..count..)), alpha = 0.5, position = "identity") + ## That aes(y) argument normalizes the histogram to proportion
+                           # scale_y_continuous(limits = c(0, 1)) + ## To set the scale manually. I'm kinda against this right now
                            facet_wrap(~indicator)
                        )
+                       
                        ## TODO: Make this prettier, but at least the damn thing works
                      } else if (plotdata$PlotKey[plotdata$type == "Comparison"] %>% unique() %>% length() == 1 & plotdata$PlotKey[plotdata$type == "Reference"] %>% unique() %>% length() > 1) {
                        print("Just one comparison plot selected, so we'll put a vertical line where its value fell")
+                       plotdata.reference <- plotdata[plotdata$type == "Reference",]
+                       plotdata.comparison <- plotdata[plotdata$type == "Comparison",]
                        output$plot <- renderPlot(
-                         ggplot(plotdata, aes(x = value, fill = type)) +
-                           geom_histogram(plotdata[plotdata$type == "Reference",],aes(y = ..count../sum(..count..)), alpha = 0.5) +
-                           geom_vline(data = plotdata[plotdata$type == "Comparison",], aes(xintercept = value)) +
+                         ggplot(plotdata.reference, aes(x = value, fill = type)) +
+                           geom_histogram(aes(y = ..count../sum(..count..)), alpha = 0.5) +
+                           geom_vline(data = plotdata.comparison, aes(xintercept = value)) +
                            facet_wrap(~indicator)
                        )
+                     } else {
+                       print("Looks like you didn't have at least one comparison plot or (if you were plotting reference data too) at least two reference plots.")
                      }
                    }
                    print("Figures should be done!") 
