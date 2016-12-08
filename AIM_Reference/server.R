@@ -363,6 +363,7 @@ shinyServer(function(input, output, session) {
                    }
                    print("Its structure now is:")
                    str(plotdata)
+                   output$currenttable <- renderTable(plotdata)
                    
                    ## TODO: Maybe normalize the histogram y-axis (percentage?)
                    ## TODO: Beautify the figures
