@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Landscape Toolbox Shiny Server</title>
+  <style type="text/css">
+    body, html {
+      font-family: Helvetica, Arial, sans-serif;
+      background-color: #F5F5F5;
+      color: #114;
+      margin: 0;
+      padding: 0;
+    }
+    a {
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    #titleBar {
+      height: 80px;
+      background-color: #3475b4;
+      overflow: hidden;
+      border-bottom: 1px solid #3475b3;
+      -moz-box-shadow:    0px 0px 10px 3px #BBC;
+      -webkit-box-shadow: 0px 0px 10px 3px #BBC;
+      box-shadow:         0px 0px 10px 3px #BBC;
+    }
+    #titleBar #container {
+      margin-top: 14px;
+    }
+    #titleBar h1 {
+      margin: 0 auto .5em auto;
+      padding: .2em;
+      color: #EEE;
+      text-align: center;
+    }
+    #intro {
+      background-color: #DDD;
+      margin: 1em 1em 0 1em;
+      padding: .75em;
+      text-align: center;
+      border: 1px solid #CCC;
+      font-size: 18px;
+    }
+    #intro p {
+      margin: .3em 0 .3em 0;
+    }
+    #outer-content {
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #content {
+      margin: 1em auto 1em auto;
+      float: left;
+    }
+    #main{
+      margin-right: 50px;
+      float: left;
+      line-height: 24px;
+    }
+
+    #shiny{
+      float: left;
+      width: 305px;
+      margin-left: -330px;
+      padding-left: 20px;
+      border-left: 1px solid #AAA;
+    }
+    #shiny iframe {
+      margin-top: 30px;
+    }
+    .caption{
+      font-size: 13px;
+    }
+    code {
+      background-color: #E5E5E5;
+      border: 1px solid #AAA;
+      -webkit-border-radius: 3px;
+      -khtml-border-radius: 3px; 
+      -moz-border-radius: 3px;
+      border-radius: 3px;
+      padding: 0 .5em 0 .5em;
+    }
+  </style>
+</head>
+<body>
+  <div id="titleBar">
+    <div id="container">
+      <h1>Welcome to the Landscape Toolbox Shiny Server!</h1>
+    </div>
+  </div>
+  
+  <div id="outer-content">
+    <div id="intro">
+      <p>This page is a portal to access tools for monitoring project design and data analysis using the Shiny framework for R.</p>
+    </div>
+    <div id="content">
+      <div id="main">
+        <h2>Available Tools</h2>
+        The following tools are avaiable on this site:
+		<ul>
+			<li><strong><a href="http://shiny.landscapetoolbox.org/shinyspatialbal/">Spatially-balanced Sampling Tool</a></strong>&mdash;This tool runs the GRTS spatially-balanced algorithm for selecting random sample sites using an uploaded shapefile to define the project area and strata.</li>
+			<li><strong><a href=".OptimalErrorRate/">Optimal Error Rate Calculator</a></strong>&mdash;</li>
+			<li><strong><a href="./SampleSize/">Sample Sufficiency Tool for continuous data</a></strong>&mdash;</li>
+			<li><strong><a href="./ThresholdSampleSize/">Sample Sufficiency Tool for proportions</a></strong>&mdash;</li>			
+			<li><strong><a href="./DIMAqc">DIMA Quality Control Tool</a></strong>&mdash;Tool for running data quality control analysis on a DIMA database.</li>
+		</ul>
+		
+		<p>If you have questions about these tools or need assistance, please visit the <a href="http://www.landscapetoolbox.org/contact/">Contact Us page on the Landscape Toolbox</a>.</p>
+		
+        <h2>What is Shiny?</h2>
+        <p>Shiny is a web application framework for the R statistical software app that provides an easy way to create statistical and analytical tools that can run over the web. Shiny apps are developed in R on a desktop PC and is then hosted on a web server that is running R and Shiny. Shiny allows us to make sophisticated data analysis tools avaiable over the web to people who do not have access to statistics software apps. For more information on Shiny, check out <a href="http://shiny.rstudio.com">R Studio's Shiny site</a>.</p>
+		
+		<h2>Disclaimer!</h2>
+        <p>These tools have been developed using the best available statistical theories and algorithms, and we have tested these tools extensively with different datasets. However, we make no guarantee that these tools will work for your specific datasets. You are ultimately responsible for the validity, accuracy, and interpretation of your data. We offer no warranty as to the accuracy and validity of the results. It is your responsibilty to understand what each of these tools is doing and how to use/interpret the results. The code for all of these tools is available on the <a href="https://github.com/jkarl/LandscapeToolbox">Landscape Toolbox GitHub Repository</a>.</p>
+
+		
+      </div>
+	  
+      
+    </div>
+  </div>
+</body>
+</html>

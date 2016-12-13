@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>How to use this page: </title>
+</head>
+<body>
+<p> This page uses the <a href="http://www.rstudio.com/shiny/"><b>Shiny</b></a> package for R, to serve up R statistical tools in a web based interface. </p>
+<p> To use, upload a .csv file (.xls format not yet supported) in the provided sidebar to load your data into the tool.  The file must contain a field named <b>group</b> and 
+one named <b>value</b>.  The analysis tools provided here will perform statistics on the groups in your data, where the <b>group</b> field varies by the the different plots, 
+years, samples, etc. of your data set.   The  <b>value</b> field must contain the measured data of interest.    </p>
+
+<p>Upon successful upload, the startup tab, <b>plot</b>,  should display histograms of your data and summary statistics for the first two groups in your data. 
+Also available will be a simple threshold analysis.</p>
+
+<p>The number of groups contained in your uploaded data will determine the other tools available for display, as described below:</p>
+<br>
+<p> <b>Two group data:</b>  
+</p>
+<p>A 2 sample T-test for displaying results of a t-test on two independent groups </p>
+<p>A Paired T-test for displaying results of a T-test on two related groups (ie the same plot during different times).</p>
+<p> (If your data has less than or more than two groups, these options will return 'null' in the interface)</p>
+<br>
+<p><b>Three or more group data:</b></p>
+<p> ANOVA analysis</p>
+
+</body>
+
+</html>

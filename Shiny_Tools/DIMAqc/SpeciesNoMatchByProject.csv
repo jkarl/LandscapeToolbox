@@ -1,0 +1,2207 @@
+"","Code","ProjectBase","n"
+"1","ASTRA3","Nevada Winnemucca ESR",1
+"2","ASTRAP","Idaho CRMONM AIM",37
+"3","ASTRAP","Nevada BMDO",18
+"4","ASTRAP","Nevada CCDO",20
+"5","ASTRAP","Nevada EKDO",59
+"6","ASTRAP","Nevada EYDO",11
+"7","ASTRAP","Nevada Winnemucca ESR",127
+"8","ASTRAP","Nevada WMDO",21
+"9","ASTRAP","Utah Grand Staircase Escalante NM",1
+"10","ASTRAP1","Nevada Winnemucca ESR",3
+"11","CREPISP","Nevada Winnemucca ESR",6
+"12","ERIGEP","Nevada Winnemucca ESR",1
+"13","ERIGEP1","Nevada Winnemucca ESR",1
+"14","LOMATP","Idaho CRMONM AIM",31
+"15","LOMATP","Nevada BMDO",6
+"16","LOMATP","Nevada CCDO",9
+"17","LOMATP","Nevada EKDO",42
+"18","LOMATP","Nevada SNDO",2
+"19","LOMATP","Nevada Winnemucca ESR",67
+"20","LOMATP","Nevada WMDO",1
+"21","LUPINP","Idaho CRMONM AIM",37
+"22","LUPINP","Nevada BMDO",1
+"23","LUPINP","Nevada CCDO",21
+"24","LUPINP","Nevada EKDO",67
+"25","LUPINP","Nevada EYDO",2
+"26","LUPINP","Nevada Winnemucca ESR",117
+"27","LUPINP","Nevada WMDO",27
+"28","PENSTP","Idaho CRMONM AIM",28
+"29","PENSTP","Nevada BMDO",6
+"30","PENSTP","Nevada EKDO",46
+"31","PENSTP","Nevada EYDO",10
+"32","PENSTP","Nevada SNDO",4
+"33","PENSTP","Nevada Winnemucca ESR",89
+"34","PENSTP","Nevada WMDO",17
+"35","PENSTP","Utah Grand Staircase Escalante NM",14
+"36","PF101","California NorCal",2
+"37","PF101","Nevada Winnemucca ESR",1
+"38","AAFF","California Applegate FO",4
+"39","AAFF","Colorado White River FO",4
+"40","AAFF","Idaho CRMONM AIM",1
+"41","AAFF","Nevada CCDO",6
+"42","AAFF","Nevada EKDO",16
+"43","AAFF","Nevada SNDO",1
+"44","AAFF","Nevada Winnemucca ESR",41
+"45","AAFF","Nevada WMDO",2
+"46","AAFF","New Mexico RGdNNM",6
+"47","ALLIUM","Nevada Winnemucca ESR",14
+"48","ARABIS","Nevada Winnemucca ESR",6
+"49","CREPIS","Colorado Gunnison FO",2
+"50","CREPIS","Nevada Winnemucca ESR",7
+"51","CRYPTA","Idaho CRMONM AIM",4
+"52","CRYPTA","Nevada BMDO",4
+"53","CRYPTA","Nevada CCDO",7
+"54","CRYPTA","Nevada EKDO",16
+"55","CRYPTA","Nevada EYDO",1
+"56","CRYPTA","Nevada SNDO",61
+"57","CRYPTA","Nevada Winnemucca ESR",21
+"58","CRYPTA","Nevada WMDO",8
+"59","CRYPTA","Utah Grand Staircase Escalante NM",14
+"60","PF151","California NorCal",1
+"61","PF151","Nevada Winnemucca ESR",2
+"62","PONE3","California Applegate FO",9
+"63","PONE3","Nevada Winnemucca ESR",1
+"64","CREPIP","Nevada Winnemucca ESR",68
+"65","CREPIP","Nevada WMDO",1
+"66","LOMATA","Idaho CRMONM AIM",2
+"67","LOMATA","Nevada BMDO",26
+"68","LOMATA","Nevada EKDO",3
+"69","LOMATA","Nevada Winnemucca ESR",41
+"70","PF105","California NorCal",1
+"71","PF105","Nevada Winnemucca ESR",2
+"72","ARABI2A","Nevada Winnemucca ESR",13
+"73","PF122","California NorCal",1
+"74","PF122","Nevada Winnemucca ESR",1
+"75","PPSH","Idaho CRMONM AIM",14
+"76","PPSH","Nevada CCDO",10
+"77","PPSH","Nevada Winnemucca ESR",25
+"78","PPSH","Nevada WMDO",23
+"79","ASTRAAF","California NorCal",17
+"80","ASTRAAF","Idaho Bruneau FO",2
+"81","ASTRAAF","Nevada BMDO",1
+"82","ASTRAAF","Nevada CCDO",11
+"83","ASTRAAF","Nevada EYDO",1
+"84","ASTRAAF","Nevada SNDO",6
+"85","ASTRAAF","Utah Grand Staircase Escalante NM",22
+"86","ASTRAAF","Wyoming Lander FO",5
+"87","L","Colorado White River FO",88
+"88","WL","Colorado White River FO",60
+"89","LUPINA","Nevada EYDO",1
+"90","LUPINA","Nevada Winnemucca ESR",9
+"91","PG03","California NorCal",3
+"92","PG03","Colorado White River FO",8
+"93","PG03","Nevada BMDO",4
+"94","PG03","Nevada CCDO",4
+"95","PG03","Nevada EKDO",5
+"96","PG03","Nevada Winnemucca ESR",2
+"97","PG03","Nevada WMDO",2
+"98","PG03","Washington Wenatchee  FO",2
+"99","PG03","Wyoming Lander FO",1
+"100","PHLOX#1","Nevada CCDO",3
+"101","CAREXPG01","Nevada EKDO",13
+"102","CIRSIPF01","Nevada EKDO",5
+"103","CREPIPF01","Nevada EKDO",27
+"104","EPILOAF01","Nevada EKDO",6
+"105","MERTEPF01","Nevada EKDO",9
+"106","POLYG4AF01","Nevada EKDO",6
+"107","PPFF","Colorado White River FO",4
+"108","PPFF","Idaho CRMONM AIM",24
+"109","PPFF","Nevada CCDO",3
+"110","PPFF","Nevada EKDO",22
+"111","PPFF","Nevada Winnemucca ESR",12
+"112","PPFF","New Mexico RGdNNM",1
+"113","SYMPHSH01","Nevada EKDO",4
+"114","AF03","California NorCal",4
+"115","AF03","California Riverside East SEZ",3
+"116","AF03","Colorado White River FO",6
+"117","AF03","Jackson Mountains",6
+"118","AF03","Nevada BMDO",6
+"119","AF03","Nevada CCDO",6
+"120","AF03","Nevada EKDO",1
+"121","AF03","Nevada EYDO",4
+"122","AF03","Nevada SNDO",9
+"123","AF03","Nevada Winnemucca ESR",4
+"124","AF03","Nevada WMDO",20
+"125","AF31","California NorCal",2
+"126","AF31","Nevada SNDO",3
+"127","AF31","Nevada Winnemucca ESR",4
+"128","AF35","California NorCal",2
+"129","AF35","Nevada SNDO",18
+"130","ARISTP","Nevada SNDO",8
+"131","BOUTEA","Nevada SNDO",22
+"132","EPHEDSH","Nevada SNDO",40
+"133","LEPIDA","Nevada SNDO",41
+"134","PHACEA","Nevada SNDO",28
+"135","CASTI2PF","California NorCal",51
+"136","CASTI2PF","Idaho Bruneau FO",4
+"137","CASTI2PF","Nevada BMDO",10
+"138","CASTI2PF","Nevada CCDO",21
+"139","CASTI2PF","Nevada EKDO",17
+"140","CASTI2PF","Nevada EYDO",6
+"141","CASTI2PF","Nevada SNDO",1
+"142","CASTI2PF","Nevada WMDO",3
+"143","CASTI2PF","Washington Wenatchee  FO",4
+"144","CASTI2PF","Wyoming Lander FO",22
+"145","ERIGE2PF","California NorCal",114
+"146","ERIGE2PF","Idaho Bruneau FO",12
+"147","ERIGE2PF","Nevada CCDO",7
+"148","ERIGE2PF","Nevada EKDO",14
+"149","ERIGE2PF","Nevada EYDO",7
+"150","ERIGE2PF","Nevada Winnemucca ESR",1
+"151","ERIGE2PF","Nevada WMDO",9
+"152","ERIGE2PF","Utah Grand Staircase Escalante NM",3
+"153","ERIGE2PF","Washington Wenatchee  FO",7
+"154","ERIGE2PF","Wyoming Lander FO",28
+"155","AF30","California NorCal",2
+"156","AF30","Nevada BMDO",23
+"157","AF30","Nevada SNDO",4
+"158","AF30","Nevada Winnemucca ESR",1
+"159","CRYPTAF","California NorCal",88
+"160","CRYPTAF","California Riverside East SEZ",25
+"161","CRYPTAF","Idaho Bruneau FO",12
+"162","CRYPTAF","Nevada BMDO",4
+"163","CRYPTAF","Nevada CCDO",35
+"164","CRYPTAF","Nevada EKDO",1
+"165","CRYPTAF","Nevada SNDO",24
+"166","CRYPTAF","Nevada WMDO",2
+"167","CRYPTAF","Washington Wenatchee  FO",11
+"168","CRYPTAF","Wyoming Lander FO",7
+"169","LOMAT#7","Nevada CCDO",3
+"170","POLEMONIACEAE#1","Nevada CCDO",12
+"171","ASTERACEAE#4","Nevada CCDO",3
+"172","PG","Nevada CCDO",9
+"173","PG","Nevada WMDO",31
+"174","AF02","California NorCal",5
+"175","AF02","California SurpriseFO ESR",4
+"176","AF02","Colorado White River FO",20
+"177","AF02","Idaho Bruneau FO",1
+"178","AF02","Jackson Mountains",6
+"179","AF02","Nevada BMDO",11
+"180","AF02","Nevada CCDO",3
+"181","AF02","Nevada EKDO",5
+"182","AF02","Nevada EYDO",1
+"183","AF02","Nevada Winnemucca ESR",7
+"184","AF02","Nevada WMDO",31
+"185","AF23","California NorCal",2
+"186","AF23","Nevada BMDO",1
+"187","AF23","Nevada CCDO",3
+"188","AF23","Nevada SNDO",3
+"189","AF23","Nevada Winnemucca ESR",1
+"190","AF23","New Mexico RGdNNM",1
+"191","OENOTA","Nevada SNDO",8
+"192","OENOTA","Nevada Winnemucca ESR",5
+"193","PF125","California NorCal",1
+"194","PF125","Nevada Winnemucca ESR",1
+"195","PF125","Wyoming Lander FO",1
+"196","ERIOGP","Idaho CRMONM AIM",1
+"197","ERIOGP","Nevada BMDO",1
+"198","ERIOGP","Nevada CCDO",3
+"199","ERIOGP","Nevada EKDO",18
+"200","ERIOGP","Nevada EYDO",3
+"201","ERIOGP","Nevada Winnemucca ESR",60
+"202","ERIOGP","Nevada WMDO",8
+"203","ERIOGP","Utah Grand Staircase Escalante NM",6
+"204","SH106","Nevada Winnemucca ESR",2
+"205","SH107","Nevada Winnemucca ESR",1
+"206","ERIOGA","Nevada CCDO",7
+"207","ERIOGA","Nevada EKDO",1
+"208","ERIOGA","Nevada SNDO",3
+"209","ERIOGA","Nevada Winnemucca ESR",4
+"210","ERIOGA","Utah Grand Staircase Escalante NM",4
+"211","PGPG","Nevada Winnemucca ESR",5
+"212","PGPG","Nevada WMDO",2
+"213","ASTRAPF","California NorCal",109
+"214","ASTRAPF","Idaho Bruneau FO",1
+"215","ASTRAPF","Nevada BMDO",17
+"216","ASTRAPF","Nevada CCDO",21
+"217","ASTRAPF","Nevada EKDO",57
+"218","ASTRAPF","Nevada EYDO",12
+"219","ASTRAPF","Nevada SNDO",2
+"220","ASTRAPF","Nevada WMDO",12
+"221","ASTRAPF","Utah Grand Staircase Escalante NM",16
+"222","ASTRAPF","Washington Wenatchee  FO",4
+"223","ASTRAPF","Wyoming Lander FO",25
+"224","CRYPTPF","California NorCal",1
+"225","CRYPTPF","Nevada BMDO",1
+"226","CRYPTPF","Nevada CCDO",3
+"227","CRYPTPF","Nevada EKDO",11
+"228","CRYPTPF","Nevada EYDO",13
+"229","CRYPTPF","Nevada WMDO",5
+"230","CRYPTPF","Utah Grand Staircase Escalante NM",19
+"231","CRYPTPF","Wyoming Lander FO",7
+"232","ERIOGPF","California NorCal",159
+"233","ERIOGPF","Idaho Bruneau FO",6
+"234","ERIOGPF","Nevada BMDO",9
+"235","ERIOGPF","Nevada CCDO",29
+"236","ERIOGPF","Nevada EKDO",10
+"237","ERIOGPF","Nevada EYDO",19
+"238","ERIOGPF","Nevada SNDO",1
+"239","ERIOGPF","Nevada WMDO",2
+"240","ERIOGPF","Washington Wenatchee  FO",8
+"241","ERIOGPF","Wyoming Lander FO",15
+"242","ERIOGSH","California NorCal",44
+"243","ERIOGSH","Nevada CCDO",2
+"244","ERIOGSH","Nevada EYDO",4
+"245","ERIOGSH","Washington Wenatchee  FO",3
+"246","PENSTPF","California NorCal",131
+"247","PENSTPF","Idaho Bruneau FO",10
+"248","PENSTPF","Nevada BMDO",1
+"249","PENSTPF","Nevada CCDO",5
+"250","PENSTPF","Nevada EKDO",34
+"251","PENSTPF","Nevada EYDO",6
+"252","PENSTPF","Nevada SNDO",1
+"253","PENSTPF","Nevada WMDO",10
+"254","PENSTPF","Utah Grand Staircase Escalante NM",2
+"255","PENSTPF","Washington Wenatchee  FO",5
+"256","PENSTPF","Wyoming Lander FO",16
+"257","LUPINPF","California NorCal",220
+"258","LUPINPF","Idaho Bruneau FO",8
+"259","LUPINPF","Nevada BMDO",6
+"260","LUPINPF","Nevada CCDO",11
+"261","LUPINPF","Nevada EKDO",51
+"262","LUPINPF","Nevada WMDO",12
+"263","LUPINPF","Utah Grand Staircase Escalante NM",1
+"264","LUPINPF","Washington Wenatchee  FO",19
+"265","LUPINPF","Wyoming Lander FO",9
+"266","PF03","California NorCal",4
+"267","PF03","Colorado White River FO",10
+"268","PF03","Nevada BMDO",3
+"269","PF03","Nevada CCDO",3
+"270","PF03","Nevada EKDO",12
+"271","PF03","Nevada EYDO",1
+"272","PF03","Nevada SNDO",1
+"273","PF03","Nevada Winnemucca ESR",2
+"274","PF03","Nevada WMDO",19
+"275","AF04","California NorCal",5
+"276","AF04","Colorado White River FO",1
+"277","AF04","Jackson Mountains",1
+"278","AF04","Nevada BMDO",9
+"279","AF04","Nevada CCDO",6
+"280","AF04","Nevada EKDO",2
+"281","AF04","Nevada EYDO",3
+"282","AF04","Nevada SNDO",3
+"283","AF04","Nevada Winnemucca ESR",2
+"284","AF04","Nevada WMDO",11
+"285","AF05","California NorCal",4
+"286","AF05","Colorado White River FO",4
+"287","AF05","Jackson Mountains",1
+"288","AF05","Nevada BMDO",4
+"289","AF05","Nevada CCDO",3
+"290","AF05","Nevada EKDO",2
+"291","AF05","Nevada EYDO",1
+"292","AF05","Nevada Winnemucca ESR",2
+"293","AF05","Nevada WMDO",5
+"294","AF05","New Mexico RGdNNM",1
+"295","PF01","California NorCal",4
+"296","PF01","California SurpriseFO ESR",12
+"297","PF01","Colorado White River FO",34
+"298","PF01","Nevada BMDO",3
+"299","PF01","Nevada CCDO",4
+"300","PF01","Nevada EKDO",14
+"301","PF01","Nevada EYDO",8
+"302","PF01","Nevada Winnemucca ESR",5
+"303","PF01","Nevada WMDO",13
+"304","PF01","Utah Grand Staircase Escalante NM",2
+"305","PF02","California NorCal",3
+"306","PF02","California SurpriseFO ESR",3
+"307","PF02","Colorado White River FO",11
+"308","PF02","Jackson Mountains",1
+"309","PF02","Nevada BMDO",1
+"310","PF02","Nevada CCDO",3
+"311","PF02","Nevada EKDO",4
+"312","PF02","Nevada EYDO",4
+"313","PF02","Nevada SNDO",3
+"314","PF02","Nevada Winnemucca ESR",2
+"315","PF02","Nevada WMDO",25
+"316","AF01","California NorCal",6
+"317","AF01","California SurpriseFO ESR",12
+"318","AF01","Colorado White River FO",45
+"319","AF01","Jackson Mountains",5
+"320","AF01","Nevada BMDO",37
+"321","AF01","Nevada CCDO",6
+"322","AF01","Nevada EKDO",19
+"323","AF01","Nevada EYDO",15
+"324","AF01","Nevada Winnemucca ESR",9
+"325","AF01","Nevada WMDO",51
+"326","AF01","New Mexico RGdNNM",2
+"327","AF01","Wyoming Lander FO",1
+"328","PF10","California NorCal",4
+"329","PF10","Colorado White River FO",1
+"330","PF10","Nevada CCDO",3
+"331","PF10","Nevada EKDO",2
+"332","PF10","Nevada Winnemucca ESR",1
+"333","PF10","Nevada WMDO",2
+"334","AF65","California NorCal",1
+"335","AF65","Nevada BMDO",2
+"336","AF65","Nevada CCDO",3
+"337","AF67","California NorCal",1
+"338","AF67","Nevada CCDO",3
+"339","ALLIUPF","California NorCal",11
+"340","ALLIUPF","Nevada BMDO",12
+"341","ALLIUPF","Nevada CCDO",3
+"342","ALLIUPF","Nevada WMDO",6
+"343","ALLIUPF","Washington Wenatchee  FO",7
+"344","ALLIUPF","Wyoming Lander FO",5
+"345","PF05","California NorCal",3
+"346","PF05","Colorado White River FO",1
+"347","PF05","Nevada BMDO",6
+"348","PF05","Nevada CCDO",3
+"349","PF05","Nevada EKDO",4
+"350","PF05","Nevada EYDO",4
+"351","PF05","Nevada SNDO",4
+"352","PF05","Nevada WMDO",4
+"353","PF05","Wyoming Lander FO",1
+"354","ZIGADPF","California NorCal",14
+"355","ZIGADPF","Nevada BMDO",22
+"356","ZIGADPF","Nevada WMDO",11
+"357","ERIGE2P","Idaho CRMONM AIM",5
+"358","ERIGE2P","Nevada BMDO",7
+"359","ERIGE2P","Nevada EKDO",22
+"360","ERIGE2P","Nevada EYDO",2
+"361","ERIGE2P","Nevada SNDO",1
+"362","ERIGE2P","Nevada Winnemucca ESR",24
+"363","ERIGE2P","Nevada WMDO",8
+"364","PG04","California NorCal",2
+"365","PG04","Colorado San Luis Valley FO",2
+"366","PG04","Colorado White River FO",4
+"367","PG04","Nevada BMDO",2
+"368","PG04","Nevada CCDO",3
+"369","PG04","Nevada SNDO",2
+"370","PG04","Nevada Winnemucca ESR",1
+"371","PG04","Nevada WMDO",5
+"372","PG04","Washington Wenatchee  FO",1
+"373","CALOCPF","California NorCal",4
+"374","CALOCPF","Nevada BMDO",6
+"375","CALOCPF","Nevada CCDO",12
+"376","CALOCPF","Washington Wenatchee  FO",3
+"377","CALOCPF","Wyoming Lander FO",7
+"378","CASTI2P","Idaho CRMONM AIM",18
+"379","CASTI2P","Nevada BMDO",1
+"380","CASTI2P","Nevada EKDO",12
+"381","CASTI2P","Nevada EYDO",2
+"382","CASTI2P","Nevada Winnemucca ESR",11
+"383","CASTI2P","Nevada WMDO",10
+"384","PF06","California NorCal",2
+"385","PF06","Colorado San Luis Valley FO",2
+"386","PF06","Nevada BMDO",2
+"387","PF06","Nevada CCDO",3
+"388","PF06","Nevada EKDO",1
+"389","PF06","Nevada EYDO",1
+"390","PF06","Nevada SNDO",1
+"391","PF06","Nevada WMDO",9
+"392","ALYSSAF","Nevada BMDO",11
+"393","ALYSSAF","Nevada CCDO",4
+"394","PF04","California NorCal",4
+"395","PF04","Colorado White River FO",5
+"396","PF04","Nevada BMDO",1
+"397","PF04","Nevada CCDO",3
+"398","PF04","Nevada EKDO",6
+"399","PF04","Nevada EYDO",2
+"400","PF04","Nevada Winnemucca ESR",1
+"401","PF04","Nevada WMDO",8
+"402","ASTRAA","Idaho CRMONM AIM",2
+"403","ASTRAA","Nevada BMDO",6
+"404","ASTRAA","Nevada CCDO",3
+"405","ASTRAA","Nevada EKDO",7
+"406","ASTRAA","Nevada EYDO",1
+"407","ASTRAA","Nevada SNDO",3
+"408","ASTRAA","Nevada Winnemucca ESR",35
+"409","ASTRAA","Utah Grand Staircase Escalante NM",11
+"410","FRAGAPF","Nevada BMDO",2
+"411","AF52","California NorCal",1
+"412","AF52","Nevada BMDO",1
+"413","AF52","Nevada CCDO",3
+"414","AF52","Nevada Winnemucca ESR",3
+"415","AF53","California NorCal",1
+"416","AF53","Nevada BMDO",1
+"417","AF53","Nevada Winnemucca ESR",1
+"418","AF54","California NorCal",2
+"419","AF54","Nevada BMDO",1
+"420","AF55","California NorCal",3
+"421","AF55","Nevada BMDO",1
+"422","AF56","California NorCal",1
+"423","AF56","Nevada BMDO",1
+"424","AF57","California NorCal",1
+"425","AF57","Nevada BMDO",1
+"426","AF58","California NorCal",4
+"427","AF58","Nevada BMDO",1
+"428","AF59","California NorCal",1
+"429","AF59","Nevada BMDO",1
+"430","PF51","California NorCal",2
+"431","PF51","Nevada BMDO",1
+"432","PF51","Nevada Winnemucca ESR",1
+"433","PF51","Wyoming Lander FO",1
+"434","PG50","Nevada BMDO",1
+"435","PG51","Nevada BMDO",1
+"436","AF60","California NorCal",1
+"437","AF60","Nevada BMDO",1
+"438","CRYPTP","Nevada BMDO",3
+"439","CRYPTP","Nevada CCDO",3
+"440","CRYPTP","Nevada EKDO",27
+"441","CRYPTP","Nevada EYDO",7
+"442","CRYPTP","Nevada Winnemucca ESR",2
+"443","CRYPTP","Nevada WMDO",4
+"444","CRYPTP","Utah Grand Staircase Escalante NM",7
+"445","PG52","Nevada BMDO",1
+"446","PF55","California NorCal",1
+"447","PF55","Nevada BMDO",1
+"448","PF55","Nevada Winnemucca ESR",1
+"449","RIBESSH","California NorCal",2
+"450","RIBESSH","Nevada BMDO",4
+"451","RIBESSH","Nevada WMDO",13
+"452","SEDUMSUC","Nevada BMDO",1
+"453","AF50","California NorCal",3
+"454","AF50","Nevada BMDO",1
+"455","AF50","Nevada CCDO",3
+"456","AF50","Nevada Winnemucca ESR",1
+"457","AF51","California NorCal",2
+"458","AF51","Nevada BMDO",2
+"459","AF51","Nevada CCDO",12
+"460","AF51","Nevada Winnemucca ESR",1
+"461","DESCUAF","California NorCal",2
+"462","DESCUAF","Nevada BMDO",7
+"463","DESCUAF","Nevada CCDO",3
+"464","DESCUAF","Nevada EYDO",1
+"465","DESCUAF","Nevada SNDO",1
+"466","DESCUAF","Washington Wenatchee  FO",9
+"467","DESCUAF","Wyoming Lander FO",2
+"468","AF66","California NorCal",1
+"469","AF66","Nevada BMDO",1
+"470","CHENOAF","California NorCal",3
+"471","CHENOAF","Nevada BMDO",2
+"472","CHENOAF","Nevada EKDO",1
+"473","CHENOAF","Washington Wenatchee  FO",4
+"474","AG01","Arizona Agua Fria NM",3
+"475","AG01","California NorCal",4
+"476","AG01","California SurpriseFO ESR",12
+"477","AG01","Colorado White River FO",20
+"478","AG01","Jackson Mountains",1
+"479","AG01","Nevada BMDO",6
+"480","AG01","Nevada SNDO",14
+"481","ARCAV","Nevada Winnemucca ESR",3
+"482","PF60","California NorCal",2
+"483","PF60","Nevada Winnemucca ESR",12
+"484","PF56","California NorCal",5
+"485","PF56","Nevada Winnemucca ESR",5
+"486","SH44","Nevada Winnemucca ESR",3
+"487","ELCI2","Nevada Winnemucca ESR",2
+"488","RATE","Colorado White River FO",28
+"489","RATE","Nevada Winnemucca ESR",2
+"490","RATE","Nevada WMDO",1
+"491","SECA2","Nevada Winnemucca ESR",1
+"492","SECA2","Nevada WMDO",8
+"493","STTH2","Nevada Winnemucca ESR",2
+"494","PF1","Jackson Mountains",2
+"495","PF1","Nevada Winnemucca ESR",12
+"496","PF1","Nevada WMDO",8
+"497","ERIOG2","Nevada Winnemucca ESR",4
+"498","AF1","Nevada Winnemucca ESR",8
+"499","PF13","California NorCal",5
+"500","PF13","Colorado White River FO",2
+"501","PF13","Nevada CCDO",4
+"502","PF13","Nevada EKDO",1
+"503","PF13","Nevada Winnemucca ESR",4
+"504","PF13","Nevada WMDO",3
+"505","PF13","Wyoming Lander FO",7
+"506","PF07","California NorCal",6
+"507","PF07","Colorado White River FO",1
+"508","PF07","Nevada BMDO",1
+"509","PF07","Nevada CCDO",3
+"510","PF07","Nevada EKDO",1
+"511","PF07","Nevada SNDO",6
+"512","PF07","Nevada Winnemucca ESR",1
+"513","PF07","Nevada WMDO",10
+"514","AF06","California NorCal",1
+"515","AF06","Jackson Mountains",1
+"516","AF06","Nevada BMDO",26
+"517","AF06","Nevada CCDO",3
+"518","AF06","Nevada EKDO",1
+"519","AF06","Nevada EYDO",1
+"520","AF06","Nevada SNDO",6
+"521","AF06","Nevada Winnemucca ESR",4
+"522","AF06","Nevada WMDO",2
+"523","AF06","New Mexico RGdNNM",1
+"524","AF07","California NorCal",4
+"525","AF07","California Riverside East SEZ",2
+"526","AF07","Idaho Bruneau FO",3
+"527","AF07","Nevada BMDO",15
+"528","AF07","Nevada CCDO",3
+"529","AF07","Nevada EKDO",1
+"530","AF07","Nevada SNDO",22
+"531","AF07","Nevada WMDO",1
+"532","ASTRA02","Colorado White River FO",5
+"533","BERE","Colorado White River FO",6
+"534","BERE","Nevada EKDO",3
+"535","LARE","Colorado White River FO",7
+"536","ERCO24","Colorado Gunnison FO",8
+"537","ERCO24","Colorado White River FO",5
+"538","BODR","Colorado White River FO",2
+"539","CRYPTAA","Colorado White River FO",4
+"540","ERIOGAA","Colorado White River FO",1
+"541","HIJA","Colorado Grand Junction FO",3
+"542","HIJA","Colorado White River FO",17
+"543","HIJA","Nevada BMDO",2
+"544","BOST4","Colorado White River FO",1
+"545","LOTRP","Colorado White River FO",2
+"546","PF11","California NorCal",4
+"547","PF11","Colorado White River FO",2
+"548","PF11","Nevada CCDO",3
+"549","PF11","Nevada EKDO",2
+"550","PF11","Nevada WMDO",3
+"551","PF11","New Mexico RGdNNM",3
+"552","POAG","Colorado White River FO",1
+"553","STCO3","Colorado White River FO",3
+"554","PG01","Alaska NPR-A",1
+"555","PG01","California NorCal",4
+"556","PG01","California SurpriseFO ESR",12
+"557","PG01","Colorado White River FO",50
+"558","PG01","Nevada BMDO",2
+"559","PG01","Nevada CCDO",4
+"560","PG01","Nevada EKDO",10
+"561","PG01","Nevada Winnemucca ESR",3
+"562","PG01","Nevada WMDO",15
+"563","PG01","New Mexico RGdNNM",1
+"564","PG01","Wyoming Lander FO",4
+"565","AF10","California NorCal",4
+"566","AF10","California Riverside East SEZ",3
+"567","AF10","Nevada BMDO",2
+"568","AF10","Nevada CCDO",4
+"569","AF10","Nevada SNDO",5
+"570","AF10","Nevada WMDO",2
+"571","AF10","Washington Wenatchee  FO",1
+"572","","Alaska NPR-A",1
+"573","","California NorCal",1
+"574","","Colorado Grand Junction FO",1
+"575","","Idaho CRMONM AIM",1
+"576","","Nevada CCDO",1
+"577","","Nevada EKDO",1
+"578","","Nevada WMDO",4
+"579","GILIA#1","Nevada CCDO",3
+"580","PGXX","Nevada CCDO",3
+"581","PGXX","Nevada EKDO",1
+"582","COLLO#2","Nevada CCDO",3
+"583","GAYOP#3","Nevada CCDO",3
+"584","CHAENAF","California NorCal",2
+"585","CHAENAF","California Riverside East SEZ",2
+"586","CHAENAF","Nevada CCDO",23
+"587","CHAENAF","Nevada SNDO",6
+"588","AF25","California NorCal",3
+"589","AF25","Nevada BMDO",1
+"590","AF25","Nevada SNDO",1
+"591","AF25","Nevada Winnemucca ESR",2
+"592","AF33","California NorCal",3
+"593","AF33","Nevada SNDO",2
+"594","AF33","Nevada Winnemucca ESR",4
+"595","CASTI2AF","Nevada SNDO",3
+"596","SH13","California NorCal",1
+"597","SH13","Nevada CCDO",3
+"598","SH13","Nevada SNDO",2
+"599","CUSCUAF","Nevada SNDO",1
+"600","PF19","California NorCal",4
+"601","PF19","Nevada CCDO",3
+"602","PF19","Nevada SNDO",2
+"603","PF19","Nevada Winnemucca ESR",1
+"604","SH17","Nevada SNDO",2
+"605","CHAMA15PF","Nevada SNDO",3
+"606","CHAMA15PF","Nevada WMDO",6
+"607","CHAMA15PF","Utah Grand Staircase Escalante NM",1
+"608","SH03","California NorCal",2
+"609","SH03","Nevada EYDO",1
+"610","SH03","Nevada SNDO",4
+"611","SH03","Nevada Winnemucca ESR",1
+"612","SH03","Nevada WMDO",3
+"613","SH03","New Mexico RGdNNM",1
+"614","PHACEAF","California NorCal",7
+"615","PHACEAF","Nevada CCDO",4
+"616","PHACEAF","Nevada SNDO",7
+"617","PHACEAF","Utah Grand Staircase Escalante NM",1
+"618","PHACEAF","Washington Wenatchee  FO",4
+"619","AF29","California NorCal",4
+"620","AF29","Nevada BMDO",1
+"621","AF29","Nevada SNDO",4
+"622","AF29","Nevada Winnemucca ESR",1
+"623","LEPIDAF","California NorCal",3
+"624","LEPIDAF","Idaho Bruneau FO",1
+"625","LEPIDAF","Nevada BMDO",3
+"626","LEPIDAF","Nevada CCDO",3
+"627","LEPIDAF","Nevada SNDO",21
+"628","LEPIDAF","Washington Wenatchee  FO",2
+"629","SH08","California NorCal",1
+"630","SH08","Nevada SNDO",1
+"631","SH08","Nevada Winnemucca ESR",1
+"632","CASTI2SH","Nevada BMDO",1
+"633","ALLIUPF01","Nevada EKDO",20
+"634","ALLIUPF02","Nevada EKDO",4
+"635","OPUNTPF01","Nevada EKDO",30
+"636","PERIDPF01","Nevada EKDO",2
+"637","SENECPF01","Nevada EKDO",4
+"638","ARENAPF01","Nevada EKDO",5
+"639","DESCUAF01","Nevada EKDO",22
+"640","ZIGADPF01","Nevada EKDO",8
+"641","CYMOP2PF01","Nevada EKDO",9
+"642","DELPHPF01","Nevada EKDO",9
+"643","DELPHPF01","Nevada EYDO",3
+"644","GILIAAF01","Nevada EKDO",16
+"645","GILIAAF01","Nevada EYDO",7
+"646","CHAENAF01","Nevada EKDO",8
+"647","CHAENAF01","Nevada EYDO",1
+"648","SPHAEPF01","Nevada EKDO",11
+"649","PACKEPF01","Nevada EKDO",6
+"650","SUC01","Nevada EKDO",1
+"651","CHENOAF01","Nevada EKDO",5
+"652","DODECPF01","Nevada EKDO",1
+"653","IVESIPF01","Nevada EKDO",1
+"654","JUNCUPG01","Nevada EKDO",2
+"655","PHLOXPF01","Nevada EKDO",1
+"656","MENTZAF01","Nevada EKDO",4
+"657","OENOTPF01","Nevada EKDO",5
+"658","OENOTPF01","Nevada EYDO",1
+"659","ARTRW","Colorado White River FO",13
+"660","ARTRW","Nevada EYDO",2
+"661","CHAENA","Nevada SNDO",31
+"662","PECTOA","Nevada SNDO",37
+"663","BRASS2A","Nevada SNDO",14
+"664","ENCELP","Nevada SNDO",18
+"665","AF39","California NorCal",3
+"666","AF39","Nevada SNDO",4
+"667","AF39","Nevada Winnemucca ESR",5
+"668","MENTZA","Nevada SNDO",5
+"669","AMARAA","Nevada SNDO",5
+"670","AF38","California NorCal",2
+"671","AF38","Nevada SNDO",1
+"672","AF38","Nevada Winnemucca ESR",1
+"673","CYLIN2SH","Nevada SNDO",6
+"674","MIRABP","Nevada SNDO",3
+"675","AF40","California NorCal",3
+"676","AF40","Nevada SNDO",1
+"677","AF40","Nevada Winnemucca ESR",3
+"678","PENSTA","California NorCal",4
+"679","PENSTA","Colorado White River FO",3
+"680","PENSTA","Nevada CCDO",1
+"681","PENSTA","Nevada EYDO",2
+"682","PENSTA","Nevada Winnemucca ESR",9
+"683","PENSTA","Utah Grand Staircase Escalante NM",2
+"684","PF14","California NorCal",1
+"685","PF14","Colorado White River FO",1
+"686","PF14","Nevada CCDO",3
+"687","PF14","Nevada EKDO",1
+"688","PF14","Nevada Winnemucca ESR",2
+"689","PF15","California NorCal",2
+"690","PF15","Nevada BMDO",1
+"691","PF15","Nevada CCDO",3
+"692","PF15","Nevada EKDO",1
+"693","PF15","Nevada Winnemucca ESR",2
+"694","PF15","Wyoming Lander FO",2
+"695","PF16","Nevada BMDO",3
+"696","PF16","Nevada CCDO",3
+"697","PF16","Nevada EKDO",1
+"698","PF16","Nevada Winnemucca ESR",3
+"699","PF16","New Mexico RGdNNM",1
+"700","PF17","California NorCal",1
+"701","PF17","Nevada CCDO",3
+"702","PF17","Nevada EKDO",1
+"703","PF17","Nevada Winnemucca ESR",4
+"704","PG06","California NorCal",4
+"705","PG06","Nevada CCDO",6
+"706","PG06","Nevada Winnemucca ESR",6
+"707","PG06","Nevada WMDO",7
+"708","PG06","Washington Wenatchee  FO",1
+"709","PG10","California NorCal",2
+"710","PG10","Nevada CCDO",3
+"711","PG10","Nevada Winnemucca ESR",4
+"712","PG10","Nevada WMDO",1
+"713","AF11","California NorCal",3
+"714","AF11","Jackson Mountains",1
+"715","AF11","Nevada BMDO",2
+"716","AF11","Nevada CCDO",3
+"717","AF11","Nevada Winnemucca ESR",2
+"718","AF11","Nevada WMDO",1
+"719","AF14","California NorCal",3
+"720","AF14","Nevada BMDO",1
+"721","AF14","Nevada CCDO",3
+"722","AF14","Nevada SNDO",2
+"723","AF14","Nevada Winnemucca ESR",2
+"724","AF14","Washington Wenatchee  FO",3
+"725","AF15","California NorCal",2
+"726","AF15","Nevada BMDO",1
+"727","AF15","Nevada CCDO",3
+"728","AF15","Nevada SNDO",2
+"729","AF15","Nevada Winnemucca ESR",4
+"730","AF15","New Mexico RGdNNM",1
+"731","AF17","California NorCal",2
+"732","AF17","Colorado San Luis Valley FO",1
+"733","AF17","Nevada BMDO",2
+"734","AF17","Nevada CCDO",3
+"735","AF17","Nevada SNDO",1
+"736","AF17","Nevada Winnemucca ESR",3
+"737","AF18","California NorCal",2
+"738","AF18","Nevada BMDO",1
+"739","AF18","Nevada CCDO",3
+"740","AF18","Nevada Winnemucca ESR",2
+"741","AF19","California NorCal",2
+"742","AF19","Nevada CCDO",3
+"743","AF19","Nevada SNDO",8
+"744","AF19","Nevada Winnemucca ESR",2
+"745","ERAS5","Nevada Winnemucca ESR",2
+"746","ARABIS SP","Nevada Winnemucca ESR",7
+"747","AF37","California NorCal",2
+"748","AF37","Nevada Winnemucca ESR",1
+"749","PG09","California NorCal",2
+"750","PG09","Nevada CCDO",3
+"751","PG09","Nevada Winnemucca ESR",2
+"752","PG09","Nevada WMDO",1
+"753","PG11","Nevada CCDO",3
+"754","PG11","Nevada Winnemucca ESR",1
+"755","MACA3","Nevada Winnemucca ESR",2
+"756","PG08","Nevada BMDO",2
+"757","PG08","Nevada CCDO",3
+"758","PG08","Nevada EYDO",2
+"759","PG08","Nevada Winnemucca ESR",1
+"760","SH07","California NorCal",4
+"761","SH07","Colorado White River FO",1
+"762","SH07","Nevada BMDO",1
+"763","SH07","Nevada EKDO",1
+"764","SH07","Nevada EYDO",1
+"765","SH07","Nevada SNDO",3
+"766","SH07","Nevada Winnemucca ESR",1
+"767","SH07","Nevada WMDO",1
+"768","AF09","California NorCal",4
+"769","AF09","Nevada BMDO",3
+"770","AF09","Nevada CCDO",3
+"771","AF09","Nevada SNDO",7
+"772","AF09","Nevada Winnemucca ESR",3
+"773","AF09","Nevada WMDO",1
+"774","SH09","California NorCal",4
+"775","SH09","Nevada Winnemucca ESR",2
+"776","AF41","California NorCal",3
+"777","AF41","Nevada SNDO",1
+"778","AF41","Nevada Winnemucca ESR",2
+"779","PF21","California NorCal",1
+"780","PF21","Nevada CCDO",6
+"781","PF21","Nevada Winnemucca ESR",2
+"782","PF21","New Mexico RGdNNM",1
+"783","PF22","California NorCal",3
+"784","PF22","Nevada BMDO",1
+"785","PF22","Nevada CCDO",3
+"786","PF22","Nevada EKDO",1
+"787","PF22","Nevada Winnemucca ESR",2
+"788","PF22","Wyoming Lander FO",1
+"789","SH11","California NorCal",1
+"790","SH11","Nevada Winnemucca ESR",2
+"791","LEPU","Colorado Gunnison FO",6
+"792","LEPU","Colorado White River FO",2
+"793","LEPU","Nevada BMDO",25
+"794","LEPU","Nevada CCDO",15
+"795","LEPU","Nevada Winnemucca ESR",13
+"796","PF09","California NorCal",4
+"797","PF09","Colorado White River FO",1
+"798","PF09","Nevada BMDO",2
+"799","PF09","Nevada CCDO",3
+"800","PF09","Nevada EKDO",2
+"801","PF09","Nevada Winnemucca ESR",2
+"802","PF09","Nevada WMDO",5
+"803","AF08","California NorCal",4
+"804","AF08","California Riverside East SEZ",2
+"805","AF08","Nevada BMDO",8
+"806","AF08","Nevada CCDO",3
+"807","AF08","Nevada SNDO",3
+"808","AF08","Nevada Winnemucca ESR",1
+"809","AF08","Nevada WMDO",3
+"810","AF08","New Mexico RGdNNM",1
+"811","AF08","Washington Wenatchee  FO",6
+"812","ASAD6","Nevada BMDO",2
+"813","ASAD6","Nevada EKDO",3
+"814","ASSC3","Nevada BMDO",4
+"815","ASSC3","Nevada EKDO",23
+"816","PIMOF","Nevada BMDO",3
+"817","CHENO#2","Nevada CCDO",3
+"818","SH01","California NorCal",4
+"819","SH01","California SurpriseFO ESR",12
+"820","SH01","Colorado White River FO",21
+"821","SH01","Jackson Mountains",1
+"822","SH01","Nevada BMDO",4
+"823","SH01","Nevada EKDO",3
+"824","SH01","Nevada EYDO",5
+"825","SH01","Nevada Winnemucca ESR",2
+"826","SH01","Nevada WMDO",2
+"827","SH01","New Mexico RGdNNM",3
+"828","SH01","Utah Grand Staircase Escalante NM",1
+"829","JUBA","Nevada EKDO",2
+"830","JUBA","Utah Grand Staircase Escalante NM",1
+"831","LAMIACEAE","Nevada CCDO",3
+"832","LAMIACEAE","Nevada EYDO",2
+"833","LOMAT#5","Nevada CCDO",3
+"834","CRYPT#6","Nevada CCDO",3
+"835","FOXX","Nevada CCDO",6
+"836","FOXX","Nevada SNDO",3
+"837","CRYPT#1","Nevada CCDO",3
+"838","DEAD SHRUB","Nevada CCDO",3
+"839","ASTERACEAE#3","Nevada CCDO",3
+"840","CHENO#3","Nevada CCDO",6
+"841","POACEAE#2","Nevada CCDO",3
+"842","GILIA#8","Nevada CCDO",3
+"843","LOMAT#4","Nevada CCDO",3
+"844","CRYPT#3","Nevada CCDO",3
+"845","DESCU#2","Nevada CCDO",3
+"846","GAYOP#4","Nevada CCDO",3
+"847","PF23","California NorCal",2
+"848","PF23","Nevada BMDO",1
+"849","PF23","Nevada CCDO",6
+"850","PF23","Nevada Winnemucca ESR",1
+"851","KONI","Nevada CCDO",3
+"852","PF18","California NorCal",3
+"853","PF18","Idaho Bruneau FO",1
+"854","PF18","Nevada CCDO",3
+"855","PF18","Nevada EKDO",2
+"856","PF18","Nevada Winnemucca ESR",1
+"857","PF18","New Mexico RGdNNM",1
+"858","PG07","California NorCal",4
+"859","PG07","Nevada CCDO",3
+"860","PF24","California NorCal",1
+"861","PF24","Nevada BMDO",1
+"862","PF24","Nevada CCDO",3
+"863","PF24","New Mexico RGdNNM",1
+"864","AF21","California NorCal",2
+"865","AF21","Nevada CCDO",3
+"866","AF21","Nevada SNDO",1
+"867","AF21","Nevada Winnemucca ESR",1
+"868","AF21","New Mexico RGdNNM",1
+"869","AF24","California NorCal",2
+"870","AF24","Nevada CCDO",3
+"871","AF24","Nevada Winnemucca ESR",2
+"872","PG02","California NorCal",2
+"873","PG02","California SurpriseFO ESR",3
+"874","PG02","Colorado White River FO",16
+"875","PG02","Nevada BMDO",1
+"876","PG02","Nevada CCDO",3
+"877","PG02","Nevada EKDO",2
+"878","PG02","Nevada SNDO",1
+"879","PG02","Nevada Winnemucca ESR",4
+"880","PG02","Nevada WMDO",1
+"881","PF12","California NorCal",2
+"882","PF12","Colorado White River FO",1
+"883","PF12","Nevada BMDO",1
+"884","PF12","Nevada CCDO",3
+"885","PF12","Nevada EKDO",1
+"886","PF12","Nevada WMDO",4
+"887","PF12","New Mexico RGdNNM",1
+"888","PF08","California NorCal",3
+"889","PF08","Nevada CCDO",3
+"890","PF08","Nevada EKDO",1
+"891","PF08","Nevada WMDO",2
+"892","LOMATAF","California NorCal",36
+"893","LOMATAF","Idaho Bruneau FO",1
+"894","LOMATAF","Nevada BMDO",3
+"895","LOMATAF","Nevada CCDO",1
+"896","ORTHOPF","California NorCal",3
+"897","ORTHOPF","Washington Wenatchee  FO",1
+"898","PF42","California NorCal",4
+"899","AF49","California NorCal",2
+"900","AMSINAF","California NorCal",9
+"901","AMSINAF","Nevada BMDO",2
+"902","AMSINAF","Nevada SNDO",5
+"903","AMSINAF","Washington Wenatchee  FO",8
+"904","AF44","California NorCal",8
+"905","AF44","Nevada Winnemucca ESR",1
+"906","AF47","California NorCal",2
+"907","AF47","Nevada Winnemucca ESR",1
+"908","PF43","California NorCal",4
+"909","PF43","Nevada EKDO",1
+"910","PF43","Wyoming Lander FO",1
+"911","PF50","California NorCal",3
+"912","PF50","Nevada EKDO",1
+"913","PF50","Nevada Winnemucca ESR",2
+"914","PF50","Wyoming Lander FO",1
+"915","PF37","California NorCal",3
+"916","PF37","Nevada Winnemucca ESR",2
+"917","SPHAESH","California NorCal",4
+"918","PF31","California NorCal",2
+"919","PF31","Nevada BMDO",1
+"920","PF31","Nevada WMDO",2
+"921","PF32","California NorCal",3
+"922","PF32","Nevada Winnemucca ESR",3
+"923","PG31","California NorCal",3
+"924","SH49","California NorCal",1
+"925","SH49","Nevada Winnemucca ESR",2
+"926","CREPIAF","California NorCal",4
+"927","PHLOXPF","California NorCal",12
+"928","PHLOXPF","Washington Wenatchee  FO",2
+"929","PHLOXPF","Wyoming Lander FO",1
+"930","SH04","California NorCal",3
+"931","SH04","Nevada SNDO",1
+"932","SH04","Nevada Winnemucca ESR",1
+"933","SH04","Nevada WMDO",2
+"934","AF71","California NorCal",2
+"935","AF73","California NorCal",2
+"936","PG101","California NorCal",1
+"937","PG102","California NorCal",1
+"938","PG102","Nevada Winnemucca ESR",3
+"939","PF41","California NorCal",4
+"940","PF76","California NorCal",3
+"941","PF77","California NorCal",3
+"942","PF40","California NorCal",4
+"943","PF47","California NorCal",2
+"944","PF44","California NorCal",2
+"945","PF45","California NorCal",2
+"946","PF45","Wyoming Lander FO",1
+"947","PF46","California NorCal",2
+"948","PF46","Wyoming Lander FO",1
+"949","SH41","California NorCal",1
+"950","SH41","Nevada Winnemucca ESR",1
+"951","SH42","California NorCal",1
+"952","PHLOXAF","California NorCal",2
+"953","PENSTAF","California NorCal",14
+"954","AF36","California NorCal",3
+"955","AF36","Nevada Winnemucca ESR",1
+"956","PG76","California NorCal",3
+"957","SH74","California NorCal",1
+"958","TR31","California NorCal",1
+"959","ERIOGAF","California NorCal",36
+"960","ERIOGAF","California Riverside East SEZ",10
+"961","ERIOGAF","Idaho Bruneau FO",3
+"962","ERIOGAF","Nevada BMDO",1
+"963","ERIOGAF","Nevada CCDO",21
+"964","ERIOGAF","Nevada SNDO",5
+"965","ERIOGAF","Utah Grand Staircase Escalante NM",5
+"966","ERIOGAF","Wyoming Lander FO",1
+"967","SH78","California NorCal",1
+"968","SH77","California NorCal",1
+"969","ERIGP1","Nevada Winnemucca ESR",2
+"970","PF160","California NorCal",1
+"971","PF160","Nevada Winnemucca ESR",1
+"972","PG160","Nevada Winnemucca ESR",1
+"973","PG161","Nevada Winnemucca ESR",1
+"974","PG162","Nevada Winnemucca ESR",1
+"975","PG163","Nevada Winnemucca ESR",1
+"976","ASTRAAP","Nevada Winnemucca ESR",1
+"977","PF165","California NorCal",1
+"978","PF165","Nevada Winnemucca ESR",1
+"979","PG165","Nevada Winnemucca ESR",1
+"980","PF155","California NorCal",1
+"981","PF155","Nevada Winnemucca ESR",1
+"982","SH153","Nevada Winnemucca ESR",1
+"983","SH154","Nevada Winnemucca ESR",1
+"984","SH104","Nevada Winnemucca ESR",2
+"985","LIRU3","Nevada Winnemucca ESR",2
+"986","ARLUL","Nevada Winnemucca ESR",2
+"987","PF114","Nevada Winnemucca ESR",3
+"988","PF117","Nevada Winnemucca ESR",2
+"989","PF118","California NorCal",1
+"990","PF118","Nevada Winnemucca ESR",1
+"991","PF119","California NorCal",1
+"992","PF119","Nevada Winnemucca ESR",1
+"993","PG103","Nevada Winnemucca ESR",4
+"994","PG106","Nevada Winnemucca ESR",1
+"995","PF109","California NorCal",1
+"996","PF109","Nevada Winnemucca ESR",5
+"997","ASTRAP2","Nevada Winnemucca ESR",8
+"998","PENSTP2","Nevada Winnemucca ESR",1
+"999","PG150","Nevada Winnemucca ESR",2
+"1000","PG151","Nevada Winnemucca ESR",1
+"1001","AF150","Nevada Winnemucca ESR",3
+"1002","AF151","Nevada Winnemucca ESR",1
+"1003","THISTLE SP.","Nevada Winnemucca ESR",1
+"1004","AGTR","Nevada Winnemucca ESR",1
+"1005","PF39","California NorCal",2
+"1006","PF39","Nevada Winnemucca ESR",1
+"1007","AF106","California NorCal",1
+"1008","AF106","Nevada Winnemucca ESR",1
+"1009","PG104","Nevada Winnemucca ESR",1
+"1010","ERIGP","Nevada Winnemucca ESR",1
+"1011","COPA","Nevada Winnemucca ESR",1
+"1012","ERIOGP1","Nevada Winnemucca ESR",1
+"1013","ANTENPF","California NorCal",15
+"1014","ANTENPF","Nevada BMDO",1
+"1015","ANTENPF","Nevada Winnemucca ESR",1
+"1016","ANTENPF","Nevada WMDO",2
+"1017","ANTENPF","Washington Wenatchee  FO",2
+"1018","ANTENPF","Wyoming Lander FO",18
+"1019","STVT2","Nevada Winnemucca ESR",1
+"1020","LYSP2","Utah Grand Staircase Escalante NM",2
+"1021","PF25","California NorCal",2
+"1022","PF25","Nevada CCDO",3
+"1023","AF16","California NorCal",3
+"1024","AF16","Colorado San Luis Valley FO",2
+"1025","AF16","Colorado San Luis Valley FO 2015 GUSG Ha",2
+"1026","AF16","Nevada BMDO",1
+"1027","AF16","Nevada CCDO",3
+"1028","AF16","Nevada SNDO",1
+"1029","AF16","Nevada Winnemucca ESR",1
+"1030","AF16","New Mexico RGdNNM",3
+"1031","AF16","Washington Wenatchee  FO",2
+"1032","PG05","California NorCal",4
+"1033","PG05","Colorado San Luis Valley FO",1
+"1034","PG05","Nevada CCDO",6
+"1035","PG05","Nevada Winnemucca ESR",1
+"1036","PG05","Nevada WMDO",1
+"1037","PG05","New Mexico RGdNNM",1
+"1038","AF20","California NorCal",3
+"1039","AF20","Colorado San Luis Valley FO",1
+"1040","AF20","Nevada BMDO",1
+"1041","AF20","Nevada CCDO",3
+"1042","AF20","New Mexico RGdNNM",1
+"1043","GILIAAF","California NorCal",10
+"1044","GILIAAF","Nevada BMDO",4
+"1045","GILIAAF","Nevada CCDO",39
+"1046","GILIAAF","Nevada WMDO",23
+"1047","GILIAAF","Utah Grand Staircase Escalante NM",5
+"1048","GILIAAF","Wyoming Lander FO",3
+"1049","AF74","California NorCal",2
+"1050","AF74","Nevada CCDO",9
+"1051","ERIASAF","California NorCal",16
+"1052","ERIASAF","Nevada CCDO",6
+"1053","AF48","California NorCal",1
+"1054","AF48","Nevada CCDO",3
+"1055","AF48","Nevada Winnemucca ESR",2
+"1056","ARABI2PF","California NorCal",42
+"1057","ARABI2PF","Idaho Bruneau FO",5
+"1058","ARABI2PF","Nevada BMDO",1
+"1059","ARABI2PF","Nevada CCDO",3
+"1060","ARABI2PF","Nevada EKDO",12
+"1061","ARABI2PF","Nevada WMDO",5
+"1062","ARABI2PF","Utah Grand Staircase Escalante NM",3
+"1063","ARABI2PF","Wyoming Lander FO",16
+"1064","PPGG","California SurpriseFO ESR",1
+"1065","PPGG","Colorado White River FO",1
+"1066","PPGG","Idaho CRMONM AIM",3
+"1067","PPGG","Nevada EKDO",6
+"1068","PPGG","Nevada Winnemucca ESR",2
+"1069","PPGG","Nevada WMDO",3
+"1070","ERIGE2A","Idaho CRMONM AIM",1
+"1071","OPUNTSUC01","Nevada EYDO",18
+"1072","AG02","California NorCal",1
+"1073","AG02","California SurpriseFO ESR",3
+"1074","AG02","Colorado White River FO",17
+"1075","AG02","Nevada BMDO",1
+"1076","SH02","California SurpriseFO ESR",3
+"1077","SH02","Nevada BMDO",1
+"1078","SH02","Nevada EYDO",2
+"1079","SH02","Nevada SNDO",6
+"1080","SH02","Nevada Winnemucca ESR",2
+"1081","SH02","Nevada WMDO",1
+"1082","SH02","Utah Grand Staircase Escalante NM",1
+"1083","LOMATP2","Nevada Winnemucca ESR",4
+"1084","AF103","Nevada Winnemucca ESR",1
+"1085","ERIOGP2","Nevada Winnemucca ESR",1
+"1086","ONAL","Colorado White River FO",2
+"1087","BRAN13","Nevada EKDO",1
+"1088","BRAN13","Nevada Winnemucca ESR",3
+"1089","BRAN13","Nevada WMDO",3
+"1090","ELSM3","Nevada Winnemucca ESR",1
+"1091","ELSM3","Nevada WMDO",2
+"1092","OTHER","Nevada Winnemucca ESR",2
+"1093","AF68","California NorCal",1
+"1094","AF68","Nevada CCDO",3
+"1095","AF75","California NorCal",1
+"1096","AF75","Nevada CCDO",6
+"1097","SUC03","Nevada CCDO",3
+"1098","MIAC#","Arizona Agua Fria NM",1
+"1099","AG1","Arizona Agua Fria NM",2
+"1100","PATR","Arizona Agua Fria NM",1
+"1101","PF20","California NorCal",2
+"1102","PF20","Nevada CCDO",3
+"1103","PF20","Nevada Winnemucca ESR",1
+"1104","PF20","Washington Wenatchee  FO",7
+"1105","PF20","Wyoming Lander FO",1
+"1106","MAMMISUCC01","Nevada EYDO",5
+"1107","SCLER10SUC01","Nevada EYDO",1
+"1108","CAMISPF01","Nevada EYDO",1
+"1109","CHAMA15AF01","Nevada EKDO",1
+"1110","CHAMA15AF01","Nevada EYDO",6
+"1111","MIRABPF01","Nevada EYDO",2
+"1112","ERPA20","Nevada SNDO",9
+"1113","PHACELIA SP","Nevada SNDO",10
+"1114","UNK SHRUB 1","Nevada SNDO",1
+"1115","UNK FORB1","Nevada SNDO",1
+"1116","UNK GILIA","Nevada SNDO",4
+"1117","UNK SH 1","Nevada SNDO",1
+"1118","UNK GILIA 1","Nevada SNDO",5
+"1119","UNK PRUNUS 1","Nevada SNDO",2
+"1120","UNK AMSINKIA","Nevada SNDO",1
+"1121","UNK GILIA 2","Nevada SNDO",1
+"1122","UNK FORB","Nevada SNDO",1
+"1123","UNKGILIA1","Nevada SNDO",2
+"1124","UNK BRASS","Nevada SNDO",1
+"1125","ENTE","Nevada SNDO",1
+"1126","ERFA","Nevada SNDO",9
+"1127","ERIOG1","Nevada Winnemucca ESR",1
+"1128","LOMATP1","Nevada Winnemucca ESR",2
+"1129","AF102","Nevada Winnemucca ESR",1
+"1130","AF105","Nevada Winnemucca ESR",2
+"1131","PF100","Nevada Winnemucca ESR",3
+"1132","PF100","Wyoming Lander FO",1
+"1133","AF104","Nevada Winnemucca ESR",2
+"1134","SAGEWORT","Nevada Winnemucca ESR",1
+"1135","AF101","Nevada Winnemucca ESR",1
+"1136","CREPISP2","Nevada Winnemucca ESR",1
+"1137","AGSI","Nevada Winnemucca ESR",6
+"1138","CREPI2","Nevada Winnemucca ESR",1
+"1139","CREPI3","Nevada Winnemucca ESR",1
+"1140","PF112","Nevada Winnemucca ESR",2
+"1141","PF115","California NorCal",1
+"1142","PF115","Nevada Winnemucca ESR",1
+"1143","PENSTP1","Nevada Winnemucca ESR",1
+"1144","POAN5","Nevada Winnemucca ESR",1
+"1145","AF110","Nevada Winnemucca ESR",2
+"1146","PF116","California NorCal",2
+"1147","PF116","Nevada Winnemucca ESR",1
+"1148","SH103","Nevada Winnemucca ESR",2
+"1149","EARA2","Nevada Winnemucca ESR",1
+"1150","PF120","California NorCal",1
+"1151","PF120","Nevada Winnemucca ESR",1
+"1152","PF120","Wyoming Lander FO",1
+"1153","PF","Nevada Winnemucca ESR",1
+"1154","PF","Nevada WMDO",36
+"1155","PF104","California NorCal",2
+"1156","PF104","Nevada Winnemucca ESR",1
+"1157","PF104","Wyoming Lander FO",1
+"1158","PF106","California NorCal",1
+"1159","PF106","Nevada Winnemucca ESR",2
+"1160","PF107","California NorCal",1
+"1161","PF107","Nevada Winnemucca ESR",1
+"1162","PF108","California NorCal",1
+"1163","PF108","Nevada Winnemucca ESR",1
+"1164","AF109","Nevada Winnemucca ESR",2
+"1165","AF108","Nevada Winnemucca ESR",1
+"1166","ASTERPF1","Nevada Winnemucca ESR",1
+"1167","SSHH","Nevada Winnemucca ESR",1
+"1168","PF150","California NorCal",1
+"1169","PF150","Nevada Winnemucca ESR",1
+"1170","SAPU11","Nevada Winnemucca ESR",1
+"1171","AF22","California NorCal",3
+"1172","AF22","Colorado San Luis Valley FO",2
+"1173","AF22","Nevada BMDO",1
+"1174","AF22","Nevada CCDO",3
+"1175","AF22","Nevada SNDO",2
+"1176","AF22","New Mexico RGdNNM",1
+"1177","MENTZ#2","Nevada CCDO",3
+"1178","GAYOP#6","Nevada CCDO",3
+"1179","PHLOX#2","Nevada CCDO",3
+"1180","ASGL3","Colorado White River FO",1
+"1181","BRJA","California Applegate FO",5
+"1182","BRJA","California NorCal",1
+"1183","BRJA","Colorado White River FO",18
+"1184","ERKIU","Colorado White River FO",5
+"1185","PENST#3","Nevada CCDO",3
+"1186","ARKIG","Nevada CCDO",6
+"1187","CHENO#1","Nevada CCDO",3
+"1188","BORAGINACEAE","Nevada CCDO",3
+"1189","ARENA#2","Nevada CCDO",3
+"1190","AF","Nevada CCDO",6
+"1191","AF","Nevada WMDO",25
+"1192","CRYPT#4","Nevada CCDO",3
+"1193","CALOC#2","Nevada CCDO",3
+"1194","PENST#2","Nevada CCDO",3
+"1195","ACHNA#1","Nevada CCDO",3
+"1196","MALAC3A","Nevada SNDO",6
+"1197","PF110","Nevada Winnemucca ESR",1
+"1198","CASTI2A","Idaho CRMONM AIM",1
+"1199","SUAEDSH","Nevada SNDO",1
+"1200","GILIAA","Nevada SNDO",11
+"1201","ARABI2AF","California NorCal",3
+"1202","ARABI2AF","Idaho Bruneau FO",8
+"1203","ARABI2AF","Nevada BMDO",1
+"1204","ARABI2AF","Nevada EKDO",3
+"1205","ARABI2AF","Washington Wenatchee  FO",2
+"1206","ARABI2AF","Wyoming Lander FO",6
+"1207","CREPIPF","California NorCal",141
+"1208","CREPIPF","Idaho Bruneau FO",4
+"1209","CREPIPF","Nevada BMDO",3
+"1210","CREPIPF","Nevada CCDO",25
+"1211","CREPIPF","Nevada EKDO",2
+"1212","CREPIPF","Washington Wenatchee  FO",3
+"1213","CREPIPF","Wyoming Lander FO",11
+"1214","ERIGE2AF","California NorCal",6
+"1215","ERIGE2AF","Idaho Bruneau FO",1
+"1216","ERIGE2AF","Nevada BMDO",1
+"1217","CRYPT#7","Nevada CCDO",3
+"1218","PENST#4","Nevada CCDO",3
+"1219","ASTER#1","Nevada CCDO",3
+"1220","CHENO#4","Nevada CCDO",3
+"1221","COLLO#4","Nevada CCDO",3
+"1222","POLYG4#1","Nevada CCDO",9
+"1223","RYE-LIKE GRASS","Nevada CCDO",9
+"1224","POACEAE#3","Nevada CCDO",3
+"1225","ACHNA#2","Nevada CCDO",3
+"1226","ALLIU#1","Nevada CCDO",3
+"1227","BRASSICACEAE","Nevada CCDO",3
+"1228","CRYPT#8","Nevada CCDO",3
+"1229","PHLOX#3","Nevada CCDO",3
+"1230","AF12","California NorCal",5
+"1231","AF12","Nevada BMDO",2
+"1232","AF12","Nevada CCDO",2
+"1233","AF12","Nevada SNDO",1
+"1234","AF12","New Mexico RGdNNM",1
+"1235","AF13","California NorCal",3
+"1236","AF13","Nevada BMDO",1
+"1237","AF13","Nevada CCDO",2
+"1238","AF13","Nevada EYDO",1
+"1239","AF13","Nevada SNDO",4
+"1240","AF13","Nevada Winnemucca ESR",1
+"1241","GAYOPAF01","Nevada EKDO",5
+"1242","MADIAAF01","Nevada EKDO",1
+"1243","POTENPF01","Nevada EKDO",1
+"1244","ROSA5SH01","Nevada EKDO",1
+"1245","RUMEXPF01","Nevada EKDO",1
+"1246","CREPIPF02","Nevada EKDO",1
+"1247","CREPIPF03","Nevada EKDO",1
+"1248","PF3","Nevada Winnemucca ESR",4
+"1249","PF3","Nevada WMDO",1
+"1250","SH06","California NorCal",4
+"1251","SH06","Colorado White River FO",1
+"1252","SH06","Nevada EYDO",1
+"1253","SH06","Nevada Winnemucca ESR",1
+"1254","SH06","Nevada WMDO",2
+"1255","AG14","Nevada WMDO",3
+"1256","AF42","California NorCal",1
+"1257","AF42","Nevada SNDO",1
+"1258","AF42","Nevada Winnemucca ESR",3
+"1259","ATRIPSH","California NorCal",3
+"1260","ATRIPSH","Nevada SNDO",1
+"1261","LYCIUSH","Nevada SNDO",9
+"1262","CAMISA","Nevada SNDO",11
+"1263","SH18","California NorCal",1
+"1264","SH18","Nevada SNDO",1
+"1265","AAGG","California NorCal",4
+"1266","AAGG","California Riverside East SEZ",1
+"1267","AAGG","Nevada SNDO",3
+"1268","AAGG","Nevada Winnemucca ESR",1
+"1269","SH16","California NorCal",1
+"1270","SH16","Nevada CCDO",1
+"1271","SH16","Nevada SNDO",13
+"1272","LINAN2A","Nevada SNDO",1
+"1273","STEPHA","Nevada SNDO",9
+"1274","PG12","California NorCal",3
+"1275","PG12","Nevada EKDO",1
+"1276","PG12","Nevada Winnemucca ESR",2
+"1277","PG12","Nevada WMDO",2
+"1278","PF53","California NorCal",1
+"1279","PF53","Nevada BMDO",2
+"1280","PF53","Nevada Winnemucca ESR",1
+"1281","SH43","California NorCal",1
+"1282","SH43","Nevada Winnemucca ESR",1
+"1283","AAFF1","Nevada EKDO",51
+"1284","AAFF2","Nevada EKDO",31
+"1285","AAFF3","Nevada EKDO",17
+"1286","AAFF4","Nevada EKDO",12
+"1287","AAFF5","Nevada EKDO",8
+"1288","AGSM","Nevada EKDO",19
+"1289","AGIN2","Nevada EKDO",4
+"1290","KOPR80","Nevada EKDO",9
+"1291","AAFF6","Nevada EKDO",3
+"1292","AAFF7","Nevada EKDO",3
+"1293","PPSS1","Nevada EKDO",4
+"1294","AAFF8","Nevada EKDO",2
+"1295","AAGG1","Nevada EKDO",2
+"1296","PF26","California NorCal",3
+"1297","PF26","Nevada BMDO",3
+"1298","PF26","Nevada CCDO",3
+"1299","PF38","Nevada BMDO",1
+"1300","PF38","Nevada Winnemucca ESR",1
+"1301","UNK GROUND COVER","Nevada SNDO",1
+"1302","UNK SHRUB","Nevada SNDO",3
+"1303","AF43","California NorCal",4
+"1304","AF43","Nevada Winnemucca ESR",2
+"1305","AF46","California NorCal",2
+"1306","AF46","Nevada Winnemucca ESR",1
+"1307","SH37","California NorCal",2
+"1308","SH40","California NorCal",1
+"1309","PF48","California NorCal",2
+"1310","PF48","Wyoming Lander FO",1
+"1311","PF49","California NorCal",3
+"1312","PF49","Wyoming Lander FO",1
+"1313","LUPINAF","California NorCal",26
+"1314","LUPINAF","California Riverside East SEZ",1
+"1315","LUPINAF","Idaho Bruneau FO",1
+"1316","LUPINAF","Nevada SNDO",3
+"1317","PF52","California NorCal",2
+"1318","PF52","Nevada BMDO",2
+"1319","PF52","Wyoming Lander FO",1
+"1320","SH45","California NorCal",1
+"1321","SH46","California NorCal",1
+"1322","MENTZAF","California NorCal",8
+"1323","MENTZAF","California Riverside East SEZ",1
+"1324","MENTZAF","Nevada SNDO",21
+"1325","MENTZAF","Washington Wenatchee  FO",2
+"1326","MENTZAF","Wyoming Lander FO",2
+"1327","AF70","California NorCal",1
+"1328","AF70","Nevada CCDO",3
+"1329","AF70","Nevada Winnemucca ESR",1
+"1330","AF79","California NorCal",1
+"1331","AF79","Nevada CCDO",3
+"1332","AF82","California NorCal",1
+"1333","AF82","Nevada CCDO",6
+"1334","PF29","California NorCal",2
+"1335","PF29","Nevada CCDO",3
+"1336","PF29","New Mexico RGdNNM",1
+"1337","PF30","California NorCal",2
+"1338","PF30","Nevada BMDO",1
+"1339","PF30","Nevada CCDO",3
+"1340","AF83","California NorCal",1
+"1341","AF83","Nevada CCDO",3
+"1342","ANTENPF01","Nevada EKDO",2
+"1343","ANTENPF01","Nevada EYDO",1
+"1344","AF63","California NorCal",1
+"1345","AF63","Nevada BMDO",2
+"1346","AF64","California NorCal",1
+"1347","AF64","Nevada BMDO",2
+"1348","AF64","Nevada CCDO",2
+"1349","PG53","Nevada BMDO",2
+"1350","SH51","Nevada BMDO",2
+"1351","CHRYS9SH","California NorCal",1
+"1352","CHRYS9SH","Nevada BMDO",2
+"1353","SH52","Nevada BMDO",2
+"1354","SCUTEPF","Nevada BMDO",1
+"1355","AF61","California NorCal",1
+"1356","AF61","Nevada BMDO",1
+"1357","AF62","California NorCal",1
+"1358","AF62","Nevada BMDO",1
+"1359","AF62","Nevada CCDO",2
+"1360","SH50","Nevada BMDO",1
+"1361","SH50","Nevada Winnemucca ESR",1
+"1362","AF76","California NorCal",1
+"1363","AF76","Nevada CCDO",3
+"1364","AF77","California NorCal",1
+"1365","AF77","Nevada CCDO",3
+"1366","LOPLA","Nevada BMDO",3
+"1367","PG90","Nevada BMDO",2
+"1368","PF28","California NorCal",4
+"1369","PF28","Nevada BMDO",1
+"1370","PF27","California NorCal",4
+"1371","PF27","Nevada BMDO",1
+"1372","PF27","Wyoming Lander FO",3
+"1373","PF33","California NorCal",2
+"1374","PF33","Nevada BMDO",1
+"1375","AF28","California NorCal",3
+"1376","AF28","Nevada BMDO",1
+"1377","AF28","Nevada SNDO",1
+"1378","AF28","Nevada Winnemucca ESR",1
+"1379","PF34","California NorCal",2
+"1380","PF34","Nevada BMDO",1
+"1381","PF34","Nevada Winnemucca ESR",1
+"1382","PF35","California NorCal",2
+"1383","PF35","Nevada BMDO",1
+"1384","PF35","Nevada Winnemucca ESR",1
+"1385","PF90","California NorCal",1
+"1386","PF90","Nevada BMDO",2
+"1387","CREPIS SP","Nevada Winnemucca ESR",1
+"1388","ERIGONUM SP.","Nevada Winnemucca ESR",1
+"1389","BRASS01","Nevada Winnemucca ESR",1
+"1390","PFO3","Nevada Winnemucca ESR",1
+"1391","SHO3","Nevada Winnemucca ESR",1
+"1392","GARAC","Nevada Winnemucca ESR",1
+"1393","CHAMA15AF","California Riverside East SEZ",4
+"1394","CHAMA15AF","Nevada CCDO",2
+"1395","CHAMA15AF","Nevada EYDO",4
+"1396","CHAMA15AF","Nevada SNDO",8
+"1397","CHAMA15AF","Washington Wenatchee  FO",1
+"1398","SH10","California NorCal",1
+"1399","SH10","Nevada CCDO",2
+"1400","SH10","Nevada SNDO",1
+"1401","SH10","Nevada Winnemucca ESR",1
+"1402","SH10","Nevada WMDO",1
+"1403","BRASS2AF","Idaho Bruneau FO",1
+"1404","BRASS2AF","Nevada CCDO",4
+"1405","BRASS2AF","Nevada EKDO",4
+"1406","DELPHPF","California NorCal",15
+"1407","DELPHPF","Washington Wenatchee  FO",8
+"1408","DELPHPF","Wyoming Lander FO",6
+"1409","ERIGE2SH","California NorCal",2
+"1410","LOMATPF","California NorCal",114
+"1411","LOMATPF","Idaho Bruneau FO",5
+"1412","LOMATPF","Nevada CCDO",1
+"1413","LOMATPF","Nevada EKDO",18
+"1414","LOMATPF","Nevada EYDO",4
+"1415","LOMATPF","Nevada WMDO",1
+"1416","LOMATPF","Washington Wenatchee  FO",19
+"1417","LOMATPF","Wyoming Lander FO",1
+"1418","PF78","California NorCal",3
+"1419","SH79","California NorCal",1
+"1420","PF74","California NorCal",2
+"1421","PG71","California NorCal",1
+"1422","AG07","California NorCal",1
+"1423","PF102","California NorCal",2
+"1424","PF102","Wyoming Lander FO",1
+"1425","PF103","California NorCal",2
+"1426","AF45","California NorCal",1
+"1427","PG23","California NorCal",2
+"1428","PG19","California NorCal",1
+"1429","PG19","New Mexico RGdNNM",2
+"1430","SH19","California NorCal",1
+"1431","CRHY","Nevada SNDO",3
+"1432","UNK LEGUME","Nevada SNDO",1
+"1433","unk1","Nevada SNDO",13
+"1434","GRXX","Nevada EKDO",1
+"1435","GRXX","Nevada SNDO",1
+"1436","SHXX","Nevada SNDO",1
+"1437","lin sp","Nevada SNDO",4
+"1438","dead shrub","Nevada SNDO",5
+"1439","cyrp sp","Nevada SNDO",4
+"1440","CHAENAC SP","Nevada SNDO",2
+"1441","ER sp","Nevada SNDO",2
+"1442","GILAT","Nevada SNDO",5
+"1443","LI sp","Nevada SNDO",1
+"1444","LIAU","Nevada SNDO",6
+"1445","LINE3","Nevada SNDO",3
+"1446","dead bush","Nevada SNDO",6
+"1447","SH12","California NorCal",2
+"1448","SH12","Nevada EYDO",1
+"1449","SH12","Nevada SNDO",1
+"1450","PG105","California NorCal",1
+"1451","PG105","Nevada Winnemucca ESR",1
+"1452","PG13","California NorCal",4
+"1453","PG13","Colorado San Luis Valley FO",1
+"1454","PG99","California NorCal",1
+"1455","PG99","Nevada Winnemucca ESR",1
+"1456","CRFC6","Colorado White River FO",3
+"1457","ERVO","Colorado White River FO",3
+"1458","CHNA2","Colorado White River FO",41
+"1459","MEAL2","Nevada Winnemucca ESR",1
+"1460","SAAU3","Colorado White River FO",1
+"1461","AGSP","Colorado White River FO",1
+"1462","AGSP","Nevada WMDO",2
+"1463","ARABI02","Colorado White River FO",7
+"1464","AG03","California NorCal",2
+"1465","AG03","Colorado White River FO",4
+"1466","AG03","Nevada EYDO",1
+"1467","GIPI","Colorado White River FO",1
+"1468","ACHNAPG01","Nevada EKDO",1
+"1469","MENTZAF02","Nevada EKDO",2
+"1470","PIGLE","Colorado White River FO",4
+"1471","KOAM","Colorado White River FO",2
+"1472","UUFF","Colorado White River FO",1
+"1473","CACH7","Colorado Gunnison FO",4
+"1474","CACH7","Colorado White River FO",1
+"1475","HYIV","Colorado White River FO",1
+"1476","SH05","California NorCal",2
+"1477","SH05","Colorado White River FO",2
+"1478","SH05","Nevada EKDO",1
+"1479","SH05","Nevada SNDO",2
+"1480","SH05","Nevada WMDO",2
+"1481","GILIAAF02","Nevada EKDO",1
+"1482","AF27","California NorCal",4
+"1483","AF27","Nevada BMDO",1
+"1484","AF27","Nevada SNDO",1
+"1485","AF27","Nevada Winnemucca ESR",3
+"1486","MIRABPF","California Riverside East SEZ",1
+"1487","MIRABPF","Nevada CCDO",1
+"1488","MIRABPF","Nevada SNDO",8
+"1489","SH15","Nevada SNDO",1
+"1490","CENTAAF01","Nevada EYDO",2
+"1491","PHACEFAF01","Nevada EYDO",1
+"1492","XYLORPF01","Nevada EYDO",3
+"1493","BRASSAF01","Nevada EYDO",1
+"1494","ECHIN2SUC01","Nevada EYDO",1
+"1495","ARISTPG01","Nevada EYDO",1
+"1496","CYMOP2PF","Nevada WMDO",23
+"1497","CYMOP2PF","Utah Grand Staircase Escalante NM",5
+"1498","CYMOP2PF","Wyoming Lander FO",2
+"1499","SYMPHSH","California NorCal",8
+"1500","SYMPHSH","Nevada WMDO",6
+"1501","SYMPHSH","Washington Wenatchee  FO",2
+"1502","AGOSEPF","California NorCal",2
+"1503","AGOSEPF","Nevada WMDO",2
+"1504","AGOSEPF","Washington Wenatchee  FO",6
+"1505","AGOSEPF","Wyoming Lander FO",1
+"1506","CIRSIAF","California NorCal",22
+"1507","CIRSIAF","Idaho Bruneau FO",1
+"1508","CIRSIAF","Nevada EKDO",2
+"1509","CIRSIAF","Nevada WMDO",5
+"1510","PRUNUSH","California NorCal",1
+"1511","PRUNUSH","Nevada WMDO",5
+"1512","HORDEPG","Nevada WMDO",2
+"1513","DELPHP","Nevada SNDO",1
+"1514","PLANTA","Nevada SNDO",1
+"1515","STEPHPF","Nevada WMDO",9
+"1516","TRIFOAF","California NorCal",1
+"1517","TRIFOAF","Nevada WMDO",1
+"1518","MALAC3AF","Nevada WMDO",2
+"1519","EUPHSP","Arizona Agua Fria NM",1
+"1520","UNKNOWN","Arizona Agua Fria NM",1
+"1521","OECE2","Nevada Winnemucca ESR",2
+"1522","AF200","Nevada Winnemucca ESR",4
+"1523","PF200","Nevada Winnemucca ESR",3
+"1524","SH200","Nevada Winnemucca ESR",3
+"1525","AG200","Nevada Winnemucca ESR",1
+"1526","PF121","California NorCal",1
+"1527","PF121","Nevada Winnemucca ESR",1
+"1528","AG101","Nevada Winnemucca ESR",1
+"1529","PF123","Nevada Winnemucca ESR",1
+"1530","PF123","Wyoming Lander FO",1
+"1531","EPILOA","Nevada Winnemucca ESR",9
+"1532","CERCOSH","Nevada BMDO",1
+"1533","SH54","Nevada BMDO",1
+"1534","SH14","Nevada SNDO",1
+"1535","PG91","Nevada BMDO",1
+"1536","AF2","Nevada Winnemucca ESR",5
+"1537","AF3","Nevada Winnemucca ESR",2
+"1538","PF2","Nevada Winnemucca ESR",5
+"1539","PF4","Nevada Winnemucca ESR",2
+"1540","ERIOG3","Nevada Winnemucca ESR",1
+"1541","SH1","Jackson Mountains",3
+"1542","SH1","Nevada Winnemucca ESR",1
+"1543","PG1","Nevada Winnemucca ESR",1
+"1544","SALSOAF","Nevada WMDO",7
+"1545","TETRA3SH","Nevada BMDO",1
+"1546","CALOCP","Nevada SNDO",1
+"1547","RUMEXP","Nevada SNDO",1
+"1548","RUMEXP","Nevada Winnemucca ESR",1
+"1549","PHACEPF","California NorCal",12
+"1550","PHACEPF","Nevada EKDO",1
+"1551","PHACEPF","Nevada WMDO",5
+"1552","PHACEPF","Washington Wenatchee  FO",1
+"1553","ENCELSH","Nevada SNDO",1
+"1554","PECTOAF","Nevada SNDO",2
+"1555","MENTZPF","California Riverside East SEZ",1
+"1556","MENTZPF","Nevada SNDO",2
+"1557","AG05","California NorCal",2
+"1558","AG05","Nevada SNDO",2
+"1559","AG05","Washington Wenatchee  FO",1
+"1560","CAULAPF","Nevada CCDO",1
+"1561","CAULAPF","Nevada EKDO",1
+"1562","SILENPF01","Nevada EKDO",1
+"1563","AF32","California NorCal",3
+"1564","AF32","Nevada Winnemucca ESR",2
+"1565","PPAA","Nevada Winnemucca ESR",1
+"1566","PF57","California NorCal",1
+"1567","PF57","Nevada Winnemucca ESR",1
+"1568","PF58","California NorCal",1
+"1569","PF58","Nevada Winnemucca ESR",1
+"1570","AF26","California NorCal",2
+"1571","AF26","Nevada Winnemucca ESR",1
+"1572","CHEX","Arizona Agua Fria NM",1
+"1573","CANU14","Colorado White River FO",2
+"1574","SIAL11","Colorado White River FO",2
+"1575","HYPA7","Utah Grand Staircase Escalante NM",1
+"1576","SATR13","Colorado White River FO",5
+"1577","MIMULAF","California NorCal",2
+"1578","MIMULAF","Nevada CCDO",1
+"1579","PF54","California NorCal",1
+"1580","PF54","Nevada Winnemucca ESR",1
+"1581","aggl","Nevada EKDO",2
+"1582","alliu","Nevada EKDO",2
+"1583","PPGG1","Nevada EKDO",6
+"1584","GISI2","Nevada EKDO",1
+"1585","BAHX","Nevada EKDO",1
+"1586","PPFF1","Nevada EKDO",2
+"1587","GREEN UNK","Nevada EYDO",1
+"1588","DAND","Nevada EYDO",1
+"1589","SPURGE","Nevada EYDO",1
+"1590","GREEN STICKY SMALL","Nevada EYDO",1
+"1591","UNK HAAC","Nevada EYDO",1
+"1592","UNK COMBSEED","Nevada EYDO",1
+"1593","UNK BALL SEED","Nevada EYDO",3
+"1594","UNKNOWN GRASS","Nevada EYDO",1
+"1595","UNK YELLOW BRASS","Nevada EYDO",1
+"1596","SHRUB CREOSOTE LOOK ALIKE","Nevada EYDO",1
+"1597","CRYPT03","Nevada EYDO",1
+"1598","ERIOG01 WHITE FLOWER RED SEPAL","Nevada EYDO",1
+"1599","LOMAT 01","Nevada EYDO",1
+"1600","LEPID01","Nevada EYDO",1
+"1601","TR02","California NorCal",1
+"1602","TR02","Nevada EYDO",1
+"1603","TR01","Nevada EYDO",1
+"1604","ERIOG02","Nevada EYDO",1
+"1605","SALIX SP","Nevada SNDO",1
+"1606","UNK SALT BUSH","Nevada SNDO",1
+"1607","DEAD TREE","Nevada SNDO",1
+"1608","UNK1","Nevada SNDO",1
+"1609","UNK3","Nevada SNDO",1
+"1610","OPER","Nevada SNDO",5
+"1611","UNK2","Nevada SNDO",2
+"1612","CA SP","Nevada SNDO",1
+"1613","SANDCRESS","Nevada SNDO",1
+"1614","CAAN","Nevada WMDO",1
+"1615","MINT","Nevada WMDO",1
+"1616","SHAG","Nevada WMDO",1
+"1617","PAGAB","Nevada WMDO",1
+"1618","ELSM","Nevada WMDO",1
+"1619","SPHAEPF","California NorCal",3
+"1620","ARNICPF","California NorCal",1
+"1621","GALIUPF","California NorCal",3
+"1622","GALIUPF","Washington Wenatchee  FO",1
+"1623","PF70","California NorCal",2
+"1624","PF70","Nevada Winnemucca ESR",1
+"1625","PRUNUTR","California NorCal",1
+"1626","ACHNAPG","California NorCal",2
+"1627","ACHNAPG","Nevada EYDO",2
+"1628","ACHNAPG","Utah Grand Staircase Escalante NM",1
+"1629","ACHNAPG","Washington Wenatchee  FO",7
+"1630","ACHNAPG","Wyoming Lander FO",1
+"1631","AMELASH","California NorCal",8
+"1632","SENECAF","California NorCal",6
+"1633","SILENPF","California NorCal",4
+"1634","SILENPF","Washington Wenatchee  FO",3
+"1635","TRIFOPF","California NorCal",5
+"1636","TRIFOPF","Wyoming Lander FO",1
+"1637","HESPE7AF","California NorCal",3
+"1638","PYRROPF","California NorCal",2
+"1639","PF63","California NorCal",4
+"1640","LINUMPF","California NorCal",1
+"1641","LINUMPF","Washington Wenatchee  FO",1
+"1642","FRITIPF","California NorCal",2
+"1643","HIERAPF","California NorCal",2
+"1644","PF61","California NorCal",3
+"1645","PF61","Wyoming Lander FO",3
+"1646","ARTEMPF","California NorCal",1
+"1647","ARTEMPF","Washington Wenatchee  FO",1
+"1648","BRODIPF","California NorCal",4
+"1649","BROMUAG","California NorCal",2
+"1650","BROMUAG","Washington Wenatchee  FO",12
+"1651","MADIAAF","California NorCal",4
+"1652","MADIAAF","Washington Wenatchee  FO",6
+"1653","VIOLAPF","California NorCal",1
+"1654","VIOLAPF","Wyoming Lander FO",1
+"1655","VULPIAG","California NorCal",4
+"1656","VULPIAG","Washington Wenatchee  FO",10
+"1657","CHORI2AF","California NorCal",1
+"1658","CHORI2AF","Washington Wenatchee  FO",1
+"1659","LOTUSAF","California NorCal",3
+"1660","LOTUSAF","California Riverside East SEZ",1
+"1661","LOTUSAF","Washington Wenatchee  FO",3
+"1662","RANUNPF","California NorCal",1
+"1663","LAGOPAF","California NorCal",3
+"1664","ARENAPF","California NorCal",8
+"1665","ARENAPF","Washington Wenatchee  FO",1
+"1666","JUNCUPG","California NorCal",1
+"1667","JUNCUPG","Washington Wenatchee  FO",2
+"1668","SIDALPF","California NorCal",3
+"1669","PF59","California NorCal",2
+"1670","PF62","California NorCal",3
+"1671","PF65","California NorCal",2
+"1672","ASTERAPF","California NorCal",24
+"1673","ASTERAPF","Nevada BMDO",1
+"1674","MELICPG","California NorCal",1
+"1675","PF85","California NorCal",2
+"1676","PF85","Wyoming Lander FO",1
+"1677","PG17","California NorCal",2
+"1678","PG17","New Mexico RGdNNM",1
+"1679","PG18","California NorCal",1
+"1680","ASTERAAF","California NorCal",10
+"1681","ASTERAAF","Nevada SNDO",5
+"1682","SH28","California NorCal",1
+"1683","PF81","California NorCal",2
+"1684","PF81","Wyoming Lander FO",1
+"1685","PG22","California NorCal",1
+"1686","PF84","California NorCal",2
+"1687","PFPF","Nevada Winnemucca ESR",7
+"1688","PFPF","Nevada WMDO",2
+"1689","CIRSIPF","California NorCal",6
+"1690","CIRSIPF","Idaho Bruneau FO",10
+"1691","CIRSIPF","Nevada EKDO",11
+"1692","CIRSIPF","Washington Wenatchee  FO",2
+"1693","CIRSIPF","Wyoming Lander FO",2
+"1694","MEAL12","Utah Grand Staircase Escalante NM",1
+"1695","CHENO1","Colorado White River FO",3
+"1696","POA1","Colorado White River FO",1
+"1697","AGAGAG","Nevada Winnemucca ESR",2
+"1698","PG14","California NorCal",2
+"1699","PF79","California NorCal",2
+"1700","PF79","Wyoming Lander FO",1
+"1701","PG78","California NorCal",1
+"1702","PG79","California NorCal",1
+"1703","AF34","California NorCal",3
+"1704","AG06","California NorCal",1
+"1705","PF72","California NorCal",1
+"1706","PF73","California NorCal",1
+"1707","PF97","California NorCal",1
+"1708","PF98","California NorCal",1
+"1709","PF141","California NorCal",2
+"1710","PF172","California NorCal",1
+"1711","PF172","Wyoming Lander FO",1
+"1712","PF173","California NorCal",1
+"1713","PF174","California NorCal",1
+"1714","PG28","California NorCal",1
+"1715","AG04","California NorCal",1
+"1716","AG04","Nevada EYDO",1
+"1717","AF85","California NorCal",1
+"1718","PF168","California NorCal",1
+"1719","PF168","Wyoming Lander FO",1
+"1720","AF90","California NorCal",1
+"1721","AF87","California NorCal",1
+"1722","AF88","California NorCal",1
+"1723","AF89","California NorCal",1
+"1724","PG15","California NorCal",1
+"1725","PG15","New Mexico RGdNNM",1
+"1726","PG15","Wyoming Lander FO",1
+"1727","PF64","California NorCal",1
+"1728","PF64","Wyoming Lander FO",1
+"1729","SH26","California NorCal",1
+"1730","PF66","California NorCal",1
+"1731","PF67","California NorCal",1
+"1732","PF67","Wyoming Lander FO",1
+"1733","PF68","California NorCal",1
+"1734","PF68","Wyoming Lander FO",1
+"1735","PF69","California NorCal",1
+"1736","PG16","California NorCal",1
+"1737","PF80","California NorCal",1
+"1738","PF82","California NorCal",1
+"1739","PF82","Wyoming Lander FO",2
+"1740","PF83","California NorCal",1
+"1741","PF86","California NorCal",1
+"1742","PF75","California NorCal",1
+"1743","PF159","California NorCal",1
+"1744","PF161","California NorCal",1
+"1745","PF162","California NorCal",1
+"1746","PF163","California NorCal",1
+"1747","PF164","California NorCal",1
+"1748","PF164","Wyoming Lander FO",1
+"1749","PF166","California NorCal",1
+"1750","PF166","Wyoming Lander FO",1
+"1751","PF167","California NorCal",1
+"1752","PF71","California NorCal",1
+"1753","PF36","California NorCal",1
+"1754","PF36","Wyoming Lander FO",1
+"1755","PF87","California NorCal",1
+"1756","PF88","California NorCal",1
+"1757","PF89","California NorCal",1
+"1758","PF91","California NorCal",1
+"1759","PF92","California NorCal",1
+"1760","PF92","Wyoming Lander FO",1
+"1761","PF93","California NorCal",1
+"1762","PF93","Wyoming Lander FO",3
+"1763","SH20","California NorCal",1
+"1764","PG25","California NorCal",1
+"1765","SH21","California NorCal",2
+"1766","PG26","California NorCal",1
+"1767","PF126","California NorCal",7
+"1768","PF127","California NorCal",1
+"1769","PF128","California NorCal",1
+"1770","PF129","California NorCal",1
+"1771","PF130","California NorCal",1
+"1772","PF131","California NorCal",1
+"1773","PF132","California NorCal",1
+"1774","PF133","California NorCal",1
+"1775","PF133","Wyoming Lander FO",1
+"1776","PF134","California NorCal",1
+"1777","SH22","California NorCal",1
+"1778","PF124","California NorCal",1
+"1779","PF94","California NorCal",1
+"1780","PF95","California NorCal",1
+"1781","PF95","Wyoming Lander FO",1
+"1782","PF96","California NorCal",1
+"1783","PF96","Wyoming Lander FO",1
+"1784","PG21","California NorCal",1
+"1785","PF137","California NorCal",1
+"1786","PF137","Wyoming Lander FO",1
+"1787","SH23","California NorCal",1
+"1788","SH24","California NorCal",1
+"1789","AF72","California NorCal",1
+"1790","PF136","California NorCal",1
+"1791","PF138","California NorCal",1
+"1792","PF139","California NorCal",1
+"1793","PF140","California NorCal",1
+"1794","PG29","California NorCal",1
+"1795","SH25","California NorCal",1
+"1796","PF142","California NorCal",1
+"1797","PF143","California NorCal",1
+"1798","PF144","California NorCal",1
+"1799","PF145","California NorCal",1
+"1800","PF145","Wyoming Lander FO",1
+"1801","PG30","California NorCal",1
+"1802","AF78","California NorCal",1
+"1803","AF80","California NorCal",1
+"1804","AF81","California NorCal",1
+"1805","PF146","California NorCal",2
+"1806","PF147","California NorCal",1
+"1807","PF147","Wyoming Lander FO",1
+"1808","PF148","California NorCal",1
+"1809","PF149","California NorCal",1
+"1810","PF152","California NorCal",1
+"1811","PF153","California NorCal",1
+"1812","PG27","California NorCal",1
+"1813","AF84","California NorCal",1
+"1814","PF154","California NorCal",1
+"1815","PF156","California NorCal",1
+"1816","PF157","California NorCal",1
+"1817","NAVARAF","California NorCal",5
+"1818","HELIA3PF","California NorCal",3
+"1819","PF201","California NorCal",1
+"1820","PF221","California NorCal",1
+"1821","PF222","California NorCal",1
+"1822","PF223","California NorCal",1
+"1823","PG209","California NorCal",1
+"1824","AF206","California NorCal",1
+"1825","PF224","California NorCal",1
+"1826","PG202","California NorCal",1
+"1827","PG202","Wyoming Lander FO",1
+"1828","AG203","California NorCal",5
+"1829","PF204","California NorCal",1
+"1830","PF225","California NorCal",1
+"1831","PF225","Wyoming Lander FO",1
+"1832","PF226","California NorCal",1
+"1833","SH202","California NorCal",1
+"1834","SH206","California NorCal",1
+"1835","SH214","California NorCal",1
+"1836","AF201","California NorCal",2
+"1837","AF207","California NorCal",1
+"1838","AG202","California NorCal",2
+"1839","PERIDPF","California NorCal",8
+"1840","PERIDPF","Washington Wenatchee  FO",2
+"1841","PG203","California NorCal",1
+"1842","PINUSTR","California NorCal",4
+"1843","POLYG4PF","California NorCal",1
+"1844","ASCLEPF","California NorCal",1
+"1845","ASCLEPF","Utah Grand Staircase Escalante NM",1
+"1846","PF227","California NorCal",1
+"1847","POLYG4AF","California NorCal",1
+"1848","POLYG4AF","Nevada EKDO",1
+"1849","POLYG4AF","Washington Wenatchee  FO",9
+"1850","PF207","California NorCal",1
+"1851","CLARKAF","California NorCal",5
+"1852","PACKEPF","California NorCal",8
+"1853","PF228","California NorCal",1
+"1854","PF229","California NorCal",1
+"1855","PG210","California NorCal",1
+"1856","PG210","Wyoming Lander FO",1
+"1857","SH210","California NorCal",6
+"1858","AF208","California NorCal",1
+"1859","PF230","California NorCal",1
+"1860","PF231","California NorCal",1
+"1861","PF232","California NorCal",1
+"1862","PF232","Wyoming Lander FO",5
+"1863","PF233","California NorCal",1
+"1864","PF233","Wyoming Lander FO",3
+"1865","AF211","California NorCal",3
+"1866","AF212","California NorCal",1
+"1867","AF213","California NorCal",1
+"1868","AF213","Wyoming Lander FO",1
+"1869","AF214","California NorCal",1
+"1870","AF215","California NorCal",1
+"1871","AF244","California NorCal",1
+"1872","BROMUPG","California NorCal",2
+"1873","HELIA3AF","California NorCal",1
+"1874","HELIA3AF","Wyoming Lander FO",1
+"1875","AF210","California NorCal",1
+"1876","PF209","California NorCal",1
+"1877","PF234","California NorCal",1
+"1878","PF235","California NorCal",1
+"1879","PF235","Wyoming Lander FO",1
+"1880","SH215","California NorCal",1
+"1881","PF236","California NorCal",1
+"1882","PF237","California NorCal",1
+"1883","PF238","California NorCal",1
+"1884","AF216","California NorCal",1
+"1885","AF217","California NorCal",1
+"1886","PF239","California NorCal",1
+"1887","PG211","California NorCal",1
+"1888","AF218","California NorCal",1
+"1889","AF219","California NorCal",1
+"1890","AF220","California NorCal",1
+"1891","AF221","California NorCal",1
+"1892","PF240","California NorCal",1
+"1893","PG212","California NorCal",1
+"1894","AF222","California NorCal",1
+"1895","AF223","California NorCal",1
+"1896","PF214","California NorCal",1
+"1897","PF215","California NorCal",1
+"1898","PF215","Wyoming Lander FO",3
+"1899","PF241","California NorCal",1
+"1900","PF242","California NorCal",1
+"1901","PF243","California NorCal",1
+"1902","OROBAAF","California NorCal",2
+"1903","PF244","California NorCal",1
+"1904","PF245","California NorCal",1
+"1905","AF205","California NorCal",3
+"1906","AF224","California NorCal",1
+"1907","NICOTAF","California NorCal",2
+"1908","PF246","California NorCal",1
+"1909","AF225","California NorCal",1
+"1910","AF226","California NorCal",1
+"1911","PF247","California NorCal",1
+"1912","PF248","California NorCal",1
+"1913","PG213","California NorCal",1
+"1914","AF227","California NorCal",1
+"1915","PF249","California NorCal",1
+"1916","PF250","California NorCal",1
+"1917","AF228","California NorCal",1
+"1918","AF229","California NorCal",1
+"1919","MACHAAF","California NorCal",1
+"1920","AF230","California NorCal",1
+"1921","PF251","California NorCal",1
+"1922","PF252","California NorCal",1
+"1923","AF231","California NorCal",1
+"1924","PF253","California NorCal",1
+"1925","PF217","California NorCal",3
+"1926","PF254","California NorCal",1
+"1927","PF255","California NorCal",1
+"1928","AF232","California NorCal",1
+"1929","SALIXSH","California NorCal",2
+"1930","SALIXSH","Utah Grand Staircase Escalante NM",1
+"1931","ELYMUPG","California NorCal",1
+"1932","PF218","California NorCal",1
+"1933","PF258","California NorCal",1
+"1934","SH212","California NorCal",1
+"1935","TR03","California NorCal",1
+"1936","AF233","California NorCal",1
+"1937","PF259","California NorCal",1
+"1938","AF234","California NorCal",2
+"1939","MACHAPF","California NorCal",1
+"1940","PG214","California NorCal",1
+"1941","AF235","California NorCal",1
+"1942","AF236","California NorCal",1
+"1943","AF237","California NorCal",1
+"1944","AF238","California NorCal",1
+"1945","AF239","California NorCal",1
+"1946","PG215","California NorCal",1
+"1947","SH216","California NorCal",1
+"1948","AF240","California NorCal",1
+"1949","AF241","California NorCal",1
+"1950","AF242","California NorCal",1
+"1951","AF243","California NorCal",1
+"1952","PF191","Nevada Winnemucca ESR",3
+"1953","AGAGA","Nevada Winnemucca ESR",1
+"1954","GALIUA","Nevada Winnemucca ESR",10
+"1955","AF183","Nevada Winnemucca ESR",3
+"1956","AF184","Nevada Winnemucca ESR",1
+"1957","AF185","Nevada Winnemucca ESR",2
+"1958","AG152","Nevada Winnemucca ESR",1
+"1959","JUNCUA","Nevada Winnemucca ESR",1
+"1960","PF185","Nevada Winnemucca ESR",2
+"1961","SILENP","Nevada Winnemucca ESR",2
+"1962","PG184","Nevada Winnemucca ESR",1
+"1963","SENECA","Nevada Winnemucca ESR",1
+"1964","SHPP","Nevada Winnemucca ESR",1
+"1965","PF188","Nevada Winnemucca ESR",2
+"1966","GALIUM","Nevada Winnemucca ESR",1
+"1967","ARABI2P","Nevada Winnemucca ESR",6
+"1968","PF187","Nevada Winnemucca ESR",2
+"1969","GERANP","Nevada Winnemucca ESR",1
+"1970","PF189","Nevada Winnemucca ESR",1
+"1971","SENECP","Nevada Winnemucca ESR",4
+"1972","AF186","Nevada Winnemucca ESR",2
+"1973","AF187","Nevada Winnemucca ESR",2
+"1974","PF190","Nevada Winnemucca ESR",3
+"1975","PF192","Nevada Winnemucca ESR",1
+"1976","SH168","Nevada Winnemucca ESR",1
+"1977","SH169","Nevada Winnemucca ESR",1
+"1978","SILENA","Nevada Winnemucca ESR",1
+"1979","AF180","Nevada Winnemucca ESR",3
+"1980","PF184","Nevada Winnemucca ESR",1
+"1981","SH158","Nevada Winnemucca ESR",3
+"1982","JUNCUP","Nevada Winnemucca ESR",3
+"1983","ELTR3","Nevada Winnemucca ESR",1
+"1984","AF181","Nevada Winnemucca ESR",1
+"1985","SH166","Nevada Winnemucca ESR",1
+"1986","TRIFOA","Nevada Winnemucca ESR",2
+"1987","PG156","Nevada Winnemucca ESR",1
+"1988","ALLIUA","Nevada Winnemucca ESR",1
+"1989","CIRSIA","Nevada Winnemucca ESR",2
+"1990","PG157","Nevada Winnemucca ESR",1
+"1991","CLAYTA","Nevada Winnemucca ESR",2
+"1992","PG158","Nevada Winnemucca ESR",1
+"1993","PG159","Nevada Winnemucca ESR",1
+"1994","ASTRA2P","Nevada Winnemucca ESR",1
+"1995","PF186","Nevada Winnemucca ESR",1
+"1996","AF188","Nevada Winnemucca ESR",1
+"1997","ERIOG2P","Nevada Winnemucca ESR",1
+"1998","PF183","Nevada Winnemucca ESR",1
+"1999","ERCOC13","Colorado White River FO",1
+"2000","HANU2","Colorado White River FO",10
+"2001","ORBA4","Colorado White River FO",3
+"2002","FOME","Colorado White River FO",1
+"2003","STJA3","Colorado White River FO",1
+"2004","DIST3","Colorado White River FO",1
+"2005","CECA11","Colorado White River FO",12
+"2006","TUGL","Colorado White River FO",2
+"2007","AMALU","Colorado White River FO",8
+"2008","LESQUPF","Wyoming Lander FO",1
+"2009","TRAGOAF","Wyoming Lander FO",8
+"2010","OXYTRPF","Wyoming Lander FO",2
+"2011","PF113","Wyoming Lander FO",1
+"2012","OESU3","Wyoming Lander FO",14
+"2013","POHU","Colorado White River FO",1
+"2014","ABBI3","Colorado White River FO",1
+"2015","ARCOP2","Colorado White River FO",1
+"2016","ELCA15","Colorado White River FO",1
+"2017","OSCH","Colorado White River FO",1
+"2018","DESO","Colorado White River FO",1
+"2019","AQFOF3","Colorado White River FO",1
+"2020","HESPM","Colorado White River FO",1
+"2021","ORHU2","Colorado White River FO",1
+"2022","PENST02","Colorado White River FO",1
+"2023","ARTRV2","Colorado White River FO",2
+"2024","BOLI6","Colorado White River FO",1
+"2025","LALAL","Colorado White River FO",1
+"2026","ORNI","Colorado White River FO",3
+"2027","28_PF_03","Colorado White River FO",2
+"2028","28_PG_02","Colorado White River FO",1
+"2029","BOPA14","Colorado White River FO",4
+"2030","ORFL3","Colorado White River FO",1
+"2031","DESCR","Colorado White River FO",1
+"2032","EPILOAF","Washington Wenatchee  FO",8
+"2033","EPILOAF","Wyoming Lander FO",1
+"2034","OENOTAF","Wyoming Lander FO",1
+"2035","PG200","Wyoming Lander FO",1
+"2036","SOLIDAF","Wyoming Lander FO",2
+"2037","PF206","Wyoming Lander FO",5
+"2038","CAREXPS","Wyoming Lander FO",3
+"2039","LEPTO22AF","Wyoming Lander FO",2
+"2040","DRABAAF","Washington Wenatchee  FO",2
+"2041","DRABAAF","Wyoming Lander FO",3
+"2042","SENECPF","California NorCal",2
+"2043","SENECPF","Nevada EKDO",2
+"2044","SENECPF","Wyoming Lander FO",1
+"2045","CAMELAF","Wyoming Lander FO",2
+"2046","brja","California Applegate FO",2
+"2047","SILENAF","Wyoming Lander FO",3
+"2048","GERANPF","Wyoming Lander FO",1
+"2049","CALAMPG","Wyoming Lander FO",1
+"2050","HEUCHPF","Wyoming Lander FO",1
+"2051","PF169","Wyoming Lander FO",1
+"2052","PF170","Wyoming Lander FO",1
+"2053","TARAXPF","Wyoming Lander FO",3
+"2054","LINAN2AF","Nevada SNDO",1
+"2055","POCA","California Applegate FO",16
+"2056","BRASSIAF","California NorCal",4
+"2057","BRASSIAF","Nevada SNDO",4
+"2058","LOASACAF","Nevada SNDO",1
+"2059","BORAGIAF","California NorCal",1
+"2060","BORAGIAF","Nevada SNDO",2
+"2061","POLYGOAF","Nevada SNDO",4
+"2062","ONAGRAAF","Nevada SNDO",1
+"2063","CARYOPAF","Nevada SNDO",1
+"2064","POACEAPG","Nevada EKDO",4
+"2065","POACEAPG","Nevada SNDO",2
+"2066","POACEAPG","Nevada WMDO",2
+"2067","SSSH","New Mexico RGdNNM",1
+"2068","PG20","New Mexico RGdNNM",1
+"2069","SACYH2","Arizona Agua Fria NM",1
+"2070","UNK CRYPT1","Nevada SNDO",1
+"2071","AAGG2","Nevada EKDO",1
+"2072","UNKNOWN LOW SAGE THING","Nevada EYDO",1
+"2073","AF8","Jackson Mountains",1
+"2074","AF9","Jackson Mountains",1
+"2075","AF202","California NorCal",1
+"2076","AF209","California NorCal",1
+"2077","PF256","California NorCal",1
+"2078","PF257","California NorCal",1
+"2079","AF179","Nevada Winnemucca ESR",1
+"2080","SISA7","Colorado White River FO",1
+"2081","CLSC2","Colorado San Luis Valley FO 2015 GUSG Ha",2
+"2082","OENOTPF","Wyoming Lander FO",1
+"2083","RUMEXPF","Wyoming Lander FO",1
+"2084","AMBROAF","Wyoming Lander FO",1
+"2085","SPOROPG","Wyoming Lander FO",1
+"2086","POLYGAF","Utah Grand Staircase Escalante NM",1
+"2087","LATHYPF","Utah Grand Staircase Escalante NM",1
+"2088","GUSU2","Colorado Tres Rios FO",1
+"2089","SIHY","Colorado Grand Junction FO",2
+"2090","COPAR","California Applegate FO",4
+"2091","ARLUSS","Colorado Uncompagre FO",1
+"2092","ATCAZ","Colorado Tres Rios FO",1
+"2093","ALOPEPG","Washington Wenatchee  FO",2
+"2094","LITHO2PF","Washington Wenatchee  FO",2
+"2095","SAXIFPF","Washington Wenatchee  FO",2
+"2096","ANTENPCOPA3","Washington Wenatchee  FO",1
+"2097","CONVOPF","Washington Wenatchee  FO",1
+"2098","GAYOPAF","Washington Wenatchee  FO",8
+"2099","SELAGPF","Washington Wenatchee  FO",4
+"2100","WOODSPF","Washington Wenatchee  FO",5
+"2101","POAPG","California NorCal",1
+"2102","POAPG","Washington Wenatchee  FO",11
+"2103","SOLIDPF","Washington Wenatchee  FO",1
+"2104","STEPHAF","Washington Wenatchee  FO",1
+"2105","SAMBUSH","Washington Wenatchee  FO",1
+"2106","CRAF08","Washington Wenatchee  FO",1
+"2107","HACKEAF","Washington Wenatchee  FO",2
+"2108","AMLA6","Colorado Gunnison FO",6
+"2109","CARSIC","Colorado Gunnison FO",1
+"2110","SEDUMPF","Washington Wenatchee  FO",2
+"2111","CAREXPG","Nevada EKDO",2
+"2112","CAREXPG","Washington Wenatchee  FO",2
+"2113","CENTAAF","Washington Wenatchee  FO",1
+"2114","RUMEXAF","Washington Wenatchee  FO",2
+"2115","FILAGAF","Washington Wenatchee  FO",1
+"2116","GAILLPF","Washington Wenatchee  FO",1
+"2117","LATHYAF","Washington Wenatchee  FO",3
+"2118","MYOSOAF","Washington Wenatchee  FO",3
+"2119","TRISEPG","Washington Wenatchee  FO",1
+"2120","ARTEMAF","Washington Wenatchee  FO",1
+"2121","POTENPF","Nevada EKDO",1
+"2122","POTENPF","Nevada WMDO",1
+"2123","POTENPF","Washington Wenatchee  FO",1
+"2124","PAVIM2","Colorado Gunnison FO",1
+"2125","TRPR","Colorado Gunnison FO",2
+"2126","ERYSIAF","Washington Wenatchee  FO",1
+"2127","PVUMI","Washington Wenatchee  FO",1
+"2128","AMARAAF","Washington Wenatchee  FO",2
+"2129","COMANPF","Washington Wenatchee  FO",1
+"2130","OROBAPF","Washington Wenatchee  FO",1
+"2131","BALSAPF","Washington Wenatchee  FO",1
+"2132","EPILOPF","Washington Wenatchee  FO",1
+"2133","DELPHDRVE2","Washington Wenatchee  FO",1
+"2134","ASTERA","Nevada CCDO",2
+"2135","ASTERA","Nevada EKDO",1
+"2136","ASTRASH","California NorCal",2
+"2137","ASTRASH","Nevada EKDO",1
+"2138","APIACE","Nevada EKDO",1
+"2139","CACTAC","Nevada EKDO",1
+"2140","BRASSPF","Nevada WMDO",2
+"2141","AGROPF","Nevada WMDO",1
+"2142","FUNGI","Alaska NPR-A",2
+"2143","2LV","Alaska NPR-A",2
+"2144","2LW1","Alaska NPR-A",2
+"2145","CAREX 1","Alaska NPR-A",4
+"2146","MOSS 1","Alaska NPR-A",2
+"2147","MOSS 2","Alaska NPR-A",2
+"2148","MOSS 4","Alaska NPR-A",2
+"2149","MOSS2","Alaska NPR-A",2
+"2150","MOSS3","Alaska NPR-A",2
+"2151","EPLA2","Alaska NPR-A",2
+"2152","EQUIS 1","Alaska NPR-A",2
+"2153","POA 1","Alaska NPR-A",4
+"2154","POA 2","Alaska NPR-A",2
+"2155","POA 3","Alaska NPR-A",2
+"2156","POA 4","Alaska NPR-A",2
+"2157","STELLARIA 1","Alaska NPR-A",2
+"2158","2LC","Alaska NPR-A",4
+"2159","2LW","Alaska NPR-A",4
+"2160","BRYORIA","Alaska NPR-A",2
+"2161","NEPHROMA","Alaska NPR-A",2
+"2162","SMPO","Alaska NPR-A",4
+"2163","POSUB","Alaska NPR-A",9
+"2164","AF527","California NorCal",2
+"2165","HACY2","Colorado Gunnison FO",1
+"2166","JUARA4","Colorado Gunnison FO",1
+"2167","OECAIO","Colorado Gunnison FO",1
+"2168","CHFE5","Colorado Gunnison FO",1
+"2169","EUPHORAF","California NorCal",1
+"2170","PPSU","California NorCal",1
+"2171","SPOROAG","California NorCal",2
+"2172","BRASSIPF","California NorCal",1
+"2173","POLEMOPF","California NorCal",1
+"2174","PF401","California NorCal",1
+"2175","PF402","California NorCal",1
+"2176","PF403","California NorCal",1
+"2177","AF407","California NorCal",1
+"2178","AG402","California NorCal",1
+"2179","ALLIUAF","California NorCal",3
+"2180","AF401","California NorCal",3
+"2181","PF404","California NorCal",2
+"2182","PF405","California NorCal",1
+"2183","PF406","California NorCal",1
+"2184","PF410","California NorCal",2
+"2185","AF402","California NorCal",2
+"2186","AF403","California NorCal",1
+"2187","AG406","California NorCal",1
+"2188","PF413","California NorCal",1
+"2189","PF414","California NorCal",2
+"2190","SH402","California NorCal",1
+"2191","AF405","California NorCal",1
+"2192","AF415","California NorCal",1
+"2193","PF415","California NorCal",2
+"2194","AG403","California NorCal",1
+"2195","AG404","California NorCal",2
+"2196","PF417","California NorCal",1
+"2197","SH401","California NorCal",1
+"2198","AF408","California NorCal",1
+"2199","AF409","California NorCal",1
+"2200","AG405","California NorCal",1
+"2201","PF411","California NorCal",1
+"2202","PF412","California NorCal",1
+"2203","SDELEL5","California NorCal",1
+"2204","SDPSSP6","California NorCal",1
+"2205","COLLOAF","California NorCal",4
+"2206","ROSA5SH","California NorCal",1
