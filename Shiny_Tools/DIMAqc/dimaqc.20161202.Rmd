@@ -249,7 +249,7 @@ Just because an observer's average results are not statistically equivalent to o
 
 ### Within-Crew Equivalence for LPI Indicators 
 
-```{r crewLPI, echo=FALSE}
+```{r crewLPI, echo=FALSE, fig.width=9}
 ###################################################################################
 ## Crew-based Analyses
 ###################################################################################
@@ -280,7 +280,7 @@ if(nrow(observers.com>1)) {
 ```
 
 ### Within-Crew Equivalence for Vegetation Height Indicators 
-```{r crewHt, echo=FALSE}
+```{r crewHt, echo=FALSE, fig.width=9}
 if (nrow(observers.com)>1) {
   ht.equiv <- equivTest("Woody Height",data.lpi[,c("Observer.LPI","avgHeightWoody")],rhs=mean(data.lpi$avgHeightWoody)*0.2)
   ht.equiv <- rbind(ht.equiv,equivTest("Herbaceous Height",data.lpi[,c("Observer.LPI","avgHeightHerb")],rhs=mean(data.lpi$avgHeightHerb)*0.2))
@@ -296,7 +296,7 @@ if(nrow(observers.com>1)) {
 ```
 
 ### Within-Crew Equivalence for Canopy Gap Indicators
-```{r crewGap, echo=FALSE}
+```{r crewGap, echo=FALSE, fig.width=9}
 # Filter the Gap observers and run analyses
 observers <- data.sub %>% group_by(Observer.Gap) %>% summarise(n=n())
 observers.com <- observers %>% filter(n>=5 & !is.na(Observer.Gap))
@@ -319,7 +319,7 @@ if(nrow(observers.com>1)) {
 ```
 
 ### Within-Crew Equivalence for Soil Stability Indicators
-```{r crewSoil, echo=FALSE}
+```{r crewSoil, echo=FALSE, fig.width=9}
 observers <- data.soil.sub %>% group_by(Observer.Soil) %>% summarise(n=n())
 observers.com <- observers %>% filter(n>=3& !is.na(Observer.Soil))
 
