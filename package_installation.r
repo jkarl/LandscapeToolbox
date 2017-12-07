@@ -25,6 +25,7 @@ install.packages(
 install.packages(
   c(
     "sp", ## Functions for manipulating spatial objects. If you want a Spatial _____ Data Frame, this is part of the deal
+    "spdplyr", ## Extensions so that dplyr can operate on spatial objects
     "spsurvey", ## Contains plenty, but the most important to AIM is the GRTS function
     "rgeos", ## Additional spatial object functions
     "rgdal", ## Contains the mission critical readOGR() function that we read shapefiles in with
