@@ -3,8 +3,13 @@ File: Master_GRTS_Draw_10ha.R
 Author: Jason Karl, USDA-ARS Jornada
 Contact: jkarl@nmsu.edu; 575-646-1301
 Date: 14 October 2015
-Description: Selection of master sample locations at a density of 1 point per 10ha for
-              all BLM lands in the 11 western states plus the Dakotas.
+Description: Selection of master sample locations at a density of 1 point per 35ha for
+              all BLM lands in the 11 western states plus the Dakotas. Points were initially selected
+			  at a density of 1 point per 10ha, and then resampled to be about 2 million points overall
+			  for the terrestrial master sample due to processing limitations. This yielded a sample of
+			  about 1 point per 35 ha. Generation of the points was done within 100kmx100km tiles that
+			  were clipped to BLM lands, and the tiled points were merged prior to running a spatially-balanced
+			  reordering of the points using GRTS.
 Dependencies: 
     R packages:
         spsurvey - GRTS point selection
